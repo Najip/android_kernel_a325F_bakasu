@@ -16,7 +16,7 @@ def git(*args: str) -> str:
 def replace_block(path: Path, lines: list[str]) -> None:
     text = path.read_text(encoding="utf-8")
     block = START + "\n" + "\n".join(lines) + "\n" + END
-    pattern = re.compile(re.escape(START) + r".*?" + re.escape(END), re.S)
+    pattern = re.compile(re.escape(START) + r".*?" + re.escape(END), re.DOTALL)
     if not pattern.search(text):
         raise SystemExit(f"missing BakaSU auto block in {path.name}")
     path.write_text(pattern.sub(block, text, count=1), encoding="utf-8")

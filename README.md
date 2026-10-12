@@ -22,14 +22,14 @@ Other SM-A325 regional variants may be compatible because they share the same ba
 
 <!-- AUTO:BAKASU:START -->
 - BakaSU `v4.2.0-rc3`
-- BakaSU kernel version code `35212`
-- BakaSU commit [`e5423590`](https://github.com/Baka-SU/BakaSU/commit/e5423590bec3e24daffa4e9555c9592071319c68)
+- BakaSU kernel version code `35226`
+- BakaSU commit [`f6cb7e70`](https://github.com/Baka-SU/BakaSU/commit/f6cb7e70c10ebde149f3121ae68b945514fd0801)
 <!-- AUTO:BAKASU:END -->
 - SUSFS `v2.3.0`
 - KernelSU multi-manager support
 - BakaSU SUSFS inline-hook integration for this non-GKI Linux 4.14 tree (KProbes/Kretprobes remain enabled for compatibility)
 - SELinux enforcing
-- NoMount `v2.0.0` built-in path redirection and virtual file injection
+- NoMount `v2.1.0` built-in path redirection and virtual file injection
 - SUSFS mount hiding
 - SUSFS path hiding
 - SUSFS kstat spoofing
@@ -148,7 +148,7 @@ This project would not have been possible without the work of the following proj
 
 - [simonpunk/susfs4ksu](https://gitlab.com/simonpunk/susfs4ksu)
 
-  SUSFS and its original kernel patches are developed and maintained by Simonpunk. This kernel includes a Linux 4.14 port based on SUSFS v2.3.0.
+  SUSFS and its original kernel patches are developed and maintained by Simonpunk. This kernel includes a Linux 4.14 port based on SUSFS v2.3.0. The patch reference is pinned to NonGKI_Kernel_Build_2nd commit `b5d7e5be60398f040b9e9919186c410c01a228da`, with the upstream `clone_mnt()` race fix from Simonpunk commit `f3b5aecf53ff8b3296603071b91383f6be6c7cbb` and A32 compatibility fixes retained.
 
 - [JackA1ltman/NonGKI_Kernel_Build_2nd](https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd)
 
@@ -158,7 +158,7 @@ This project would not have been possible without the work of the following proj
 
 - [maxsteeel/nomount](https://github.com/maxsteeel/nomount)
 
-  NoMount provides mountless path redirection and virtual file injection. This kernel includes the upstream NoMount v2.0.0 kernel implementation as a built-in subsystem for the Linux 4.14 device tree.
+  NoMount provides mountless path redirection and virtual file injection. This kernel includes the upstream NoMount v2.1.0 kernel implementation as a built-in subsystem for the Linux 4.14 device tree. The source is pinned to commit `c7f63e3feb4125d591b6969a33aac04feb40f8ba` and reports driver version `21-500`. Use the matching NoMount v2.1.0 metamodule and CLI.
 
 ### AnyKernel3
 
@@ -177,7 +177,7 @@ This repository contains device-specific integration and compatibility work, inc
 - BakaSU SUSFS sucompat runtime handling for `execve`, post-exec SU sessions, `faccessat`, and stat-family lookups
 - Refreshed SUSFS v2.3.0 kstat/statfs, inotify, proc-fd, mount-hiding, open-redirect, and map-spoofing integration based on the current non-GKI 4.14 reference patches
 - A32-specific fixes for post-exec boot hangs, kstat flag collisions, statfs spoof return handling, readlink/open-redirect semantics, mount reference handling, and SUSFS allocation failure paths
-- NoMount v2.0.0 built-in integration with mountless path redirection and virtual file injection
+- NoMount v2.1.0 built-in integration with mountless path redirection and virtual file injection
 - Samsung and MediaTek compatibility adjustments
 - Mount ID normalization for zygote namespaces
 - Mount peer-group filtering fixes
