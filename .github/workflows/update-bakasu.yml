@@ -58,20 +58,16 @@ jobs:
 
           short="$(git -C KernelSU rev-parse --short=8 HEAD)"
           desc="$(git -C KernelSU describe --tags --always)"
-          base_tag="$(git -C KernelSU describe --tags --abbrev=0 2>/dev/null || echo bakasu)"
           count="$(git -C KernelSU rev-list --count HEAD)"
           code="$((30700 + count))"
-          release_tag="${base_tag}-${code}"
 
           echo "updated=$updated" >> "$GITHUB_OUTPUT"
           echo "short=$short" >> "$GITHUB_OUTPUT"
           echo "desc=$desc" >> "$GITHUB_OUTPUT"
           echo "code=$code" >> "$GITHUB_OUTPUT"
-          echo "release_tag=$release_tag" >> "$GITHUB_OUTPUT"
 
           echo "BakaSU: $desc"
           echo "Version code: $code"
-          echo "Kernel release tag: $release_tag"
 
       - name: Sync README metadata
         id: readme
@@ -110,7 +106,6 @@ jobs:
         if: steps.ksu.outputs.updated == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ steps.ksu.outputs.release_tag }}
         shell: bash
         run: |
           set -euo pipefail
@@ -122,10 +117,8 @@ jobs:
 
           echo "Dispatching kernel.yml on common"
           echo "publish_release=$publish"
-          echo "release_tag=$RELEASE_TAG"
 
           gh workflow run kernel.yml \
             --repo "$GITHUB_REPOSITORY" \
             --ref common \
-            -f publish_release="$publish" \
-            -f release_tag="$RELEASE_TAG"
+            -f publish_release="$publish"

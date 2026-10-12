@@ -1,4 +1,4 @@
-name: A325N Kernel
+name: A325X Kernel
 
 on:
   push:
@@ -13,11 +13,6 @@ on:
         required: false
         type: boolean
         default: false
-      release_tag:
-        description: 'Release tag for manual publish (example: v4.2.0-35072)'
-        required: false
-        type: string
-        default: ''
 
 permissions:
   contents: read
@@ -36,7 +31,9 @@ env:
 
 jobs:
   build:
-    name: Build A325N kernel
+    name: Build A325X kernel
+    outputs:
+      release_tag: ${{ steps.version.outputs.release_tag }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
 
@@ -58,6 +55,18 @@ jobs:
               git fetch --tags --force
             fi
           '
+
+      - name: Resolve BakaSU version and release tag
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          base_tag="$(git -C KernelSU describe --tags --abbrev=0)"
+          count="$(git -C KernelSU rev-list --count HEAD)"
+          code="$((30700 + count))"
+          tag="${base_tag}-${code}"
+          echo "release_tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "BakaSU release tag: $tag"
 
       - name: Install build dependencies
         shell: bash
@@ -240,6 +249,8 @@ jobs:
             "$OUT_DIR/arch/arm64/boot/Image.gz"
 
       - name: Package AnyKernel ZIP
+        env:
+          BAKASU_RELEASE_TAG: ${{ steps.version.outputs.release_tag }}
         shell: bash
         run: |
           set -euo pipefail
@@ -299,6 +310,7 @@ jobs:
           Kernel commit: $kernel_sha
           Kernel short: $kernel_short
           Kernel release: $kernel_release
+          BakaSU release tag: $BAKASU_RELEASE_TAG
           BakaSU commit: $ksu_sha
           BakaSU describe: $ksu_desc
           BakaSU version code: $ksu_code
@@ -347,17 +359,15 @@ jobs:
 
       - name: Resolve release tag
         id: tag
+        env:
+          AUTO_RELEASE_TAG: ${{ needs.build.outputs.release_tag }}
         shell: bash
         run: |
           set -euo pipefail
           if [[ "$GITHUB_REF" == refs/tags/* ]]; then
             tag="$GITHUB_REF_NAME"
           else
-            tag='${{ inputs.release_tag }}'
-            if [ -z "$tag" ]; then
-              echo '::error::release_tag is required when publish_release is enabled manually.'
-              exit 1
-            fi
+            tag="${AUTO_RELEASE_TAG:?BakaSU release tag is missing from the build output}"
           fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
