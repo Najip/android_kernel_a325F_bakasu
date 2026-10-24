@@ -1108,11 +1108,6 @@ static noinline int avc_denied(struct selinux_state *state,
 // ] SEC_SELINUX_PORTING_COMMON
 
   // SEC_SELINUX_PORTING_COMMON Change to use RKP
-	if (unlikely(READ_ONCE(selinux_enforcing) != enforcing_enabled(state)))
-		pr_warn_ratelimited("SELinuxDBG: enforcing mismatch state=%d legacy=%d ssid=%u tsid=%u tclass=%u requested=0x%x avd_flags=0x%x\n",
-				    enforcing_enabled(state), READ_ONCE(selinux_enforcing),
-				    ssid, tsid, tclass, requested, avd->flags);
-
 	if (enforcing_enabled(state) &&
 	    !(avd->flags & AVD_FLAGS_PERMISSIVE))
 		return -EACCES;
