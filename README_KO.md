@@ -6,6 +6,8 @@ Samsung MT6768 커널 소스를 기반으로 **BakaSU**와 **SUSFS**를 통합�
 
 [English README](README.md)
 
+> **BakaSU 임시 브랜치:** Simonpunk가 현재 BakaSU/KernelSU 변경과 호환되도록 SUSFS를 업데이트하기 전까지, 이 프로젝트는 BakaSU의 `main` 대신 `sync-susfs` 브랜치를 사용합니다. 자동 업데이트도 `.gitmodules`에 지정된 브랜치를 따릅니다.
+
 ## 지원 기기
 
 - 기기: Samsung Galaxy A32 4G
@@ -22,14 +24,14 @@ Samsung MT6768 커널 소스를 기반으로 **BakaSU**와 **SUSFS**를 통합�
 
 <!-- AUTO:BAKASU:START -->
 - BakaSU `v4.2.0-rc3`
-- BakaSU 커널 버전 코드 `35237`
-- BakaSU 커밋 [`39faf94a`](https://github.com/Baka-SU/BakaSU/commit/39faf94a2d4a40d48093398bafcde649916edbc1)
+- BakaSU 커널 버전 코드 `35241`
+- BakaSU 커밋 [`10cada74`](https://github.com/Baka-SU/BakaSU/commit/10cada74698ccf7eed04d0e38bc7d624e5f54395)
 <!-- AUTO:BAKASU:END -->
 - SUSFS `v2.3.0`
 - KernelSU 멀티 매니저 지원
 - 이 Non-GKI Linux 4.14 트리를 위한 BakaSU SUSFS inline-hook 통합(KProbes/Kretprobes는 호환성을 위해 활성화)
 - SELinux Enforcing
-- NoMount `v2.1.0` 내장형 경로 리다이렉션 및 가상 파일 주입
+- NoMount `v2.2.0` 내장형 경로 리다이렉션 및 가상 파일 주입
 - SUSFS 마운트 숨김
 - SUSFS 경로 숨김
 - SUSFS kstat 위조
@@ -148,7 +150,7 @@ arch/arm64/configs/a325n-release.config
 
 - [simonpunk/susfs4ksu](https://gitlab.com/simonpunk/susfs4ksu)
 
-  SUSFS와 원본 커널 패치는 Simonpunk가 개발하고 관리합니다. 이 커널에는 SUSFS v2.3.0을 기반으로 한 Linux 4.14 포팅이 포함되어 있습니다. 패치 참고 기준은 NonGKI_Kernel_Build_2nd 커밋 `b5d7e5be60398f040b9e9919186c410c01a228da`에 고정했으며, Simonpunk 커밋 `f3b5aecf53ff8b3296603071b91383f6be6c7cbb`의 `clone_mnt()` 레이스 수정과 A32 호환성 수정을 포함합니다.
+  SUSFS와 원본 커널 패치는 Simonpunk가 개발하고 관리합니다. 기존 SUSFS 통합을 제거한 뒤 JackA1ltman/NonGKI_Kernel_Build_2nd 커밋 `dcd789634247c77d8549a42aef232c680a905585`의 Linux 4.14 패치로 다시 구성했습니다(SUSFS v2.3.0, `118ac2b`의 clone_mnt 수정 포함). Samsung 4.14 API 호환성과 검토한 수명·오류 경로 수정만 별도로 적용했습니다. 이 non-GKI 커널의 SELinux hide는 BakaSU가 처리합니다.
 
 - [JackA1ltman/NonGKI_Kernel_Build_2nd](https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd)
 
@@ -158,7 +160,7 @@ arch/arm64/configs/a325n-release.config
 
 - [maxsteeel/nomount](https://github.com/maxsteeel/nomount)
 
-  NoMount는 별도의 파일시스템 마운트 없이 경로 리다이렉션과 가상 파일 주입 기능을 제공합니다. 이 커널에는 Linux 4.14 기기 트리에 맞춰 업스트림 NoMount v2.1.0 커널 구현이 built-in 서브시스템으로 통합되어 있습니다. 소스는 커밋 `c7f63e3feb4125d591b6969a33aac04feb40f8ba`에 고정되어 있으며 드라이버 버전은 `21-500`으로 표시됩니다. 일치하는 NoMount v2.1.0 메타모듈과 CLI를 사용하세요.
+  NoMount는 별도의 파일시스템 마운트 없이 경로 리다이렉션과 가상 파일 주입 기능을 제공합니다. 이 커널에는 Linux 4.14 기기 트리에 맞춰 업스트림 NoMount v2.2.0 커널 구현이 built-in 서브시스템으로 통합되어 있습니다. 소스는 커밋 `bf1847f98fed382369c43bfd652cd93774b9b8e3`에 고정되어 있으며 드라이버 버전은 `22 (605)`으로 표시됩니다. 일치하는 NoMount v2.2.0 메타모듈과 CLI를 사용하세요. 프로토콜 v22는 이전 v21 도구와 호환되지 않습니다.
 
 ### AnyKernel3
 
@@ -176,8 +178,8 @@ Linux, Android, Samsung 커널, KernelSU, BakaSU, SUSFS 및 AnyKernel3의 모든
 - Linux 4.14용 SUSFS v2.3.0 백포트
 - `execve`, post-exec SU session, `faccessat` 및 stat 계열 조회를 위한 BakaSU SUSFS sucompat 런타임 처리
 - 최신 Non-GKI 4.14 참고 패치를 기반으로 갱신한 SUSFS v2.3.0 kstat/statfs, inotify, proc-fd, mount hiding, open redirect 및 map spoofing 통합
-- post-exec 부트 멈춤, kstat 플래그 충돌, statfs spoof 반환 처리, readlink/open-redirect 의미론, mount reference 처리 및 SUSFS allocation failure 경로에 대한 A32 전용 버그 수정
-- 마운트 없는 경로 리다이렉션과 가상 파일 주입을 제공하는 NoMount v2.1.0 built-in 통합
+- Samsung 4.14의 KDP mount 구조·VFS 시그니처·분리된 smaps 처리 호환성 및 성공한 exec의 SU 세션 처리, NULL filename 보호, mount ID 소유권·할당 실패 수정
+- 마운트 없는 경로 리다이렉션과 가상 파일 주입을 제공하는 NoMount v2.2.0 built-in 통합
 - Samsung 및 MediaTek 호환성 수정
 - `/proc/cmdline` 위조 안정성 수정
 - 구형 네트워크, 메모리 관리 및 커널 API 호환성 수정

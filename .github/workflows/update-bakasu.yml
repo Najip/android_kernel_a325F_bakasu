@@ -35,15 +35,18 @@ jobs:
           submodules: recursive
           persist-credentials: true
 
-      - name: Check BakaSU main
+      - name: Check BakaSU tracked branch
         id: ksu
         shell: bash
         run: |
           set -euo pipefail
 
           current="$(git -C KernelSU rev-parse HEAD)"
-          git -C KernelSU fetch origin main --tags --force
-          latest="$(git -C KernelSU rev-parse origin/main)"
+          ksu_branch="$(git config -f .gitmodules --get submodule.KernelSU.branch)"
+          git check-ref-format --branch "$ksu_branch" >/dev/null
+          git -C KernelSU fetch origin "+refs/heads/$ksu_branch:refs/remotes/origin/$ksu_branch" --tags
+          latest="$(git -C KernelSU rev-parse "refs/remotes/origin/$ksu_branch^{commit}")"
+          echo "Tracked BakaSU branch: $ksu_branch"
 
           echo "Current: $current"
           echo "Latest : $latest"

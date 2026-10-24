@@ -6,6 +6,8 @@ This kernel is intended for the SM-A325 family, including regional variants such
 
 [한국어 README](README_KO.md)
 
+> **Temporary BakaSU branch:** Until Simonpunk updates SUSFS to support the current BakaSU/KernelSU changes, this project uses BakaSU's `sync-susfs` branch instead of `main`. The automatic updater follows the branch configured in `.gitmodules`.
+
 ## Device Support
 
 - Device: Samsung Galaxy A32 4G
@@ -22,14 +24,14 @@ Other SM-A325 regional variants may be compatible because they share the same ba
 
 <!-- AUTO:BAKASU:START -->
 - BakaSU `v4.2.0-rc3`
-- BakaSU kernel version code `35237`
-- BakaSU commit [`39faf94a`](https://github.com/Baka-SU/BakaSU/commit/39faf94a2d4a40d48093398bafcde649916edbc1)
+- BakaSU kernel version code `35241`
+- BakaSU commit [`10cada74`](https://github.com/Baka-SU/BakaSU/commit/10cada74698ccf7eed04d0e38bc7d624e5f54395)
 <!-- AUTO:BAKASU:END -->
 - SUSFS `v2.3.0`
 - KernelSU multi-manager support
 - BakaSU SUSFS inline-hook integration for this non-GKI Linux 4.14 tree (KProbes/Kretprobes remain enabled for compatibility)
 - SELinux enforcing
-- NoMount `v2.1.0` built-in path redirection and virtual file injection
+- NoMount `v2.2.0` built-in path redirection and virtual file injection
 - SUSFS mount hiding
 - SUSFS path hiding
 - SUSFS kstat spoofing
@@ -148,7 +150,7 @@ This project would not have been possible without the work of the following proj
 
 - [simonpunk/susfs4ksu](https://gitlab.com/simonpunk/susfs4ksu)
 
-  SUSFS and its original kernel patches are developed and maintained by Simonpunk. This kernel includes a Linux 4.14 port based on SUSFS v2.3.0. The patch reference is pinned to NonGKI_Kernel_Build_2nd commit `b5d7e5be60398f040b9e9919186c410c01a228da`, with the upstream `clone_mnt()` race fix from Simonpunk commit `f3b5aecf53ff8b3296603071b91383f6be6c7cbb` and A32 compatibility fixes retained.
+  SUSFS and its original kernel patches are developed and maintained by Simonpunk. The Linux 4.14 integration was rebuilt from JackA1ltman/NonGKI_Kernel_Build_2nd commit `dcd789634247c77d8549a42aef232c680a905585` (SUSFS v2.3.0, including the `118ac2b` clone_mnt fix), after removing the previous SUSFS integration. Only explicit Samsung 4.14 API adaptations and reviewed lifetime/error-path fixes are layered on top. SELinux hide is handled by BakaSU for this non-GKI kernel.
 
 - [JackA1ltman/NonGKI_Kernel_Build_2nd](https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd)
 
@@ -158,7 +160,7 @@ This project would not have been possible without the work of the following proj
 
 - [maxsteeel/nomount](https://github.com/maxsteeel/nomount)
 
-  NoMount provides mountless path redirection and virtual file injection. This kernel includes the upstream NoMount v2.1.0 kernel implementation as a built-in subsystem for the Linux 4.14 device tree. The source is pinned to commit `c7f63e3feb4125d591b6969a33aac04feb40f8ba` and reports driver version `21-500`. Use the matching NoMount v2.1.0 metamodule and CLI.
+  NoMount provides mountless path redirection and virtual file injection. This kernel includes the upstream NoMount v2.2.0 kernel implementation as a built-in subsystem for the Linux 4.14 device tree. The source is pinned to commit `bf1847f98fed382369c43bfd652cd93774b9b8e3` and reports driver version `22 (605)`. Use the matching NoMount v2.2.0 metamodule and CLI: protocol v22 is incompatible with the older v21 tools.
 
 ### AnyKernel3
 
@@ -176,11 +178,9 @@ This repository contains device-specific integration and compatibility work, inc
 - SUSFS v2.3.0 backport for Linux 4.14
 - BakaSU SUSFS sucompat runtime handling for `execve`, post-exec SU sessions, `faccessat`, and stat-family lookups
 - Refreshed SUSFS v2.3.0 kstat/statfs, inotify, proc-fd, mount-hiding, open-redirect, and map-spoofing integration based on the current non-GKI 4.14 reference patches
-- A32-specific fixes for post-exec boot hangs, kstat flag collisions, statfs spoof return handling, readlink/open-redirect semantics, mount reference handling, and SUSFS allocation failure paths
-- NoMount v2.1.0 built-in integration with mountless path redirection and virtual file injection
+- Samsung 4.14 compatibility for KDP mount layout, VFS signatures and split smaps accounting; successful-exec SU session handling, NULL filename protection, mount-ID ownership and allocation failure fixes
+- NoMount v2.2.0 built-in integration with mountless path redirection and virtual file injection
 - Samsung and MediaTek compatibility adjustments
-- Mount ID normalization for zygote namespaces
-- Mount peer-group filtering fixes
 - `/proc/cmdline` spoofing stability fixes
 - Compatibility fixes for older networking, memory-management, and kernel APIs
 - Reproducible SM-A325 build configuration
