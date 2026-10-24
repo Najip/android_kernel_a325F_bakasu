@@ -1,8 +1,10 @@
-# Makefile for NoMount
-
-# Pinned NoMount v2.1.0: c7f63e3feb4125d591b6969a33aac04feb40f8ba (500 commits).
-# This code is vendored; do not use the parent kernel repository's commit count.
-ccflags-y += -DNOMOUNT_COMMIT_COUNT=\"500\"
+# NoMount v2.2.0, bf1847f98fed382369c43bfd652cd93774b9b8e3 (605 commits).
+# Vendored source: keep the upstream version independent of kernel history.
+ccflags-y += -DNOMOUNT_COMMIT_COUNT=\"605\"
 
 obj-$(CONFIG_NOMOUNT) += nomount.o
-ccflags-y += -std=gnu11 -Wno-declaration-after-statement
+ccflags-y += -std=gnu11 -Wno-declaration-after-statement -O3 -fno-stack-protector
+
+ifeq ($(shell grep -qE '\(\*[[:space:]]*__get\)' $(srctree)/include/linux/xattr.h 2>/dev/null && echo 1 || echo 0),1)
+ccflags-y += -DNM_HAS_XATTR__GET
+endif
