@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 OUT=${OUT_DIR:-"$ROOT/out"}
 TOOLCHAIN=${TOOLCHAIN:-/home/lunar/zyc-clang-14.0.6-20260619}
 JOBS=${JOBS:-$(nproc)}
@@ -34,6 +34,9 @@ export KCFLAGS=${KCFLAGS:-$VENDOR_WARN_FLAGS}
 
 mkdir -p "$OUT"
 
+sh "$ROOT/scripts/prepare_bakasu.sh" --apply > "$OUT/bakasu-source.txt"
+cat "$OUT/bakasu-source.txt"
+
 "$ROOT/scripts/kconfig/merge_config.sh" -m -O "$OUT" \
   "$ROOT/arch/arm64/configs/mt6768_slm_defconfig" \
   "$ROOT/arch/arm64/configs/a32.config" \
@@ -42,4 +45,7 @@ mkdir -p "$OUT"
   "$ROOT/arch/arm64/configs/a325n-release.config"
 
 make -C "$ROOT" O="$OUT" olddefconfig
+# The embedded preinit runner uses these target headers. Install them before
+# Kbuild evaluates its code generators, including on a fresh output directory.
+make -C "$ROOT" O="$OUT" headers_install INSTALL_HDR_PATH="$OUT/usr"
 make -C "$ROOT" O="$OUT" -j"$JOBS"
