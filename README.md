@@ -6,7 +6,7 @@ This kernel is intended for the SM-A325 family, including regional variants such
 
 [한국어 README](README_KO.md)
 
-> **Temporary BakaSU branch:** Until Simonpunk updates SUSFS to support the current BakaSU/KernelSU changes, this project uses BakaSU's `sync-susfs` branch instead of `main`. The automatic updater follows the branch configured in `.gitmodules`.
+> **BakaSU source:** This project tracks BakaSU's `main` branch. The Linux 4.14 compatibility patch is stored in `patches/bakasu/` and applied by the build script. Automatic updates check that this patch applies before updating the pinned submodule commit.
 
 ## Device Support
 
@@ -24,8 +24,8 @@ Other SM-A325 regional variants may be compatible because they share the same ba
 
 <!-- AUTO:BAKASU:START -->
 - BakaSU `v4.2.0-rc3`
-- BakaSU kernel version code `35241`
-- BakaSU commit [`10cada74`](https://github.com/Baka-SU/BakaSU/commit/10cada74698ccf7eed04d0e38bc7d624e5f54395)
+- BakaSU kernel version code `35252`
+- BakaSU commit [`d5e9e025`](https://github.com/Baka-SU/BakaSU/commit/d5e9e025b8b49155f8014684d64c91742b465f65)
 <!-- AUTO:BAKASU:END -->
 - SUSFS `v2.3.0`
 - KernelSU multi-manager support
@@ -120,7 +120,15 @@ arch/arm64/configs/ksu-a325n-common.config
 arch/arm64/configs/a325n-release.config
 ```
 
-The build script merges these fragments and runs `olddefconfig` before compiling the kernel.
+The build script prepares the BakaSU compatibility patch, merges these fragments, runs `olddefconfig`, and installs target UAPI headers before compiling the kernel and embedded preinit runner. `out/bakasu-source.txt` records the upstream SHA and compatibility patch SHA256.
+
+### BakaSU main integration
+
+- Use a Manager/ksud build with UAPI v6 to match the updated kernel.
+- SUSFS preinit runs enabled modules' staged `preinit/preinit.conf` actions before SELinux policy loading. The runner is embedded in the kernel; ksud prepares its input under `/metadata` for the next boot. Actual execution depends on the ROM's init and early mounts and needs device verification.
+- For this built-in configuration, `kernelsu.preinit=0` disables the preinit runner. Existing module boot scripts retain their normal stages.
+- Kernel module blacklist handling uses Linux's module-name checks. Only explicit blacklist rejections are acknowledged as successful loads; other loader errors are preserved. It does not unload an already loaded `.ko`.
+- See [compatibility patch notes](patches/bakasu/README.md) for manual builds, patch validation and exec failure handling.
 
 Some configuration files and build scripts retain the `a325n` name because the initial development and testing were performed on the SM-A325N. The resulting kernel is intended for the wider SM-A325 device family.
 

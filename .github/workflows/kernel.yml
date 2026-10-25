@@ -214,6 +214,10 @@ jobs:
           echo "AK3_DIR=$ak3" >> "$GITHUB_ENV"
           echo "ANYKERNEL_RESOLVED_COMMIT=$resolved" >> "$GITHUB_ENV"
 
+      - name: Prepare BakaSU compatibility patch
+        shell: bash
+        run: sh scripts/prepare_bakasu.sh --apply
+
       - name: Show build metadata
         shell: bash
         run: |
@@ -241,6 +245,18 @@ jobs:
           set -euo pipefail
           test -s "$OUT_DIR/arch/arm64/boot/Image"
           test -s "$OUT_DIR/arch/arm64/boot/Image.gz"
+          test -s "$OUT_DIR/drivers/kernelsu/preinit/runner.elf"
+          "$TOOLCHAIN/bin/llvm-readelf" -h "$OUT_DIR/drivers/kernelsu/preinit/runner.elf" \
+            > "$OUT_DIR/runner-elf-header.txt"
+          grep -q 'AArch64' "$OUT_DIR/runner-elf-header.txt"
+          grep -q 'KSU_COMPAT_HAS_INSMOD_HOOK' \
+            "$OUT_DIR/drivers/kernelsu/feature/.module_blacklist.o.cmd"
+          "$TOOLCHAIN/bin/llvm-nm" --defined-only "$OUT_DIR/vmlinux" \
+            > "$OUT_DIR/bakasu-symbols.txt"
+          for symbol in ksu_setup_preinit_file_owned ksu_preinit_handle_post_execveat \
+                        ksu_preinit_runner_start ksu_handle_init_module ksu_handle_finit_module; do
+            grep -q " $symbol$" "$OUT_DIR/bakasu-symbols.txt"
+          done
           grep -q '^CONFIG_NOMOUNT=y$' "$OUT_DIR/.config"
           grep -q '^CONFIG_ALWAYS_ENFORCE=y$' "$OUT_DIR/.config"
           cat "$OUT_DIR/include/config/kernel.release"
@@ -314,11 +330,15 @@ jobs:
           BakaSU commit: $ksu_sha
           BakaSU describe: $ksu_desc
           BakaSU version code: $ksu_code
+          BakaSU compatibility patch SHA256: $(sha256sum patches/bakasu/0001-a325x-linux414-integration.patch | cut -d ' ' -f 1)
+          Preinit: runner linked; device execution requires boot verification
           SUSFS: $susfs
           Toolchain release: $TOOLCHAIN_REPO@$TOOLCHAIN_RELEASE
           AnyKernel upstream: $ANYKERNEL_REPO@$ANYKERNEL_RESOLVED_COMMIT
           Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
           EOF
+
+          cp "$OUT_DIR/bakasu-source.txt" "$PACKAGE_DIR/bakasu-source.txt"
 
           echo "ARTIFACT_NAME=A325N-BakaSU-$kernel_short" >> "$GITHUB_ENV"
           echo "ZIP_NAME=$(basename "$zip_path")" >> "$GITHUB_ENV"
@@ -336,6 +356,7 @@ jobs:
             ${{ env.PACKAGE_DIR }}/*.zip
             ${{ env.PACKAGE_DIR }}/SHA256SUMS.txt
             ${{ env.PACKAGE_DIR }}/build-info.txt
+            ${{ env.PACKAGE_DIR }}/bakasu-source.txt
           if-no-files-found: error
           retention-days: 14
 

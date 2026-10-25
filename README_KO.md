@@ -6,7 +6,7 @@ Samsung MT6768 커널 소스를 기반으로 **BakaSU**와 **SUSFS**를 통합�
 
 [English README](README.md)
 
-> **BakaSU 임시 브랜치:** Simonpunk가 현재 BakaSU/KernelSU 변경과 호환되도록 SUSFS를 업데이트하기 전까지, 이 프로젝트는 BakaSU의 `main` 대신 `sync-susfs` 브랜치를 사용합니다. 자동 업데이트도 `.gitmodules`에 지정된 브랜치를 따릅니다.
+> **BakaSU 소스:** 이 프로젝트는 BakaSU의 `main` 브랜치를 추적합니다. Linux 4.14 호환 패치는 `patches/bakasu/`에 저장하고 빌드 스크립트에서 적용합니다. 자동 업데이트는 호환 패치 적용 검사를 통과한 뒤 서브모듈의 고정 커밋을 갱신합니다.
 
 ## 지원 기기
 
@@ -24,8 +24,8 @@ Samsung MT6768 커널 소스를 기반으로 **BakaSU**와 **SUSFS**를 통합�
 
 <!-- AUTO:BAKASU:START -->
 - BakaSU `v4.2.0-rc3`
-- BakaSU 커널 버전 코드 `35241`
-- BakaSU 커밋 [`10cada74`](https://github.com/Baka-SU/BakaSU/commit/10cada74698ccf7eed04d0e38bc7d624e5f54395)
+- BakaSU 커널 버전 코드 `35252`
+- BakaSU 커밋 [`d5e9e025`](https://github.com/Baka-SU/BakaSU/commit/d5e9e025b8b49155f8014684d64c91742b465f65)
 <!-- AUTO:BAKASU:END -->
 - SUSFS `v2.3.0`
 - KernelSU 멀티 매니저 지원
@@ -120,7 +120,15 @@ arch/arm64/configs/ksu-a325n-common.config
 arch/arm64/configs/a325n-release.config
 ```
 
-빌드 스크립트는 위 설정 조각을 병합하고 `olddefconfig`를 실행한 다음 커널을 컴파일합니다.
+빌드 스크립트는 BakaSU 호환 패치를 준비하고 위 설정 조각을 병합한 뒤 `olddefconfig`와 대상 UAPI 헤더 설치를 실행합니다. 이후 커널과 내장 preinit runner를 컴파일합니다. `out/bakasu-source.txt`에는 upstream SHA와 호환 패치 SHA256이 기록됩니다.
+
+### BakaSU main 통합
+
+- 갱신된 커널과 맞는 UAPI v6 Manager/ksud를 사용해야 합니다.
+- SUSFS preinit은 SELinux 정책 로드 전에 활성 모듈의 준비된 `preinit/preinit.conf` 작업을 실행합니다. runner는 커널에 포함되며 ksud가 다음 부팅용 입력을 `/metadata` 아래에 준비합니다. 실제 실행 여부는 ROM의 init과 초기 마운트 구성에 따라 달라 실기기 검증이 필요합니다.
+- 이 내장 구성에서는 `kernelsu.preinit=0`으로 preinit runner를 끌 수 있습니다. 기존 모듈 부팅 스크립트는 원래 단계에서 실행됩니다.
+- 커널 모듈 차단은 Linux의 모듈 이름 검사를 사용합니다. 명시적인 blacklist 차단에만 로딩 성공을 응답하고 다른 로더 오류는 보존합니다. 이미 로드된 `.ko`를 제거하는 기능은 아닙니다.
+- 수동 빌드, 패치 검증 및 exec 실패 처리는 [호환 패치 설명](patches/bakasu/README.md)을 참고하세요.
 
 초기 개발과 테스트가 SM-A325N에서 진행되었기 때문에 일부 설정 파일과 빌드 스크립트에는 `a325n`이라는 이름이 유지되어 있습니다. 빌드되는 커널 자체는 더 넓은 SM-A325 기기 계열을 대상으로 합니다.
 

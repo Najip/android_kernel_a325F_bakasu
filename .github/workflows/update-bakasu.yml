@@ -59,6 +59,9 @@ jobs:
             echo "BakaSU is already current."
           fi
 
+          # Check against the candidate commit before committing or pushing it.
+          sh scripts/prepare_bakasu.sh --check
+
           short="$(git -C KernelSU rev-parse --short=8 HEAD)"
           desc="$(git -C KernelSU describe --tags --always)"
           count="$(git -C KernelSU rev-list --count HEAD)"
