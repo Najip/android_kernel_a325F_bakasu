@@ -1,2 +1,3 @@
 out/
+.toolchains/
 arch/arm64/configs/compiled_defconfig

@@ -86,20 +86,37 @@ cd android_kernel_a325x_bakasu
 git submodule update --init --recursive
 ```
 
-호환되는 LLVM/Clang 툴체인의 경로를 지정한 후 빌드 스크립트를 실행하세요.
+표준 빌드는 공식 **AOSP Clang 14.0.6 (`clang-r450784d`)**을 사용합니다.
+원본 커밋과 Git subtree ID는 `scripts/aosp_clang14.conf`에 고정합니다.
+LLD에 필요한 libxml2를 포함한 `lib64` 런타임을 함께 유지하므로 호스트에
+`libxml2.so.2` 호환 패키지를 따로 설치할 필요가 없습니다. 로컬과 Actions는
+같은 설치 스크립트를 사용하며 Actions의 빌드 환경은 Ubuntu 26.04입니다.
+
+이 커널의 Makefile이 사용하는 GNU assembler를 별도로 설치한 뒤 빌드하세요.
 
 ```bash
-TOOLCHAIN=/path/to/clang ./build_a325n.sh
+sudo apt-get install binutils-aarch64-linux-gnu
+./build_a325n.sh
 ```
 
-선택적으로 다음 빌드 변수를 지정할 수 있습니다.
+첫 빌드에서는 AOSP 전체 압축 파일을 다운로드하고 모든 파일·심볼릭 링크·실행
+권한을 고정된 Git subtree와 대조한 뒤
+`.toolchains/clang-r450784d`에 설치합니다. 다운로드 캐시는
+`~/.cache/bakasu-toolchains`에 저장하며 기존의 다른 툴체인 디렉터리를
+덮어쓰지 않습니다. 같은 고정 버전 컴파일러의 설치 위치를 바꿀 수도 있습니다.
 
 ```bash
-TOOLCHAIN=/path/to/clang \
+TOOLCHAIN=/path/to/aosp-clang14 \
 OUT_DIR=/path/to/output \
 JOBS=$(nproc) \
 ./build_a325n.sh
 ```
+
+Gitiles는 같은 커밋에도 압축 헤더가 다른 파일을 생성할 수 있어 압축 파일
+SHA256은 추적용으로 기록하고 내용 검증에는 Git subtree를 사용합니다.
+`out/toolchain-source.txt`에는 AOSP 커밋, tree ID, 압축 파일 SHA256, 컴파일러·링커·GNU
+assembler 버전이 기록됩니다. 툴체인을 옮길 때에는 `bin`만 복사하지 말고
+전체 디렉터리 구성을 유지하세요.
 
 생성된 커널 이미지는 다음 경로에 저장됩니다.
 

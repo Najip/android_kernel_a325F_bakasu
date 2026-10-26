@@ -2,16 +2,36 @@
 set -eu
 
 ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+# shellcheck source=aosp_clang14.conf
+. "$ROOT/scripts/aosp_clang14.conf"
 OUT=${OUT_DIR:-"$ROOT/out"}
-TOOLCHAIN=${TOOLCHAIN:-/home/lunar/zyc-clang-14.0.6-20260619}
+TOOLCHAIN=${TOOLCHAIN:-"$ROOT/.toolchains/$AOSP_CLANG_DIRECTORY"}
 JOBS=${JOBS:-$(nproc)}
+
+sh "$ROOT/scripts/fetch_aosp_clang.sh" "$TOOLCHAIN"
+# Keep the recorded compiler path independent of the caller's directory.
+TOOLCHAIN=$(CDPATH='' cd -- "$TOOLCHAIN" && pwd)
+for tool in aarch64-linux-gnu-as aarch64-linux-gnu-elfedit; do
+  command -v "$tool" >/dev/null || {
+    echo "Missing $tool; install binutils-aarch64-linux-gnu" >&2
+    exit 1
+  }
+done
 
 export ARCH=arm64
 export PATH="$TOOLCHAIN/bin:$PATH"
-export LD_LIBRARY_PATH="$TOOLCHAIN/lib:${LD_LIBRARY_PATH:-}"
-export CC=clang
-export LD=ld.lld
+export LD_LIBRARY_PATH="$TOOLCHAIN/lib64:$TOOLCHAIN/lib:${LD_LIBRARY_PATH:-}"
+export CC="$TOOLCHAIN/bin/clang"
+export LD="$TOOLCHAIN/bin/ld.lld"
+export AR="$TOOLCHAIN/bin/llvm-ar"
+export NM="$TOOLCHAIN/bin/llvm-nm"
+export STRIP="$TOOLCHAIN/bin/llvm-strip"
+export OBJCOPY="$TOOLCHAIN/bin/llvm-objcopy"
+export OBJDUMP="$TOOLCHAIN/bin/llvm-objdump"
+export READELF="$TOOLCHAIN/bin/llvm-readelf"
 export CROSS_COMPILE=aarch64-linux-gnu-
+AS=$(command -v aarch64-linux-gnu-as)
+export AS
 export LLVM=1
 export LLVM_IAS=0
 export KBUILD_BUILD_USER=${KBUILD_BUILD_USER:-bakasu}
@@ -33,6 +53,12 @@ VENDOR_WARN_FLAGS="-Wno-error \
 export KCFLAGS=${KCFLAGS:-$VENDOR_WARN_FLAGS}
 
 mkdir -p "$OUT"
+
+cp "$TOOLCHAIN/aosp-source.txt" "$OUT/toolchain-source.txt"
+"$CC" --version > "$OUT/clang-version.txt"
+"$LD" --version > "$OUT/lld-version.txt"
+cat "$OUT/clang-version.txt" "$OUT/lld-version.txt" >> "$OUT/toolchain-source.txt"
+"$AS" --version >> "$OUT/toolchain-source.txt"
 
 sh "$ROOT/scripts/prepare_bakasu.sh" --apply > "$OUT/bakasu-source.txt"
 cat "$OUT/bakasu-source.txt"

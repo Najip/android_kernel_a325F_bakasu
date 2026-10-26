@@ -24,8 +24,6 @@ concurrency:
 env:
   OUT_DIR: ${{ github.workspace }}/out-ci
   PACKAGE_DIR: ${{ github.workspace }}/package-ci
-  TOOLCHAIN_REPO: ZyCromerZ/Clang
-  TOOLCHAIN_RELEASE: 14.0.6-20260619-release
   ANYKERNEL_REPO: https://github.com/osm0sis/AnyKernel3.git
   ANYKERNEL_COMMIT: af770f7b16cf8f8eb7c68614b2a693b3b361c90c
 
@@ -34,8 +32,7 @@ jobs:
     name: Build A325X kernel
     outputs:
       release_tag: ${{ steps.version.outputs.release_tag }}
-    # ZyC 14's linker requires the libxml2.so.2 runtime provided by 24.04.
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 90
 
     steps:
@@ -75,123 +72,22 @@ jobs:
           set -euo pipefail
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            bc bison build-essential ca-certificates curl file flex git \
-            libelf-dev libssl-dev libncurses-dev libxml2 jq lz4 pahole python3 unzip xz-utils zip zlib1g-dev zstd
+            bc binutils-aarch64-linux-gnu bison build-essential ca-certificates curl file flex git \
+            libelf-dev libssl-dev libncurses-dev jq lz4 pahole python3 unzip xz-utils zip zlib1g-dev zstd
 
           echo "pahole: $(command -v pahole)"
           pahole --version
 
-      - name: Download ZyC toolchain
+      - name: Install pinned AOSP Clang 14
         id: toolchain
         shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-
-          release_json="$RUNNER_TEMP/zyc-release.json"
-          unpack="$RUNNER_TEMP/zyc-clang"
-          rm -rf "$unpack"
-          mkdir -p "$unpack"
-
-          api="https://api.github.com/repos/${TOOLCHAIN_REPO}/releases/tags/${TOOLCHAIN_RELEASE}"
-          echo "Resolving ZyC release assets: ${TOOLCHAIN_REPO}@${TOOLCHAIN_RELEASE}"
-
-          # Try authenticated API first, then public API as a fallback.
-          if ! curl --fail --location --silent --show-error \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer $GH_TOKEN" \
-              "$api" -o "$release_json"; then
-            echo "::warning::Authenticated release lookup failed; retrying without auth."
-            curl --fail --location --retry 5 --retry-delay 2 --retry-all-errors \
-              -H "Accept: application/vnd.github+json" \
-              "$api" -o "$release_json"
-          fi
-
-          echo "Release assets:"
-          jq -r '.assets[] | "  \(.name)  \(.size) bytes"' "$release_json"
-
-          asset_name="$(
-            jq -r '
-              [.assets[]
-               | select(
-                   (.name | ascii_downcase | endswith(".tar.gz")) or
-                   (.name | ascii_downcase | endswith(".tgz")) or
-                   (.name | ascii_downcase | endswith(".tar.xz")) or
-                   (.name | ascii_downcase | endswith(".txz")) or
-                   (.name | ascii_downcase | endswith(".tar.zst")) or
-                   (.name | ascii_downcase | endswith(".tzst")) or
-                   (.name | ascii_downcase | endswith(".zip"))
-                 )]
-              | sort_by(.size)
-              | reverse
-              | .[0].name // empty
-            ' "$release_json"
-          )"
-          asset_url="$(
-            jq -r --arg name "$asset_name" \
-              '.assets[] | select(.name == $name) | .browser_download_url' \
-              "$release_json"
-          )"
-
-          if [ -z "$asset_name" ] || [ -z "$asset_url" ]; then
-            echo "::error::No toolchain archive asset found in ZyC release."
-            exit 1
-          fi
-
-          echo "Selected toolchain asset: $asset_name"
-          echo "Asset URL resolved successfully."
-
-          archive="$RUNNER_TEMP/$asset_name"
-          echo "Downloading asset: $asset_name"
-          curl --fail --location --retry 5 --retry-delay 2 --retry-all-errors \
-            "$asset_url" -o "$archive"
-
-          ls -lh "$archive"
-          file "$archive"
-
-          case "$asset_name" in
-            *.zip)
-              unzip -q "$archive" -d "$unpack"
-              ;;
-            *.tar.zst|*.tzst)
-              tar --zstd --no-same-owner -xf "$archive" -C "$unpack"
-              ;;
-            *)
-              tar --no-same-owner -xf "$archive" -C "$unpack"
-              ;;
-          esac
-
-          echo "Looking for clang entry after extraction..."
-          clang_bin="$(find "$unpack" -path '*/bin/clang' -print -quit)"
-
-          if [ -z "$clang_bin" ]; then
-            echo "::error::Could not find bin/clang after extracting $asset_name."
-            echo "Top-level extracted entries:"
-            find "$unpack" -maxdepth 3 -print | sed -n '1,120p'
-            echo "Clang-like entries:"
-            find "$unpack" -maxdepth 5 \( -name 'clang' -o -name 'clang-*' \) -print | sed -n '1,120p'
-            exit 1
-          fi
-
-          echo "Found clang entry: $clang_bin"
-          ls -l "$clang_bin"
-
-          # bin/clang may be a symlink (common in Android clang toolchains).
-          clang_real="$(readlink -f "$clang_bin")"
-          if [ ! -x "$clang_real" ]; then
-            echo "::error::Resolved clang is not executable: $clang_real"
-            exit 1
-          fi
-
-          toolchain="$(dirname "$(dirname "$clang_bin")")"
+          toolchain="$RUNNER_TEMP/aosp-clang14"
+          sh scripts/fetch_aosp_clang.sh "$toolchain"
           echo "TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
           echo "toolchain=$toolchain" >> "$GITHUB_OUTPUT"
           echo "$toolchain/bin" >> "$GITHUB_PATH"
-
-          echo "Resolved toolchain: $toolchain"
-          "$clang_real" --version | head -n 2
-          "$toolchain/bin/ld.lld" --version | head -n 1
 
       - name: Clone pinned upstream AnyKernel3
         shell: bash
@@ -334,12 +230,14 @@ jobs:
           BakaSU compatibility patch SHA256: $(sha256sum patches/bakasu/0001-a325x-linux414-integration.patch | cut -d ' ' -f 1)
           Preinit: runner linked; device execution requires boot verification
           SUSFS: $susfs
-          Toolchain release: $TOOLCHAIN_REPO@$TOOLCHAIN_RELEASE
+          Toolchain: pinned AOSP Clang 14
           AnyKernel upstream: $ANYKERNEL_REPO@$ANYKERNEL_RESOLVED_COMMIT
           Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
           EOF
+          cat "$OUT_DIR/toolchain-source.txt" >> "$PACKAGE_DIR/build-info.txt"
 
           cp "$OUT_DIR/bakasu-source.txt" "$PACKAGE_DIR/bakasu-source.txt"
+          cp "$OUT_DIR/toolchain-source.txt" "$PACKAGE_DIR/toolchain-source.txt"
 
           echo "ARTIFACT_NAME=A325N-BakaSU-$kernel_short" >> "$GITHUB_ENV"
           echo "ZIP_NAME=$(basename "$zip_path")" >> "$GITHUB_ENV"
@@ -358,6 +256,7 @@ jobs:
             ${{ env.PACKAGE_DIR }}/SHA256SUMS.txt
             ${{ env.PACKAGE_DIR }}/build-info.txt
             ${{ env.PACKAGE_DIR }}/bakasu-source.txt
+            ${{ env.PACKAGE_DIR }}/toolchain-source.txt
           if-no-files-found: error
           retention-days: 14
 
@@ -401,7 +300,7 @@ jobs:
         run: |
           set -euo pipefail
           shopt -s nullglob
-          assets=(release/*.zip release/SHA256SUMS.txt release/build-info.txt release/bakasu-source.txt)
+          assets=(release/*.zip release/SHA256SUMS.txt release/build-info.txt release/bakasu-source.txt release/toolchain-source.txt)
           if [ "${#assets[@]}" -eq 0 ]; then
             echo '::error::No release assets found.'
             exit 1

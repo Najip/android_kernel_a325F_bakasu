@@ -86,20 +86,39 @@ If the repository was cloned without submodules, initialize them manually:
 git submodule update --init --recursive
 ```
 
-Set the path to a compatible LLVM/Clang toolchain and run:
+The standard build uses official **AOSP Clang 14.0.6 (`clang-r450784d`)**.
+Its source revision and Git subtree ID are pinned in `scripts/aosp_clang14.conf`.
+The compiler's bundled `lib64` runtime is retained, including the libxml2 needed
+by LLD, so the build does not require a host `libxml2.so.2` compatibility package.
+Local builds and Actions use the same installation script; Actions targets
+Ubuntu 26.04.
+
+Install the separate GNU assembler required by this kernel's Makefile, then run:
 
 ```bash
-TOOLCHAIN=/path/to/clang ./build_a325n.sh
+sudo apt-get install binutils-aarch64-linux-gnu
+./build_a325n.sh
 ```
 
-Optional build variables:
+On the first build, the script downloads the complete AOSP archive and verifies
+every extracted file, symlink and executable bit against the pinned Git subtree,
+and installs it under `.toolchains/clang-r450784d`. Downloads are cached under
+`~/.cache/bakasu-toolchains`. Existing unrelated toolchain directories are not
+overwritten. You can select another installation directory for the same pinned
+compiler:
 
 ```bash
-TOOLCHAIN=/path/to/clang \
+TOOLCHAIN=/path/to/aosp-clang14 \
 OUT_DIR=/path/to/output \
 JOBS=$(nproc) \
 ./build_a325n.sh
 ```
+
+Gitiles can generate different archive headers for the same revision, so the
+archive SHA256 is recorded for tracing while the Git subtree verifies content.
+`out/toolchain-source.txt` records the AOSP revision, tree ID, archive SHA256, compiler,
+linker and GNU assembler versions. Keep the complete toolchain layout when
+moving it; `bin` alone is not sufficient.
 
 The generated kernel images will be located at:
 
