@@ -34,7 +34,8 @@ jobs:
     name: Build A325X kernel
     outputs:
       release_tag: ${{ steps.version.outputs.release_tag }}
-    runs-on: ubuntu-latest
+    # ZyC 14's linker requires the libxml2.so.2 runtime provided by 24.04.
+    runs-on: ubuntu-24.04
     timeout-minutes: 90
 
     steps:
@@ -75,7 +76,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             bc bison build-essential ca-certificates curl file flex git \
-            libelf-dev libssl-dev libncurses-dev jq lz4 pahole python3 unzip xz-utils zip zlib1g-dev zstd
+            libelf-dev libssl-dev libncurses-dev libxml2 jq lz4 pahole python3 unzip xz-utils zip zlib1g-dev zstd
 
           echo "pahole: $(command -v pahole)"
           pahole --version
@@ -400,7 +401,7 @@ jobs:
         run: |
           set -euo pipefail
           shopt -s nullglob
-          assets=(release/*.zip release/SHA256SUMS.txt release/build-info.txt)
+          assets=(release/*.zip release/SHA256SUMS.txt release/build-info.txt release/bakasu-source.txt)
           if [ "${#assets[@]}" -eq 0 ]; then
             echo '::error::No release assets found.'
             exit 1
@@ -413,6 +414,6 @@ jobs:
             gh release create "$RELEASE_TAG" "${assets[@]}" \
               --repo "$GITHUB_REPOSITORY" \
               --target "$GITHUB_SHA" \
-              --title "A325N BakaSU $RELEASE_TAG" \
+              --title "A325X BakaSU $RELEASE_TAG" \
               --generate-notes
           fi
