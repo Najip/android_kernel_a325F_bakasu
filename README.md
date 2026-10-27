@@ -91,7 +91,7 @@ Its source revision and Git subtree ID are pinned in `scripts/aosp_clang14.conf`
 The compiler's bundled `lib64` runtime is retained, including the libxml2 needed
 by LLD, so the build does not require a host `libxml2.so.2` compatibility package.
 Local builds and Actions use the same installation script; Actions targets
-Ubuntu 26.04.
+`ubuntu-latest`.
 
 Install the separate GNU assembler required by this kernel's Makefile, then run:
 
@@ -119,6 +119,9 @@ archive SHA256 is recorded for tracing while the Git subtree verifies content.
 `out/toolchain-source.txt` records the AOSP revision, tree ID, archive SHA256, compiler,
 linker and GNU assembler versions. Keep the complete toolchain layout when
 moving it; `bin` alone is not sufficient.
+
+Actions release tags include an `-aosp14` suffix. If that tag already identifies
+a different kernel commit, the new release adds the kernel's short commit ID.
 
 The generated kernel images will be located at:
 

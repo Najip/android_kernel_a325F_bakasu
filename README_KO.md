@@ -90,7 +90,7 @@ git submodule update --init --recursive
 원본 커밋과 Git subtree ID는 `scripts/aosp_clang14.conf`에 고정합니다.
 LLD에 필요한 libxml2를 포함한 `lib64` 런타임을 함께 유지하므로 호스트에
 `libxml2.so.2` 호환 패키지를 따로 설치할 필요가 없습니다. 로컬과 Actions는
-같은 설치 스크립트를 사용하며 Actions의 빌드 환경은 Ubuntu 26.04입니다.
+같은 설치 스크립트를 사용하며 Actions의 빌드 환경은 `ubuntu-latest`입니다.
 
 이 커널의 Makefile이 사용하는 GNU assembler를 별도로 설치한 뒤 빌드하세요.
 
@@ -117,6 +117,9 @@ SHA256은 추적용으로 기록하고 내용 검증에는 Git subtree를 사용
 `out/toolchain-source.txt`에는 AOSP 커밋, tree ID, 압축 파일 SHA256, 컴파일러·링커·GNU
 assembler 버전이 기록됩니다. 툴체인을 옮길 때에는 `bin`만 복사하지 말고
 전체 디렉터리 구성을 유지하세요.
+
+Actions 릴리즈 태그에는 `-aosp14` 접미사를 붙입니다. 같은 태그가 이미 다른
+커널 커밋을 가리키고 있으면 새 릴리즈에 커널의 짧은 커밋 ID도 붙입니다.
 
 생성된 커널 이미지는 다음 경로에 저장됩니다.
 
