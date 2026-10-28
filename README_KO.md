@@ -6,7 +6,7 @@ Samsung MT6768 커널 소스를 기반으로 **BakaSU**와 **SUSFS**를 통합�
 
 [English README](README.md)
 
-> **BakaSU 소스:** 이 프로젝트는 BakaSU의 `main` 브랜치를 원본 수정 없이 추적합니다. Linux 4.14 SUSFS preinit 연동은 부모 커널에서 처리합니다. 자동 업데이트는 소스 API 검사를 통과한 뒤 서브모듈의 고정 커밋을 갱신합니다.
+> **BakaSU 소스:** 이 프로젝트는 BakaSU의 `main` 브랜치를 원본 수정 없이 추적합니다. Linux 4.14 preinit, SELinux 수동 훅, SUSFS 명령 연동은 부모 커널에서 처리합니다. 자동 업데이트는 소스 API 검사를 통과한 뒤 서브모듈의 고정 커밋을 갱신합니다.
 
 ## 지원 기기
 
@@ -148,6 +148,7 @@ arch/arm64/configs/a325n-release.config
 - SUSFS preinit은 SELinux 정책 로드 전에 활성 모듈의 준비된 `preinit/preinit.conf` 작업을 실행합니다. runner는 커널에 포함되며 ksud가 다음 부팅용 입력을 `/metadata` 아래에 준비합니다. 실제 실행 여부는 ROM의 init과 초기 마운트 구성에 따라 달라 실기기 검증이 필요합니다.
 - 이 내장 구성에서는 `kernelsu.preinit=0`으로 preinit runner를 끌 수 있습니다. 기존 모듈 부팅 스크립트는 원래 단계에서 실행됩니다.
 - 커널 모듈 로딩은 커널 본래의 blacklist 동작을 유지하며 BakaSU 전용 차단 응답 훅은 추가하지 않습니다.
+- SELinux hide는 BakaSU가 지원하는 SUSFS 수동 훅 모드를 사용하며 정책 로직은 원본 그대로입니다. UID priority 필터는 simonpunk `eb95da0` 기준으로 부모 커널의 명령 연결과 패키지 watcher를 사용합니다. [SUSFS 연동 및 사용법](docs/susfs-integration.md)을 참고하세요.
 - 수동 빌드, 원본 검사 및 exec 실패 처리는 [preinit 연동 설명](docs/bakasu-preinit.md)을 참고하세요. upstream의 지원 플래그만으로 실제 preinit 작업 실행을 확인할 수는 없습니다.
 
 초기 개발과 테스트가 SM-A325N에서 진행되었기 때문에 일부 설정 파일과 빌드 스크립트에는 `a325n`이라는 이름이 유지되어 있습니다. 빌드되는 커널 자체는 더 넓은 SM-A325 기기 계열을 대상으로 합니다.
@@ -178,7 +179,7 @@ arch/arm64/configs/a325n-release.config
 
 - [simonpunk/susfs4ksu](https://gitlab.com/simonpunk/susfs4ksu)
 
-  SUSFS와 원본 커널 패치는 Simonpunk가 개발하고 관리합니다. 기존 SUSFS 통합을 제거한 뒤 JackA1ltman/NonGKI_Kernel_Build_2nd 커밋 `dcd789634247c77d8549a42aef232c680a905585`의 Linux 4.14 패치로 다시 구성했습니다(SUSFS v2.3.0, `118ac2b`의 clone_mnt 수정 포함). Samsung 4.14 API 호환성과 검토한 수명·오류 경로 수정만 별도로 적용했습니다. 이 non-GKI 커널의 SELinux hide는 BakaSU가 처리합니다.
+  SUSFS와 원본 커널 패치는 Simonpunk가 개발하고 관리합니다. Linux 4.14 기반은 JackA1ltman/NonGKI_Kernel_Build_2nd 커밋 `dcd789634247c77d8549a42aef232c680a905585`의 SUSFS v2.3.0 패치입니다. 부모 커널에서 clone 할당 제어 흐름과 statx 내부 KSTAT 비트 노출을 수정했습니다. UID priority 필터는 simonpunk `gki-android12-5.10` 커밋 `eb95da080c76724c4962d0c62e9af3be37d9d439` 기준으로 명령과 watcher를 별도 연동합니다. SELinux 정책 처리는 지원되는 수동 훅을 통해 BakaSU 원본 구현을 사용합니다.
 
 - [JackA1ltman/NonGKI_Kernel_Build_2nd](https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd)
 

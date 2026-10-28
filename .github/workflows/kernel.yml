@@ -162,9 +162,22 @@ jobs:
           fi
           "$TOOLCHAIN/bin/llvm-nm" --defined-only "$OUT_DIR/vmlinux" \
             > "$OUT_DIR/bakasu-symbols.txt"
-          for symbol in ksu_setup_preinit_file ksu_preinit_runner_start ksu_preinit_runner_end; do
+          for symbol in ksu_setup_preinit_file ksu_preinit_runner_start ksu_preinit_runner_end \
+                        susfs_set_priority_uid_filter susfs_is_priority_uid_filtered; do
             grep -q " $symbol$" "$OUT_DIR/bakasu-symbols.txt"
           done
+          grep -q 'KSU_COMPAT_HAS_SUSFS_FEATURE_SELINUX_HIDE' \
+            "$OUT_DIR/drivers/kernelsu/feature/.selinux_hide.o.cmd"
+          "$TOOLCHAIN/bin/llvm-nm" --extern-only --defined-only "$OUT_DIR/vmlinux" \
+            > "$OUT_DIR/bakasu-global-symbols.txt"
+          for symbol in my_write_context my_write_access my_setprocattr \
+                        ksu_selinux_hide_running fake_status initialize_fake_status; do
+            grep -q " $symbol$" "$OUT_DIR/bakasu-global-symbols.txt"
+          done
+          if grep -q ' my_sel_open_handle_status$' "$OUT_DIR/bakasu-symbols.txt"; then
+            echo '::error::Unexpected duplicate BakaSU dynamic SELinux hook'
+            exit 1
+          fi
           "$TOOLCHAIN/bin/llvm-strings" "$OUT_DIR/arch/arm64/boot/Image" \
             > "$OUT_DIR/kernel-strings.txt"
           ksu_version="$(git -C KernelSU describe --tags --abbrev=0)-$(git -C KernelSU rev-parse --short=8 HEAD)"
@@ -247,7 +260,8 @@ jobs:
           BakaSU commit: $ksu_sha
           BakaSU describe: $ksu_desc
           BakaSU version code: $ksu_code
-          BakaSU source: unmodified upstream; parent-kernel preinit adapter
+          BakaSU source: unmodified upstream; parent-kernel preinit and SELinux adapters
+          SUSFS priority UID source: simonpunk gki-android12-5.10 eb95da0; parent command and package watcher
           Preinit: runner linked; device execution requires boot verification
           SUSFS: $susfs
           Toolchain: pinned AOSP Clang 14

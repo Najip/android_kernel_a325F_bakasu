@@ -6,7 +6,7 @@ This kernel is intended for the SM-A325 family, including regional variants such
 
 [한국어 README](README_KO.md)
 
-> **BakaSU source:** This project tracks BakaSU's `main` branch without modifying its sources. Linux 4.14 SUSFS preinit integration lives in the parent kernel. Automatic updates check the source API before updating the pinned submodule commit.
+> **BakaSU source:** This project tracks BakaSU's `main` branch without modifying its sources. Linux 4.14 preinit, manual SELinux and SUSFS command integration live in the parent kernel. Automatic updates check the source API before updating the pinned submodule commit.
 
 ## Device Support
 
@@ -150,6 +150,7 @@ The build script verifies the unmodified BakaSU source, merges these fragments, 
 - SUSFS preinit runs enabled modules' staged `preinit/preinit.conf` actions before SELinux policy loading. The runner is embedded in the kernel; ksud prepares its input under `/metadata` for the next boot. Actual execution depends on the ROM's init and early mounts and needs device verification.
 - For this built-in configuration, `kernelsu.preinit=0` disables the preinit runner. Existing module boot scripts retain their normal stages.
 - Kernel module loading retains the kernel's native blacklist behavior; no BakaSU blacklist acknowledgement hooks are added.
+- SELinux hide uses BakaSU's supported manual SUSFS mode; policy logic remains upstream. The priority UID filter uses a parent-owned command bridge and package watcher, based on simonpunk `eb95da0`. See [SUSFS integration and usage](docs/susfs-integration.md).
 - See [preinit integration notes](docs/bakasu-preinit.md) for manual builds, source checks and exec failure handling. The upstream support flag alone does not prove that a preinit action executed.
 
 Some configuration files and build scripts retain the `a325n` name because the initial development and testing were performed on the SM-A325N. The resulting kernel is intended for the wider SM-A325 device family.
@@ -180,7 +181,7 @@ This project would not have been possible without the work of the following proj
 
 - [simonpunk/susfs4ksu](https://gitlab.com/simonpunk/susfs4ksu)
 
-  SUSFS and its original kernel patches are developed and maintained by Simonpunk. The Linux 4.14 integration was rebuilt from JackA1ltman/NonGKI_Kernel_Build_2nd commit `dcd789634247c77d8549a42aef232c680a905585` (SUSFS v2.3.0, including the `118ac2b` clone_mnt fix), after removing the previous SUSFS integration. Only explicit Samsung 4.14 API adaptations and reviewed lifetime/error-path fixes are layered on top. SELinux hide is handled by BakaSU for this non-GKI kernel.
+  SUSFS and its original kernel patches are developed and maintained by Simonpunk. The Linux 4.14 base comes from JackA1ltman/NonGKI_Kernel_Build_2nd commit `dcd789634247c77d8549a42aef232c680a905585` (SUSFS v2.3.0). Parent-side fixes correct clone allocation control flow and keep private KSTAT flags out of statx replies. The priority UID filter is based on simonpunk `gki-android12-5.10` commit `eb95da080c76724c4962d0c62e9af3be37d9d439`, with parent-owned command/watcher integration. SELinux policy handling remains BakaSU code through its supported manual hooks.
 
 - [JackA1ltman/NonGKI_Kernel_Build_2nd](https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd)
 
