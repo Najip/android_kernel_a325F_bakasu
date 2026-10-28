@@ -59,7 +59,7 @@ jobs:
             echo "BakaSU is already current."
           fi
 
-          # Check against the candidate commit before committing or pushing it.
+          # Require unmodified upstream source and check its preinit API first.
           sh scripts/prepare_bakasu.sh --check
 
           short="$(git -C KernelSU rev-parse --short=8 HEAD)"

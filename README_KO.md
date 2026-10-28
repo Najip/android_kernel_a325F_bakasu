@@ -6,7 +6,7 @@ Samsung MT6768 커널 소스를 기반으로 **BakaSU**와 **SUSFS**를 통합�
 
 [English README](README.md)
 
-> **BakaSU 소스:** 이 프로젝트는 BakaSU의 `main` 브랜치를 추적합니다. Linux 4.14 호환 패치는 `patches/bakasu/`에 저장하고 빌드 스크립트에서 적용합니다. 자동 업데이트는 호환 패치 적용 검사를 통과한 뒤 서브모듈의 고정 커밋을 갱신합니다.
+> **BakaSU 소스:** 이 프로젝트는 BakaSU의 `main` 브랜치를 원본 수정 없이 추적합니다. Linux 4.14 SUSFS preinit 연동은 부모 커널에서 처리합니다. 자동 업데이트는 소스 API 검사를 통과한 뒤 서브모듈의 고정 커밋을 갱신합니다.
 
 ## 지원 기기
 
@@ -140,15 +140,15 @@ arch/arm64/configs/ksu-a325n-common.config
 arch/arm64/configs/a325n-release.config
 ```
 
-빌드 스크립트는 BakaSU 호환 패치를 준비하고 위 설정 조각을 병합한 뒤 `olddefconfig`와 대상 UAPI 헤더 설치를 실행합니다. 이후 커널과 내장 preinit runner를 컴파일합니다. `out/bakasu-source.txt`에는 upstream SHA와 호환 패치 SHA256이 기록됩니다.
+빌드 스크립트는 BakaSU 소스가 원본 상태인지 확인하고 위 설정 조각을 병합한 뒤 `olddefconfig`와 대상 UAPI 헤더 설치를 실행합니다. 이후 커널과 내장 preinit runner를 컴파일합니다. `out/bakasu-source.txt`에는 upstream SHA와 서브모듈 원본 유지 상태가 기록됩니다.
 
 ### BakaSU main 통합
 
 - 갱신된 커널과 맞는 UAPI v6 Manager/ksud를 사용해야 합니다.
 - SUSFS preinit은 SELinux 정책 로드 전에 활성 모듈의 준비된 `preinit/preinit.conf` 작업을 실행합니다. runner는 커널에 포함되며 ksud가 다음 부팅용 입력을 `/metadata` 아래에 준비합니다. 실제 실행 여부는 ROM의 init과 초기 마운트 구성에 따라 달라 실기기 검증이 필요합니다.
 - 이 내장 구성에서는 `kernelsu.preinit=0`으로 preinit runner를 끌 수 있습니다. 기존 모듈 부팅 스크립트는 원래 단계에서 실행됩니다.
-- 커널 모듈 차단은 Linux의 모듈 이름 검사를 사용합니다. 명시적인 blacklist 차단에만 로딩 성공을 응답하고 다른 로더 오류는 보존합니다. 이미 로드된 `.ko`를 제거하는 기능은 아닙니다.
-- 수동 빌드, 패치 검증 및 exec 실패 처리는 [호환 패치 설명](patches/bakasu/README.md)을 참고하세요.
+- 커널 모듈 로딩은 커널 본래의 blacklist 동작을 유지하며 BakaSU 전용 차단 응답 훅은 추가하지 않습니다.
+- 수동 빌드, 원본 검사 및 exec 실패 처리는 [preinit 연동 설명](docs/bakasu-preinit.md)을 참고하세요. upstream의 지원 플래그만으로 실제 preinit 작업 실행을 확인할 수는 없습니다.
 
 초기 개발과 테스트가 SM-A325N에서 진행되었기 때문에 일부 설정 파일과 빌드 스크립트에는 `a325n`이라는 이름이 유지되어 있습니다. 빌드되는 커널 자체는 더 넓은 SM-A325 기기 계열을 대상으로 합니다.
 

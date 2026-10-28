@@ -118,9 +118,9 @@ jobs:
           echo "AK3_DIR=$ak3" >> "$GITHUB_ENV"
           echo "ANYKERNEL_RESOLVED_COMMIT=$resolved" >> "$GITHUB_ENV"
 
-      - name: Prepare BakaSU compatibility patch
+      - name: Check unmodified BakaSU source
         shell: bash
-        run: sh scripts/prepare_bakasu.sh --apply
+        run: sh scripts/prepare_bakasu.sh --check
 
       - name: Show build metadata
         shell: bash
@@ -153,14 +153,27 @@ jobs:
           "$TOOLCHAIN/bin/llvm-readelf" -h "$OUT_DIR/drivers/kernelsu/preinit/runner.elf" \
             > "$OUT_DIR/runner-elf-header.txt"
           grep -q 'AArch64' "$OUT_DIR/runner-elf-header.txt"
-          grep -q 'KSU_COMPAT_HAS_INSMOD_HOOK' \
-            "$OUT_DIR/drivers/kernelsu/feature/.module_blacklist.o.cmd"
+          sh scripts/prepare_bakasu.sh --check
+          test -s "$OUT_DIR/drivers/kernelsu/feature/.module_blacklist.o.cmd"
+          if grep -q 'KSU_COMPAT_HAS_INSMOD_HOOK' \
+            "$OUT_DIR/drivers/kernelsu/feature/.module_blacklist.o.cmd"; then
+            echo '::error::Unexpected BakaSU kernel-module blacklist integration'
+            exit 1
+          fi
           "$TOOLCHAIN/bin/llvm-nm" --defined-only "$OUT_DIR/vmlinux" \
             > "$OUT_DIR/bakasu-symbols.txt"
-          for symbol in ksu_setup_preinit_file_owned ksu_preinit_handle_post_execveat \
-                        ksu_preinit_runner_start ksu_handle_init_module ksu_handle_finit_module; do
+          for symbol in ksu_setup_preinit_file ksu_preinit_runner_start ksu_preinit_runner_end; do
             grep -q " $symbol$" "$OUT_DIR/bakasu-symbols.txt"
           done
+          "$TOOLCHAIN/bin/llvm-strings" "$OUT_DIR/arch/arm64/boot/Image" \
+            > "$OUT_DIR/kernel-strings.txt"
+          ksu_version="$(git -C KernelSU describe --tags --abbrev=0)-$(git -C KernelSU rev-parse --short=8 HEAD)"
+          grep -Fx -- "$ksu_version" "$OUT_DIR/kernel-strings.txt"
+          if grep -Fx -- "$ksu_version-dirty" \
+            "$OUT_DIR/kernel-strings.txt"; then
+            echo '::error::BakaSU version unexpectedly contains -dirty'
+            exit 1
+          fi
           grep -q '^CONFIG_NOMOUNT=y$' "$OUT_DIR/.config"
           grep -q '^CONFIG_ALWAYS_ENFORCE=y$' "$OUT_DIR/.config"
           cat "$OUT_DIR/include/config/kernel.release"
@@ -234,7 +247,7 @@ jobs:
           BakaSU commit: $ksu_sha
           BakaSU describe: $ksu_desc
           BakaSU version code: $ksu_code
-          BakaSU compatibility patch SHA256: $(sha256sum patches/bakasu/0001-a325x-linux414-integration.patch | cut -d ' ' -f 1)
+          BakaSU source: unmodified upstream; parent-kernel preinit adapter
           Preinit: runner linked; device execution requires boot verification
           SUSFS: $susfs
           Toolchain: pinned AOSP Clang 14
