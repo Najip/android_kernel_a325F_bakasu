@@ -32,6 +32,9 @@ Other SM-A325 regional variants may be compatible because they share the same ba
 - BakaSU SUSFS inline-hook integration for this non-GKI Linux 4.14 tree (KProbes/Kretprobes remain enabled for compatibility)
 - SELinux enforcing
 - NoMount `v2.2.0` built-in path redirection and virtual file injection
+<!-- AUTO:NOMOUNT:START -->
+- NoMount commit [`bf1847f9`](https://github.com/maxsteeel/nomount/commit/bf1847f98fed382369c43bfd652cd93774b9b8e3)
+<!-- AUTO:NOMOUNT:END -->
 - SUSFS mount hiding
 - SUSFS path hiding
 - SUSFS kstat spoofing

@@ -197,7 +197,7 @@ static void nm_dir_put(struct nm_dir_node *dir_node);
 /* =====================================================================
  * NoMount VFS Offset Protocol
  * =====================================================================
- * 64-bit layout: [ 16-bit 'nm' ][ 16-bit 0 ][ 32-bit ID ]
+ * 64-bit layout: [ 16-bit 'nm' ][ 16-bit 0 ][ 32-bit ID ] 
  * 32-bit layout: [ 16-bit 'nm' ][ 16-bit ID ]
  */
 #define NM_SIG_16 0x6E6DULL /* "nm" in hex */

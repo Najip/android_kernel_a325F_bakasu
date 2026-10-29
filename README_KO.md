@@ -32,6 +32,9 @@ Samsung MT6768 커널 소스를 기반으로 **BakaSU**와 **SUSFS**를 통합�
 - 이 Non-GKI Linux 4.14 트리를 위한 BakaSU SUSFS inline-hook 통합(KProbes/Kretprobes는 호환성을 위해 활성화)
 - SELinux Enforcing
 - NoMount `v2.2.0` 내장형 경로 리다이렉션 및 가상 파일 주입
+<!-- AUTO:NOMOUNT:START -->
+- NoMount 커밋 [`bf1847f9`](https://github.com/maxsteeel/nomount/commit/bf1847f98fed382369c43bfd652cd93774b9b8e3)
+<!-- AUTO:NOMOUNT:END -->
 - SUSFS 마운트 숨김
 - SUSFS 경로 숨김
 - SUSFS kstat 위조

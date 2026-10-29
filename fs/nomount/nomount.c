@@ -622,7 +622,7 @@ static int nm_getattr(IDMAP_ARG const struct path *path, struct kstat *stat, u32
         stat->ino = v_inode->i_ino;
         stat->dev = v_inode->i_sb->s_dev;
     }
-
+    
     return res;
 }
 
@@ -1122,7 +1122,7 @@ static void nm_restore_superblocks(void)
             smp_store_release(&nm_sop->sb->s_op, nm_sop->orig_sop);
             if (nm_sop->fake_xattr) {
                 smp_store_release((const struct xattr_handler ***)&nm_sop->sb->s_xattr, nm_sop->orig_xattr);
-                kfree(nm_sop->fake_xattr);
+                kfree(nm_sop->fake_xattr); 
             }
             nm_debug("Successfully cured superblock for dev: 0x%x\n", nm_sop->sb->s_dev);
         }
@@ -1781,7 +1781,7 @@ static int nm_process_payload(unsigned long user_addr)
     unsigned long pg_off = offset_in_page(user_addr);
     char *buf_ptr, *buf_end;
 
-    if (pg_off + sizeof(*payload) > PAGE_SIZE || get_user_pages_fast(user_addr, 1, FOLL_WRITE, &page) != 1)
+    if (pg_off + sizeof(*payload) > PAGE_SIZE || get_user_pages_fast(user_addr, 1, FOLL_WRITE, &page) != 1) 
         return -EFAULT;
 
     if ((payload = (void *)((char *)kmap(page) + pg_off))->magic != NM_MAGIC_SIG) {
