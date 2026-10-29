@@ -1,0 +1,179 @@
+name: Update NoMount
+
+on:
+  schedule:
+    # 03:47, 09:47, 15:47, 21:47 UTC
+    - cron: '47 3,9,15,21 * * *'
+  workflow_dispatch:
+    inputs:
+      nomount_ref:
+        description: 'NoMount branch, tag or commit to vendor'
+        required: false
+        type: string
+        default: 'master'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nomount-auto-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Update vendored NoMount (fs/nomount) and README
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout common
+        uses: actions/checkout@v7
+        with:
+          ref: common
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Fetch upstream NoMount
+        env:
+          NOMOUNT_REF: ${{ inputs.nomount_ref || 'master' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --quiet https://github.com/maxsteeel/nomount.git "$RUNNER_TEMP/nomount"
+          git -C "$RUNNER_TEMP/nomount" checkout --quiet "$NOMOUNT_REF"
+          echo "Upstream NoMount: $(git -C "$RUNNER_TEMP/nomount" rev-parse HEAD)"
+
+      - name: Manual built-in integration (Method 3)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          up="$RUNNER_TEMP/nomount"
+          src="$up/kernel/src"
+          dest="fs/nomount"
+
+          for f in Kconfig Makefile nomount.c nomount.h; do
+            test -f "$src/$f" || { echo "::error::Missing $src/$f upstream"; exit 1; }
+          done
+
+          sha="$(git -C "$up" rev-parse HEAD)"
+          count="$(git -C "$up" rev-list --count HEAD)"
+          ver="$(git -C "$up" describe --tags --abbrev=0 2>/dev/null || echo unversioned)"
+
+          # Step 3: copy kernel/src/* into fs/nomount
+          mkdir -p "$dest"
+          cp -f "$src/Kconfig" "$src/nomount.c" "$src/nomount.h" "$dest/"
+          if [ -f "$up/kernel/LICENSE" ]; then
+            cp -f "$up/kernel/LICENSE" "$dest/LICENSE"
+          fi
+
+          # Vendored Makefile: fixed commit count, no git calls during the kernel build
+          {
+            echo "# NoMount $ver, $sha ($count commits)."
+            echo "# Vendored source: keep the upstream version independent of kernel history."
+            printf 'ccflags-y += -DNOMOUNT_COMMIT_COUNT=\\"%s\\"\n' "$count"
+            echo
+            sed -n '/^obj-\$(CONFIG_NOMOUNT)/,$p' "$src/Makefile"
+          } > "$dest/Makefile"
+
+          grep -q 'obj-\$(CONFIG_NOMOUNT)' "$dest/Makefile" || { echo "::error::Generated Makefile is invalid"; exit 1; }
+
+          # Steps 1 and 2: fs/Kconfig and fs/Makefile hooks (must already exist)
+          grep -q 'source "fs/nomount/Kconfig"' fs/Kconfig || echo "::warning::fs/Kconfig is missing: source \"fs/nomount/Kconfig\""
+          grep -q 'nomount' fs/Makefile || echo "::warning::fs/Makefile is missing: obj-\$(CONFIG_NOMOUNT) += nomount/"
+
+          proto="$(sed -n 's/^#define NOMOUNT_BASE_VERSION "\(.*\)".*/\1/p' "$dest/nomount.h" | head -n1)"
+
+          echo "NOMOUNT_SHA=$sha" >> "$GITHUB_ENV"
+          echo "NOMOUNT_VER=$ver" >> "$GITHUB_ENV"
+          echo "NOMOUNT_COUNT=$count" >> "$GITHUB_ENV"
+          echo "NOMOUNT_PROTO=$proto" >> "$GITHUB_ENV"
+
+      - name: Sync README metadata (NoMount)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, re
+          from pathlib import Path
+
+          sha = os.environ["NOMOUNT_SHA"]
+          ver = os.environ["NOMOUNT_VER"]
+          count = os.environ["NOMOUNT_COUNT"]
+          proto = os.environ["NOMOUNT_PROTO"]
+
+          START = "<!-- AUTO:NOMOUNT:START -->"
+          END = "<!-- AUTO:NOMOUNT:END -->"
+          LABELS = {
+              "README.md": "- NoMount commit [`{s}`]({u})",
+              "README_KO.md": "- NoMount 커밋 [`{s}`]({u})",
+          }
+          url = "https://github.com/maxsteeel/nomount/commit/" + sha
+
+          for name in ("README.md", "README_KO.md"):
+              path = Path(name)
+              if not path.exists():
+                  continue
+              text = path.read_text(encoding="utf-8")
+              new = text
+
+              # NoMount `v2.2.0` / NoMount v2.2.0 anywhere in the file
+              if re.fullmatch(r"v\d+(?:\.\d+)+", ver):
+                  new = re.sub(
+                      r"(NoMount )(`?)v\d+(?:\.\d+)+\2",
+                      lambda m: m.group(1) + m.group(2) + ver + m.group(2),
+                      new,
+                  )
+
+              # Auto 'NoMount commit' line, right after the first '- NoMount' feature bullet
+              block = START + "\n" + LABELS[name].format(s=sha[:8], u=url) + "\n" + END
+              if START in new and END in new:
+                  new = re.sub(re.escape(START) + r".*?" + re.escape(END), lambda m: block, new, count=1, flags=re.S)
+              else:
+                  new, n = re.subn(r"(?m)^(- NoMount [^\n]*\n)", lambda m: m.group(1) + block + "\n", new, count=1)
+                  if n == 0:
+                      print("::warning::No '- NoMount' feature bullet in " + name)
+
+              # Commit, driver version and protocol only inside the '### NoMount' section
+              sec = re.search(r"(### NoMount\n)(.*?)(?=\n### |\Z)", new, re.S)
+              if sec:
+                  body = sec.group(2)
+                  body = re.sub(r"`[0-9a-f]{40}`", "`" + sha + "`", body)
+                  if proto:
+                      body = re.sub(r"`\d+ \(\d+\)`", "`" + proto + " (" + count + ")`", body)
+                      body = re.sub(r"((?:[Pp]rotocol|프로토콜) v)\d+", lambda m: m.group(1) + proto, body)
+                  new = new[:sec.start(2)] + body + new[sec.end(2):]
+              else:
+                  print("::warning::No '### NoMount' section in " + name)
+
+              if new != text:
+                  path.write_text(new, encoding="utf-8")
+                  print("Updated " + name)
+          PY
+
+      - name: Commit and push (no build)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git add -A fs/nomount README.md README_KO.md
+          if git diff --cached --quiet; then
+            echo "NoMount and README are already current."
+            exit 0
+          fi
+
+          # Skip commits that only change whitespace (spaces, tabs, line endings)
+          if [ -z "$(git diff --cached --ignore-all-space --unified=0 | grep -E '^[+-]' | grep -vE '^(\+\+\+|---)' || true)" ]; then
+            echo "Only whitespace differs from upstream; skipping commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git diff --cached --stat
+
+          git commit -m "nomount: update to ${NOMOUNT_SHA:0:8} (${NOMOUNT_VER}) [skip ci]"
+          git pull --rebase origin common
+          git push origin HEAD:common
+
+          # Intentionally no 'gh workflow run kernel.yml' and no BakaSU update here.
