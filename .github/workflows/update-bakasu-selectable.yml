@@ -1,0 +1,169 @@
+name: Update BakaSU - selectable branch
+
+# Manual copy of update-bakasu.yml.
+# - Runs on the branch chosen in "Use workflow from" and commits back to it.
+# - Lets you choose which BakaSU branch to pull.
+# - No schedule, so it never competes with the original auto-updater.
+
+on:
+  workflow_dispatch:
+    inputs:
+      bakasu_branch:
+        description: 'BakaSU branch to pull (empty = branch set in .gitmodules)'
+        required: false
+        type: string
+        default: ''
+      save_branch:
+        description: 'Also save this BakaSU branch to .gitmodules for future auto-updates'
+        required: false
+        type: boolean
+        default: false
+      run_build:
+        description: 'Start kernel.yml on this branch after updating'
+        required: false
+        type: boolean
+        default: true
+      publish_release:
+        description: 'Publish a kernel Release after that build'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: bakasu-selectable-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Update BakaSU submodule and README
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout selected branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+          submodules: recursive
+          persist-credentials: true
+
+      - name: Check selected BakaSU branch
+        id: ksu
+        env:
+          INPUT_BRANCH: ${{ inputs.bakasu_branch }}
+          SAVE_BRANCH: ${{ inputs.save_branch }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          current="$(git -C KernelSU rev-parse HEAD)"
+          tracked="$(git config -f .gitmodules --get submodule.KernelSU.branch)"
+          ksu_branch="${INPUT_BRANCH:-$tracked}"
+          git check-ref-format --branch "$ksu_branch" >/dev/null
+          git -C KernelSU fetch origin "+refs/heads/$ksu_branch:refs/remotes/origin/$ksu_branch" --tags
+          latest="$(git -C KernelSU rev-parse "refs/remotes/origin/$ksu_branch^{commit}")"
+          echo "Branch in .gitmodules: $tracked"
+          echo "Selected BakaSU branch: $ksu_branch"
+
+          echo "Current: $current"
+          echo "Latest : $latest"
+
+          updated=false
+          if [ "$current" != "$latest" ]; then
+            git -C KernelSU checkout --detach "$latest"
+            updated=true
+          else
+            echo "BakaSU is already at the tip of $ksu_branch."
+          fi
+
+          # Require unmodified upstream source and check its preinit API first.
+          sh scripts/prepare_bakasu.sh --check
+
+          gitmodules=false
+          if [ "$SAVE_BRANCH" = "true" ] && [ "$ksu_branch" != "$tracked" ]; then
+            git config -f .gitmodules submodule.KernelSU.branch "$ksu_branch"
+            gitmodules=true
+            echo "Saving $ksu_branch to .gitmodules"
+          fi
+
+          short="$(git -C KernelSU rev-parse --short=8 HEAD)"
+          desc="$(git -C KernelSU describe --tags --always)"
+          count="$(git -C KernelSU rev-list --count HEAD)"
+          code="$((30700 + count))"
+
+          echo "updated=$updated" >> "$GITHUB_OUTPUT"
+          echo "gitmodules=$gitmodules" >> "$GITHUB_OUTPUT"
+          echo "branch=$ksu_branch" >> "$GITHUB_OUTPUT"
+          echo "short=$short" >> "$GITHUB_OUTPUT"
+          echo "desc=$desc" >> "$GITHUB_OUTPUT"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+
+          echo "BakaSU: $desc"
+          echo "Version code: $code"
+
+      - name: Sync README metadata
+        id: readme
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python3 scripts/update_readme_versions.py
+
+          changed=false
+          if ! git diff --quiet -- README.md README_KO.md; then
+            changed=true
+          fi
+          echo "changed=$changed" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push to selected branch
+        if: steps.ksu.outputs.updated == 'true' || steps.readme.outputs.changed == 'true' || steps.ksu.outputs.gitmodules == 'true'
+        env:
+          TARGET_BRANCH: ${{ github.ref_name }}
+          KSU_BRANCH: ${{ steps.ksu.outputs.branch }}
+          KSU_SHORT: ${{ steps.ksu.outputs.short }}
+          KSU_UPDATED: ${{ steps.ksu.outputs.updated }}
+          KSU_GITMODULES: ${{ steps.ksu.outputs.gitmodules }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add KernelSU .gitmodules README.md README_KO.md
+          git diff --cached --submodule=short
+
+          if [ "$KSU_UPDATED" = "true" ]; then
+            git commit -m "kernelsu: update BakaSU to $KSU_SHORT ($KSU_BRANCH)"
+          elif [ "$KSU_GITMODULES" = "true" ]; then
+            git commit -m "kernelsu: track BakaSU branch $KSU_BRANCH"
+          else
+            git commit -m "docs: sync BakaSU README metadata"
+          fi
+
+          echo "Pushing to branch: $TARGET_BRANCH"
+          git pull --rebase origin "$TARGET_BRANCH"
+          git push origin "HEAD:$TARGET_BRANCH"
+
+      - name: Trigger kernel build and publish
+        if: steps.ksu.outputs.updated == 'true' && inputs.run_build
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_BRANCH: ${{ github.ref_name }}
+          PUBLISH: ${{ inputs.publish_release }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "Dispatching kernel.yml on $TARGET_BRANCH"
+          echo "publish_release=$PUBLISH"
+
+          gh workflow run kernel.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$TARGET_BRANCH" \
+            -f publish_release="$PUBLISH"
