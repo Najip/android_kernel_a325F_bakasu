@@ -1,5 +1,6 @@
 #!/bin/sh
-# Validate the unmodified upstream submodule; all adaptation lives in the kernel.
+# Validate the unmodified upstream submodule and the kernel compatibility
+# patches required by the selected BakaSU revision.
 set -eu
 
 ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
@@ -51,16 +52,16 @@ for api in my_write_context my_write_access my_setprocattr initialize_fake_statu
 done
 
 # BakaSU sync-up may call the parent adapter after a packages.list change.
-# Require the parent-side patch, but do not require it to be committed to the
-# kernel branch; kernel.yml applies it immediately before compilation.
-if grep -qE 'susfs_parse_priority_app_strings' \
+# The adapter is supplied by a kernel patch immediately before compilation;
+# verify that the patch exists and applies cleanly to this kernel revision.
+if grep -qE 'CMD_SUSFS_SET_PRIORITY_UID_FILTER|susfs_parse_priority_app_strings' \
   "$KSU/kernel/supercall/dispatch.c" "$KSU/kernel/manager/pkg_observer.c"; then
-  test -f "$PATCH" || {
+  test -s "$PATCH" || {
     echo "BakaSU native priority UID integration requires $PATCH" >&2
     exit 1
   }
   git -C "$ROOT" apply --check "$PATCH" || {
-    echo "BakaSU native priority UID integration patch does not apply cleanly" >&2
+    echo "BakaSU priority UID adapter patch does not apply to this kernel revision" >&2
     exit 1
   }
 fi

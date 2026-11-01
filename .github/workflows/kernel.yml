@@ -124,10 +124,7 @@ jobs:
 
       - name: Apply required kernel compatibility patches
         shell: bash
-        run: |
-          set -euo pipefail
-          sh scripts/apply_kernel_patches.sh
-          echo "KERNEL_PATCH_STATUS=$(git status --porcelain --untracked-files=normal | wc -l) patched files" >> "$GITHUB_ENV"
+        run: sh scripts/apply_kernel_patches.sh
 
       - name: Show build metadata
         shell: bash
@@ -138,8 +135,6 @@ jobs:
           echo "BakaSU SHA  : $(git -C KernelSU rev-parse HEAD)"
           echo "BakaSU desc : $(git -C KernelSU describe --tags --always --dirty)"
           echo "AnyKernel SHA : $ANYKERNEL_RESOLVED_COMMIT"
-          echo "Applied kernel patches:"
-          git diff --name-only
           echo "Disk before build:"
           df -h "$GITHUB_WORKSPACE" "$RUNNER_TEMP"
 
@@ -176,9 +171,10 @@ jobs:
             grep -q " $symbol$" "$OUT_DIR/bakasu-symbols.txt"
           done
           if grep -q 'susfs_parse_priority_app_strings' \
-            KernelSU/kernel/supercall/dispatch.c KernelSU/kernel/manager/pkg_observer.c 2>/dev/null; then
+            KernelSU/kernel/supercall/dispatch.c \
+            KernelSU/kernel/manager/pkg_observer.c 2>/dev/null; then
             grep -q ' susfs_parse_priority_app_strings$' "$OUT_DIR/bakasu-symbols.txt" || {
-              echo '::error::BakaSU sync-up priority adapter was not linked into vmlinux'
+              echo '::error::BakaSU priority UID adapter symbol missing from vmlinux'
               exit 1
             }
           fi
@@ -261,17 +257,13 @@ jobs:
           ksu_code="$((30700 + ksu_count))"
           susfs="$(sed -n 's/^#define SUSFS_VERSION "\([^"]*\)"/\1/p' include/linux/susfs.h | head -n1)"
           kernel_release="$(cat "$OUT_DIR/include/config/kernel.release")"
+          patch_hash="$(sha256sum patches/kernel/0001-susfs-add-bakasu-sync-up-priority-adapter.patch | cut -d' ' -f1)"
 
           sha256sum "$zip_path" > "$PACKAGE_DIR/SHA256SUMS.txt"
           sha256sum \
             "$OUT_DIR/arch/arm64/boot/Image" \
             "$OUT_DIR/arch/arm64/boot/Image.gz" \
             >> "$PACKAGE_DIR/SHA256SUMS.txt"
-
-          patch_manifest="$RUNNER_TEMP/kernel-patches.txt"
-          if [ -s "$patch_manifest" ]; then
-            cat "$patch_manifest" >> "$PACKAGE_DIR/SHA256SUMS.txt"
-          fi
 
           cat > "$PACKAGE_DIR/build-info.txt" <<EOF
           Kernel commit: $kernel_sha
@@ -282,8 +274,9 @@ jobs:
           BakaSU describe: $ksu_desc
           BakaSU version code: $ksu_code
           BakaSU source: unmodified upstream; parent-kernel preinit and SELinux adapters
-          Kernel patches: applied before compilation from patches/kernel
           SUSFS priority UID source: simonpunk gki-android12-5.10 eb95da0; parent command and package watcher
+          Kernel patch: 0001-susfs-add-bakasu-sync-up-priority-adapter.patch
+          Kernel patch SHA-256: $patch_hash
           Preinit: runner linked; device execution requires boot verification
           SUSFS: $susfs
           Toolchain: pinned AOSP Clang 14
