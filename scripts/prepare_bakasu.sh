@@ -52,18 +52,24 @@ for api in my_write_context my_write_access my_setprocattr initialize_fake_statu
 done
 
 # BakaSU sync-up may call the parent adapter after a packages.list change.
-# The adapter is supplied by a kernel patch immediately before compilation;
-# verify that the patch exists and applies cleanly to this kernel revision.
+# The adapter is supplied by a kernel patch immediately before compilation.
+# Accept an already-patched build tree; otherwise require the patch to exist
+# and apply cleanly to this kernel revision.
 if grep -qE 'CMD_SUSFS_SET_PRIORITY_UID_FILTER|susfs_parse_priority_app_strings' \
   "$KSU/kernel/supercall/dispatch.c" "$KSU/kernel/manager/pkg_observer.c"; then
-  test -s "$PATCH" || {
-    echo "BakaSU native priority UID integration requires $PATCH" >&2
-    exit 1
-  }
-  git -C "$ROOT" apply --check "$PATCH" || {
-    echo "BakaSU priority UID adapter patch does not apply to this kernel revision" >&2
-    exit 1
-  }
+  if grep -q 'void susfs_parse_priority_app_strings(void);' "$ROOT/include/linux/susfs.h" && \
+     grep -q 'void susfs_parse_priority_app_strings(void)' "$ROOT/fs/susfs_priority.c"; then
+    :
+  else
+    test -s "$PATCH" || {
+      echo "BakaSU native priority UID integration requires $PATCH" >&2
+      exit 1
+    }
+    git -C "$ROOT" apply --check "$PATCH" || {
+      echo "BakaSU priority UID adapter patch does not apply to this kernel revision" >&2
+      exit 1
+    }
+  fi
 fi
 
 printf 'BakaSU upstream: %s\n' "$(git -C "$KSU" rev-parse HEAD)"
