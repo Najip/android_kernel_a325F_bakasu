@@ -358,3 +358,13 @@ bool susfs_is_priority_uid_filtered(uid_t uid)
 	rcu_read_unlock();
 	return filtered;
 }
+
+/*
+ * BakaSU sync-up calls this from its package observer and rename hook.
+ * Queue the parent kernel's existing delayed refresh; never resolve paths
+ * or override credentials directly from an fsnotify/rename callback.
+ */
+void susfs_parse_priority_app_strings(void)
+{
+	priority_queue_refresh(msecs_to_jiffies(250));
+}

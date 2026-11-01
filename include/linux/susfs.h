@@ -167,6 +167,7 @@ struct st_susfs_priority_uid_filter {
 
 int susfs_set_priority_uid_filter(void __user *arg);
 bool susfs_is_priority_uid_filtered(uid_t uid);
+void susfs_parse_priority_app_strings(void);
 
 struct st_susfs_avc_log_spoofing {
 	bool                                    enabled;

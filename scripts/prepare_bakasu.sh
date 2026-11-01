@@ -48,10 +48,19 @@ grep -q 'KSU_INSTALL_MAGIC1, 0xDEADBEEF' "$KSU/kernel/include/uapi/supercall.h"
 for api in my_write_context my_write_access my_setprocattr initialize_fake_status; do
   grep -q "$api" "$KSU/kernel/feature/selinux_hide.c"
 done
-if grep -qE 'CMD_SUSFS_SET_PRIORITY_UID_FILTER|susfs_parse_priority_app_strings' \
+
+# BakaSU sync-up may call the parent adapter after a packages.list change.
+# Require the parent-side safe refresh adapter before accepting such updates.
+if grep -qE 'susfs_parse_priority_app_strings' \
   "$KSU/kernel/supercall/dispatch.c" "$KSU/kernel/manager/pkg_observer.c"; then
-  echo "BakaSU now has native priority UID integration; review the parent adapter before updating" >&2
-  exit 1
+  grep -q 'void susfs_parse_priority_app_strings(void);' "$ROOT/include/linux/susfs.h" || {
+    echo "BakaSU native priority UID integration requires susfs_parse_priority_app_strings declaration" >&2
+    exit 1
+  }
+  grep -q 'void susfs_parse_priority_app_strings(void)' "$ROOT/fs/susfs_priority.c" || {
+    echo "BakaSU native priority UID integration requires the parent refresh adapter" >&2
+    exit 1
+  }
 fi
 
 printf 'BakaSU upstream: %s\n' "$(git -C "$KSU" rev-parse HEAD)"
