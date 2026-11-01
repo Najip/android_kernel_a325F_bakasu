@@ -4,6 +4,7 @@ set -eu
 
 ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 KSU="$ROOT/KernelSU"
+PATCH="$ROOT/patches/kernel/0001-susfs-add-bakasu-sync-up-priority-adapter.patch"
 
 case "${1:---check}" in
   --check) ;;
@@ -48,10 +49,20 @@ grep -q 'KSU_INSTALL_MAGIC1, 0xDEADBEEF' "$KSU/kernel/include/uapi/supercall.h"
 for api in my_write_context my_write_access my_setprocattr initialize_fake_status; do
   grep -q "$api" "$KSU/kernel/feature/selinux_hide.c"
 done
-if grep -qE 'CMD_SUSFS_SET_PRIORITY_UID_FILTER|susfs_parse_priority_app_strings' \
+
+# BakaSU sync-up may call the parent adapter after a packages.list change.
+# Require the parent-side patch, but do not require it to be committed to the
+# kernel branch; kernel.yml applies it immediately before compilation.
+if grep -qE 'susfs_parse_priority_app_strings' \
   "$KSU/kernel/supercall/dispatch.c" "$KSU/kernel/manager/pkg_observer.c"; then
-  echo "BakaSU now has native priority UID integration; review the parent adapter before updating" >&2
-  exit 1
+  test -f "$PATCH" || {
+    echo "BakaSU native priority UID integration requires $PATCH" >&2
+    exit 1
+  }
+  git -C "$ROOT" apply --check "$PATCH" || {
+    echo "BakaSU native priority UID integration patch does not apply cleanly" >&2
+    exit 1
+  }
 fi
 
 printf 'BakaSU upstream: %s\n' "$(git -C "$KSU" rev-parse HEAD)"

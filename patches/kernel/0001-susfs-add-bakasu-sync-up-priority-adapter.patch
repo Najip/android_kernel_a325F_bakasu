@@ -1,0 +1,46 @@
+From 8f34e7bd3bd4b104ab4fee68c0bfc2b320299856 Mon Sep 17 00:00:00 2001
+From: Najip Ali Munajat <najipmunajat22@gmail.com>
+Date: Sun, 1 Nov 2026 05:30:23 +0000
+Subject: [PATCH] susfs: add BakaSU sync-up priority UID refresh adapter
+
+Expose susfs_parse_priority_app_strings() as a safe parent-kernel adapter
+for BakaSU sync-up's package observer and rename hook. Queue the existing
+delayed refresh instead of resolving paths or overriding credentials from
+an fsnotify/rename callback.
+---
+ fs/susfs_priority.c    | 10 ++++++++++
+ include/linux/susfs.h  |  1 +
+ 2 files changed, 11 insertions(+)
+
+diff --git a/include/linux/susfs.h b/include/linux/susfs.h
+index c8c928ac1a90..8abca3a9f783 100644
+--- a/include/linux/susfs.h
++++ b/include/linux/susfs.h
+@@ -171,6 +171,7 @@ struct st_susfs_priority_uid_filter {
+ 
+ int susfs_set_priority_uid_filter(void __user *arg);
+ bool susfs_is_priority_uid_filtered(uid_t uid);
++void susfs_parse_priority_app_strings(void);
+ 
+ struct st_susfs_avc_log_spoofing {
+ 	bool                                    enabled;
+diff --git a/fs/susfs_priority.c b/fs/susfs_priority.c
+index f58f7d4a0879..e95e8f89ddcd 100644
+--- a/fs/susfs_priority.c
++++ b/fs/susfs_priority.c
+@@ -378,3 +378,13 @@ bool susfs_is_priority_uid_filtered(uid_t uid)
+ 	rcu_read_unlock();
+ 	return filtered;
+ }
++
++/*
++ * BakaSU sync-up calls this from its package observer and rename hook.
++ * Queue the parent kernel's existing delayed refresh; never resolve paths
++ * or override credentials directly from an fsnotify/rename callback.
++ */
++void susfs_parse_priority_app_strings(void)
++{
++	priority_queue_refresh(msecs_to_jiffies(250));
++}
+-- 
+2.51.0

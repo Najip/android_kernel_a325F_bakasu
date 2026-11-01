@@ -122,6 +122,13 @@ jobs:
         shell: bash
         run: sh scripts/prepare_bakasu.sh --check
 
+      - name: Apply required kernel compatibility patches
+        shell: bash
+        run: |
+          set -euo pipefail
+          sh scripts/apply_kernel_patches.sh
+          echo "KERNEL_PATCH_STATUS=$(git status --porcelain --untracked-files=normal | wc -l) patched files" >> "$GITHUB_ENV"
+
       - name: Show build metadata
         shell: bash
         run: |
@@ -131,6 +138,8 @@ jobs:
           echo "BakaSU SHA  : $(git -C KernelSU rev-parse HEAD)"
           echo "BakaSU desc : $(git -C KernelSU describe --tags --always --dirty)"
           echo "AnyKernel SHA : $ANYKERNEL_RESOLVED_COMMIT"
+          echo "Applied kernel patches:"
+          git diff --name-only
           echo "Disk before build:"
           df -h "$GITHUB_WORKSPACE" "$RUNNER_TEMP"
 
@@ -166,6 +175,13 @@ jobs:
                         susfs_set_priority_uid_filter susfs_is_priority_uid_filtered; do
             grep -q " $symbol$" "$OUT_DIR/bakasu-symbols.txt"
           done
+          if grep -q 'susfs_parse_priority_app_strings' \
+            KernelSU/kernel/supercall/dispatch.c KernelSU/kernel/manager/pkg_observer.c 2>/dev/null; then
+            grep -q ' susfs_parse_priority_app_strings$' "$OUT_DIR/bakasu-symbols.txt" || {
+              echo '::error::BakaSU sync-up priority adapter was not linked into vmlinux'
+              exit 1
+            }
+          fi
           grep -q 'KSU_COMPAT_HAS_SUSFS_FEATURE_SELINUX_HIDE' \
             "$OUT_DIR/drivers/kernelsu/feature/.selinux_hide.o.cmd"
           "$TOOLCHAIN/bin/llvm-nm" --extern-only --defined-only "$OUT_DIR/vmlinux" \
@@ -252,6 +268,11 @@ jobs:
             "$OUT_DIR/arch/arm64/boot/Image.gz" \
             >> "$PACKAGE_DIR/SHA256SUMS.txt"
 
+          patch_manifest="$RUNNER_TEMP/kernel-patches.txt"
+          if [ -s "$patch_manifest" ]; then
+            cat "$patch_manifest" >> "$PACKAGE_DIR/SHA256SUMS.txt"
+          fi
+
           cat > "$PACKAGE_DIR/build-info.txt" <<EOF
           Kernel commit: $kernel_sha
           Kernel short: $kernel_short
@@ -261,6 +282,7 @@ jobs:
           BakaSU describe: $ksu_desc
           BakaSU version code: $ksu_code
           BakaSU source: unmodified upstream; parent-kernel preinit and SELinux adapters
+          Kernel patches: applied before compilation from patches/kernel
           SUSFS priority UID source: simonpunk gki-android12-5.10 eb95da0; parent command and package watcher
           Preinit: runner linked; device execution requires boot verification
           SUSFS: $susfs
