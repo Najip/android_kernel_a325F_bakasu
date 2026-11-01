@@ -14,7 +14,7 @@ diff --git a/fs/susfs_priority.c b/fs/susfs_priority.c
 index f58f7d4a0879..e95e8f89ddcd 100644
 --- a/fs/susfs_priority.c
 +++ b/fs/susfs_priority.c
-@@ -443,3 +443,14 @@ bool susfs_is_priority_uid_filtered(uid_t uid)
+@@ -443,3 +443,16 @@ bool susfs_is_priority_uid_filtered(uid_t uid)
  	rcu_read_unlock();
  	return filtered;
  }
