@@ -2,7 +2,7 @@ name: Update BakaSU - selectable branch
 
 # Manual copy of update-bakasu.yml.
 # - Runs on the branch chosen in "Use workflow from" and commits back to it.
-# - Lets you choose which BakaSU branch to pull.
+# - Lets you choose which BakaSU branch to pull, or pin an exact commit/tag.
 # - No schedule, so it never competes with the original auto-updater.
 
 on:
@@ -10,6 +10,11 @@ on:
     inputs:
       bakasu_branch:
         description: 'BakaSU branch to pull (empty = branch set in .gitmodules)'
+        required: false
+        type: string
+        default: ''
+      bakasu_commit:
+        description: 'Pin BakaSU to this commit or tag (empty = branch tip)'
         required: false
         type: string
         default: ''
@@ -52,10 +57,11 @@ jobs:
           submodules: recursive
           persist-credentials: true
 
-      - name: Check selected BakaSU branch
+      - name: Check selected BakaSU revision
         id: ksu
         env:
           INPUT_BRANCH: ${{ inputs.bakasu_branch }}
+          INPUT_COMMIT: ${{ inputs.bakasu_commit }}
           SAVE_BRANCH: ${{ inputs.save_branch }}
         shell: bash
         run: |
@@ -66,19 +72,26 @@ jobs:
           ksu_branch="${INPUT_BRANCH:-$tracked}"
           git check-ref-format --branch "$ksu_branch" >/dev/null
           git -C KernelSU fetch origin "+refs/heads/$ksu_branch:refs/remotes/origin/$ksu_branch" --tags
-          latest="$(git -C KernelSU rev-parse "refs/remotes/origin/$ksu_branch^{commit}")"
+
+          if [ -n "$INPUT_COMMIT" ]; then
+            target="$(git -C KernelSU rev-parse "$INPUT_COMMIT^{commit}")"
+            echo "Pinned BakaSU revision: $target"
+          else
+            target="$(git -C KernelSU rev-parse "refs/remotes/origin/$ksu_branch^{commit}")"
+            echo "Following tip of BakaSU branch: $ksu_branch"
+          fi
+
           echo "Branch in .gitmodules: $tracked"
           echo "Selected BakaSU branch: $ksu_branch"
-
           echo "Current: $current"
-          echo "Latest : $latest"
+          echo "Target : $target"
 
           updated=false
-          if [ "$current" != "$latest" ]; then
-            git -C KernelSU checkout --detach "$latest"
+          if [ "$current" != "$target" ]; then
+            git -C KernelSU checkout --detach "$target"
             updated=true
           else
-            echo "BakaSU is already at the tip of $ksu_branch."
+            echo "BakaSU is already at the selected revision."
           fi
 
           # Require unmodified upstream source and check its preinit API first.
