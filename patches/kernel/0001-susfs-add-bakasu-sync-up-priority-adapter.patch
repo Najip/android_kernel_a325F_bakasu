@@ -14,7 +14,7 @@ diff --git a/fs/susfs_priority.c b/fs/susfs_priority.c
 index f58f7d4a0879..e95e8f89ddcd 100644
 --- a/fs/susfs_priority.c
 +++ b/fs/susfs_priority.c
-@@ -443,3 +443,16 @@ bool susfs_is_priority_uid_filtered(uid_t uid)
+@@ -443,3 +443,32 @@ bool susfs_is_priority_uid_filtered(uid_t uid)
  	rcu_read_unlock();
  	return filtered;
  }
@@ -30,4 +30,20 @@ index f58f7d4a0879..e95e8f89ddcd 100644
 +
 +	delay = msecs_to_jiffies(250);
 +	priority_queue_refresh(delay);
++}
++
++/*
++ * Compatibility shims for the BakaSU sync-up selinux integration.
++ * SUSFS v2.3.0 does not provide the newer per-type AVD / sus-type
++ * tracking API, so provide safe no-op implementations; BakaSU's
++ * selinux_hide still operates through its own non-susfs path.
++ */
++int susfs_add_sus_avd_allowed_by_type(u32 s_type, u32 t_type, u32 c_type, u32 orig_avd_allowed)
++{
++	return 0;
++}
++
++int susfs_add_sus_type(const char *secctx, u32 type_value)
++{
++	return 0;
 +}
