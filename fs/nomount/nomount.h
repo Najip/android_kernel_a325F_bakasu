@@ -76,9 +76,6 @@ struct nm_sop {
 struct nm_inode_info {
     struct path r_path;
     struct nm_dir_node *dir_node;
-    struct dentry *saved_parent;
-    char *r_name;
-    u16 r_name_len;
     bool opaque;
     struct rcu_head rcu;
 };
@@ -370,12 +367,21 @@ struct nm_del_hdr {
     #define nm_inode_is_new(inode) (inode->i_state & I_NEW)
 #endif
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 13, 0)
+#define sb_rdonly(sb) ((sb)->s_flags & MS_RDONLY)
+#endif
+
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 12, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(5, 2, 0)
     #define FLAGS_ARG , int flags
     #define FLAGS_VAL , flags
 #else
     #define FLAGS_ARG /* Nothing */
     #define FLAGS_VAL /* Nothing */
+#endif
+
+#ifndef for_each_alias
+#define for_each_alias(dentry, inode) \
+    hlist_for_each_entry(dentry, &(inode)->i_dentry, d_u.d_alias)
 #endif
 
 #ifndef DCACHE_DONTCACHE
