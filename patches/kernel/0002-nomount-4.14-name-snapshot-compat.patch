@@ -1,0 +1,22 @@
+diff --git a/fs/nomount/nomount.c b/fs/nomount/nomount.c
+index 000000000000..000000000001 100644
+--- a/fs/nomount/nomount.c
++++ b/fs/nomount/nomount.c
+@@ -1370,8 +1370,18 @@ static int nm_resolve_rule_from_leaf(struct nm_leaf *leaf, uid_t fsuid, struct
+ 				if (!read_seqcount_retry(&dentry->d_seq, seq)) break;
+ 				dput(out->r_parent);
+ 				release_dentry_name_snapshot(name);
+ 			}
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
+ 			out->r_name = name->name.name;
+ 			out->r_name_len = name->name.len;
++#else
++			/* Kernel 4.14: struct name_snapshot.name is a plain
++			 * const unsigned char *, not a struct qstr. */
++			out->r_name = name->name;
++			out->r_name_len = strlen(name->name);
++#endif
+ 		}
+ 	}
+ 	return 0;
+ }
