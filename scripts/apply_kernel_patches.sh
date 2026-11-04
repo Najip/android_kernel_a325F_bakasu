@@ -4,24 +4,10 @@
 set -eu
 
 ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
-KSU="$ROOT/KernelSU"
 PATCH_DIR="$ROOT/patches/kernel"
-PATCH="$PATCH_DIR/0001-susfs-add-bakasu-sync-up-priority-adapter.patch"
 
-needs_adapter=false
-if grep -q 'susfs_parse_priority_app_strings' \
-	"$KSU/kernel/supercall/dispatch.c" \
-	"$KSU/kernel/manager/pkg_observer.c" 2>/dev/null; then
-	needs_adapter=true
-fi
-
-if [ "$needs_adapter" = false ]; then
-	echo 'BakaSU does not require the parent priority UID refresh adapter.'
-	exit 0
-fi
-
-if [ ! -s "$PATCH" ]; then
-	echo "Missing required kernel patch: $PATCH" >&2
+if [ ! -d "$PATCH_DIR" ]; then
+	echo "Missing kernel patch directory: $PATCH_DIR" >&2
 	exit 1
 fi
 
@@ -32,7 +18,16 @@ if [ -n "$(git -C "$ROOT" status --porcelain --untracked-files=normal)" ]; then
 	exit 1
 fi
 
-git -C "$ROOT" apply --check "$PATCH"
-git -C "$ROOT" apply "$PATCH"
+patches=$(find "$PATCH_DIR" -maxdepth 1 -type f -name '*.patch' | sort)
 
-echo "Applied kernel patch: $(basename "$PATCH")"
+if [ -z "$patches" ]; then
+	echo "No kernel compatibility patches found in $PATCH_DIR."
+	exit 0
+fi
+
+for patch in $patches; do
+	echo "Checking kernel patch: $(basename "$patch")"
+	git -C "$ROOT" apply --check "$patch"
+	git -C "$ROOT" apply "$patch"
+	echo "Applied kernel patch: $(basename "$patch")"
+done
