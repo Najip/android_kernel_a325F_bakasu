@@ -1,6 +1,6 @@
-# NoMount v2.2.0, e07896de51a39edd4b993c496a1457092751df5e (637 commits).
+# NoMount v2.2.0, 0fb89eac1a5bb3d786ecf1434788717c5bfbf26a (639 commits).
 # Vendored source: keep the upstream version independent of kernel history.
-ccflags-y += -DNOMOUNT_COMMIT_COUNT=\"637\"
+ccflags-y += -DNOMOUNT_COMMIT_COUNT=\"639\"
 
 obj-$(CONFIG_NOMOUNT) += nomount.o
 ccflags-y += -std=gnu11 -Wno-declaration-after-statement -O3 -fno-stack-protector
