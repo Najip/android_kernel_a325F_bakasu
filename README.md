@@ -33,7 +33,7 @@ Other SM-A325 regional variants may be compatible because they share the same ba
 - SELinux enforcing
 - NoMount `v2.2.0` built-in path redirection and virtual file injection
 <!-- AUTO:NOMOUNT:START -->
-- NoMount commit [`07efa370`](https://github.com/maxsteeel/nomount/commit/07efa370edb784327ee03877c9882ab2599a15ce)
+- NoMount commit [`d4338979`](https://github.com/maxsteeel/nomount/commit/d433897939cfd44c9b0d08bc69c9d1b14471584c)
 <!-- AUTO:NOMOUNT:END -->
 - SUSFS mount hiding
 - SUSFS path hiding
@@ -194,7 +194,7 @@ This project would not have been possible without the work of the following proj
 
 - [maxsteeel/nomount](https://github.com/maxsteeel/nomount)
 
-  NoMount provides mountless path redirection and virtual file injection. This kernel includes the upstream NoMount v2.2.0 kernel implementation as a built-in subsystem for the Linux 4.14 device tree. The source is pinned to commit `07efa370edb784327ee03877c9882ab2599a15ce` and reports driver version `22 (643)`. Use the matching NoMount v2.2.0 metamodule and CLI: protocol v22 is incompatible with the older v21 tools.
+  NoMount provides mountless path redirection and virtual file injection. This kernel includes the upstream NoMount v2.2.0 kernel implementation as a built-in subsystem for the Linux 4.14 device tree. The source is pinned to commit `d433897939cfd44c9b0d08bc69c9d1b14471584c` and reports driver version `22 (644)`. Use the matching NoMount v2.2.0 metamodule and CLI: protocol v22 is incompatible with the older v21 tools.
 
 ### AnyKernel3
 
