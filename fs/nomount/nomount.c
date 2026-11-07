@@ -274,13 +274,15 @@ static inline void nm_emit_virtual_children(struct dir_context *ctx, struct nm_d
 	}
 }
 
+static inline umode_t nm_visible_mode(umode_t mode) { return mode & ~(S_ISUID | S_ISGID); }
+
 static void nm_init_prealloc_inode(struct inode *inode, struct nm_inode_info *info, unsigned long v_ino)
 {
     struct inode *r_inode = info->r_path.dentry ? d_backing_inode(info->r_path.dentry) : NULL;
 
     inode->i_ino = v_ino;
     inode->i_private = info;
-    inode->i_mode   = r_inode ? r_inode->i_mode & ~(S_ISUID | S_ISGID) : (S_IFDIR | 0755);
+    inode->i_mode   = r_inode ? nm_visible_mode(r_inode->i_mode) : (S_IFDIR | 0755);
     inode->i_size   = r_inode ? i_size_read(r_inode) : 4096;
     inode->i_blocks = r_inode ? r_inode->i_blocks  : 8;
     inode->i_uid    = r_inode ? r_inode->i_uid     : GLOBAL_ROOT_UID;
@@ -308,6 +310,11 @@ static void nm_init_prealloc_inode(struct inode *inode, struct nm_inode_info *in
     if (!S_ISLNK(inode->i_mode)) inode->i_opflags |= IOP_NOFOLLOW;
 }
 
+static bool nm_inode_matches_attrs(struct inode *inode, struct inode *r_inode)
+{
+    return !r_inode || nm_inode_is_new(inode) || (inode->i_mode == nm_visible_mode(r_inode->i_mode) && uid_eq(inode->i_uid, r_inode->i_uid) && gid_eq(inode->i_gid, r_inode->i_gid));
+}
+
 static bool nm_inode_matches_binding(struct inode *inode, const struct path *path, struct nm_dir_node *dir_node, bool opaque)
 {
     struct nm_inode_info *info = READ_ONCE(inode->i_private);
@@ -316,9 +323,7 @@ static bool nm_inode_matches_binding(struct inode *inode, const struct path *pat
     if (!info || info->dir_node != dir_node || !path_equal(&info->r_path, path) || (dir_node && info->opaque != opaque))
         return false;
     r_inode = path->dentry ? d_backing_inode(path->dentry) : NULL;
-    return !r_inode || nm_inode_is_new(inode) ||
-           (inode->i_mode == r_inode->i_mode && uid_eq(inode->i_uid, r_inode->i_uid) &&
-            gid_eq(inode->i_gid, r_inode->i_gid));
+    return nm_inode_matches_attrs(inode, r_inode);
 }
 
 static bool nm_binding_matches_rule(struct inode *inode, const struct nm_rule *rule)
@@ -327,15 +332,13 @@ static bool nm_binding_matches_rule(struct inode *inode, const struct nm_rule *r
     struct dentry *d;
     struct inode *r_inode;
 
-    if (!info || info->dir_node || info->opaque)
+    if (!info || info->backing_child || info->dir_node || info->opaque)
         return false;
     d = READ_ONCE(info->r_path.dentry);
     if (!d || !nm_path_unchanged(d, rule->r_parent, rule->r_name, rule->r_name_len))
         return false;
     r_inode = d_backing_inode(d);
-    return !r_inode || nm_inode_is_new(inode) ||
-           (inode->i_mode == r_inode->i_mode && uid_eq(inode->i_uid, r_inode->i_uid) &&
-            gid_eq(inode->i_gid, r_inode->i_gid));
+    return nm_inode_matches_attrs(inode, r_inode);
 }
 
 static int nm_cached_inode_set(struct inode *inode, void *data) { return 0; }
@@ -347,9 +350,9 @@ static int nm_cached_inode_test(struct inode *inode, void *data)
 
 static struct dentry *nm_materialize_rule(struct inode *dir, struct dentry *dentry, struct nm_rule_info *rule_info)
 {
-    struct nm_inode_info probe = {0}, *info = NULL;
+    struct nm_inode_info probe, *info = NULL;
     struct inode *inode;
-    struct dentry *res = ERR_PTR(-ENODATA);
+    struct dentry *res = ERR_PTR(rule_info->backing_child ? -ENOMEM : -ENODATA);
 
     if (rule_info->r_name) {
         int err = nm_rebind_path(rule_info);
@@ -360,10 +363,12 @@ static struct dentry *nm_materialize_rule(struct inode *dir, struct dentry *dent
 
     if (rule_info->flags & NM_FLAG_WHITEOUT) goto negative_dentry;
 
+    probe = (struct nm_inode_info){
+        .r_path = rule_info->r_path, .dir_node = rule_info->this_dir,
+        .opaque = rule_info->this_dir && (rule_info->flags & NM_FLAG_OPAQUE),
+        .backing_child = rule_info->backing_child,
+    };
     if (rule_info->this_dir) {
-        probe.r_path = rule_info->r_path;
-        probe.dir_node = rule_info->this_dir;
-        probe.opaque = rule_info->flags & NM_FLAG_OPAQUE;
         inode = iget5_locked(dir->i_sb, (unsigned long)rule_info->this_dir, nm_cached_inode_test, nm_cached_inode_set, &probe);
         if (!inode) goto out;
 
@@ -381,15 +386,13 @@ static struct dentry *nm_materialize_rule(struct inode *dir, struct dentry *dent
     }
 
     if (!(info = kmalloc(sizeof(*info), GFP_KERNEL))) goto out;
-    info->r_path = rule_info->r_path;
-    info->dir_node = NULL;
-    info->opaque = false;
-    info->r_file = NULL;
+    *info = probe;
     if (!(inode = new_inode(dir->i_sb))) goto out;
     nm_init_prealloc_inode(inode, info, rule_info->v_ino);
-    d_add(dentry, inode);
-    nm_hijack_dentry_ops(dir, dentry, true);
-    return NULL;
+    res = d_splice_alias(inode, dentry);
+    if (!IS_ERR(res))
+        nm_hijack_dentry_ops(dir, res ? res : dentry, true);
+    return res;
 
 negative_dentry:
     nm_hijack_dentry_ops(dir, dentry, true);
@@ -440,15 +443,45 @@ static struct dentry *nm_hijacked_lookup(struct inode *dir, struct dentry *dentr
     return ERR_PTR(-EOPNOTSUPP);
 }
 
+static int nm_iterate_view(struct file *file, struct dir_context *ctx, const struct file_operations *fop,
+                           struct nm_dir_node *dir_node, bool native_view, bool opaque)
+{
+    struct file *real_file = native_view ? file : file->private_data;
+    uid_t fsuid = current_fsuid().val;
+    bool uid_blocked = nm_is_uid_blocked(fsuid);
+    int res = 0;
+
+    if (unlikely(nm_is_virtual_pos(ctx->pos)))
+        goto emit_virtual;
+    if (opaque || !real_file) {
+        if (ctx->pos < 2 && !dir_emit_dots(file, ctx)) return 0;
+        ctx->pos = nm_pack_pos(0);
+        goto emit_virtual;
+    }
+    if (unlikely(uid_blocked || !dir_node))
+        return nm_call_iterate(real_file, ctx, fop);
+
+    struct nm_proxy_ctx proxy_ctx = {
+        .ctx.actor = nm_actor_proxy, .ctx.pos = ctx->pos, .orig_ctx = ctx,
+        .dir_node = dir_node, .fsuid = fsuid, .native_view = native_view,
+    };
+    res = nm_call_iterate(real_file, &proxy_ctx.ctx, fop);
+    ctx->pos = proxy_ctx.ctx.pos;
+    if (res < 0 || proxy_ctx.emitted) return res;
+    ctx->pos = nm_pack_pos(0);
+
+emit_virtual:
+    if (likely(!uid_blocked))
+        nm_emit_virtual_children(ctx, dir_node, fsuid, native_view);
+    return res;
+}
+
 static int nm_hijacked_iterate_dir(struct file *file, struct dir_context *ctx)
 {
     const struct file_operations *orig_fop = NULL;
     struct nm_dir_node *d, *dir_node = NULL;
-    struct nm_dir_ops *nm_fop = NULL;
-    struct nm_proxy_ctx proxy_ctx = { .ctx.actor = nm_actor_proxy, .native_view = true };
-    uid_t fsuid = current_fsuid().val;
-    bool uid_blocked = false;
-    int res = 0;
+    struct nm_dir_ops *nm_fop;
+    int res;
 
     rcu_read_lock();
     if ((nm_fop = nm_get_nm_fop(rcu_dereference(file->f_op)))) {
@@ -459,41 +492,10 @@ static int nm_hijacked_iterate_dir(struct file *file, struct dir_context *ctx)
     rcu_read_unlock();
 
     if (unlikely(!orig_fop || !dir_node))
-        goto do_real_iterate;
-
-    uid_blocked = nm_is_uid_blocked(fsuid);
-    if (unlikely(nm_is_virtual_pos(ctx->pos))) {
-        if (!uid_blocked) nm_emit_virtual_children(ctx, dir_node, fsuid, true);
-        nm_dir_put(dir_node);
-        return 0;
-    }
-
-    if (unlikely(uid_blocked))
-        goto put_dir_node;
-
-    proxy_ctx.ctx.pos = ctx->pos;
-    proxy_ctx.orig_ctx = ctx;
-    proxy_ctx.fsuid = fsuid;
-    proxy_ctx.dir_node = dir_node;
-    res = nm_call_iterate(file, &proxy_ctx.ctx, orig_fop);
-    ctx->pos = proxy_ctx.ctx.pos;
-
-    if (res < 0 || proxy_ctx.emitted) {
-        nm_dir_put(dir_node);
-        return res;
-    }
-
-    ctx->pos = nm_pack_pos(0);
-    nm_emit_virtual_children(ctx, dir_node, fsuid, true);
+        return orig_fop ? nm_call_iterate(file, ctx, orig_fop) : -ENOTDIR;
+    res = nm_iterate_view(file, ctx, orig_fop, dir_node, true, false);
     nm_dir_put(dir_node);
     return res;
-
-put_dir_node:
-    nm_dir_put(dir_node);
-do_real_iterate:
-    if (likely(orig_fop))
-        return nm_call_iterate(file, ctx, orig_fop);
-    return -ENOTDIR;
 }
 
 static int nm_hijacked_unlink(struct inode *dir, struct dentry *dentry)
@@ -509,10 +511,10 @@ static int nm_hijacked_unlink(struct inode *dir, struct dentry *dentry)
     if (unlikely(!inode))
         return -ENOENT;
 
-    if (unlikely(!(nm_iop = nm_get_nm_iop(smp_load_acquire(&dir->i_op))) || nm_is_uid_blocked(fsuid)))
+    if (unlikely(!(nm_iop = nm_get_nm_iop(smp_load_acquire(&dir->i_op))) || !nm_inode_is_virtual(inode) || nm_is_uid_blocked(fsuid)))
         goto do_real_unlink;
 
-    mutex_lock(&nm_mutex);
+    if (!mutex_trylock(&nm_mutex)) return -EBUSY;
     dir_node = rcu_dereference_protected(nm_iop->dir_node, lockdep_is_held(&nm_mutex));
     if (unlikely(!dir_node || !rcu_access_pointer(dir_node->children))) {
         mutex_unlock(&nm_mutex);
@@ -773,7 +775,7 @@ static int nm_getattr(IDMAP_ARG const struct path *path, struct kstat *stat, u32
     if (likely(res == 0)) {
         stat->ino = v_inode->i_ino;
         stat->dev = v_inode->i_sb->s_dev;
-        stat->mode &= ~(S_ISUID | S_ISGID);
+        stat->mode = nm_visible_mode(stat->mode);
     }
     
     return res;
@@ -796,7 +798,7 @@ static int nm_setattr(IDMAP_ARG struct dentry *dentry, struct iattr *attr)
 
     if (likely(!err)) {
         if (attr->ia_valid & ATTR_SIZE) i_size_write(v_inode, i_size_read(r_inode));
-        if (attr->ia_valid & ATTR_MODE) v_inode->i_mode = r_inode->i_mode & ~(S_ISUID | S_ISGID);
+        if (attr->ia_valid & ATTR_MODE) v_inode->i_mode = nm_visible_mode(r_inode->i_mode);
         if (attr->ia_valid & ATTR_UID)  v_inode->i_uid = r_inode->i_uid;
         if (attr->ia_valid & ATTR_GID)  v_inode->i_gid = r_inode->i_gid;
         nm_sync_inode_times(v_inode, r_inode);
@@ -823,44 +825,9 @@ static const char *nm_get_link(struct dentry *dentry, struct inode *inode, struc
 static int nm_dir_iterate_dir(struct file *file, struct dir_context *ctx)
 {
     struct nm_inode_info *info = file_inode(file)->i_private;
-    struct nm_dir_node *dir_node = info ? info->dir_node : NULL;
     struct file *real_file = file->private_data;
-    uid_t fsuid = current_fsuid().val;
-    bool uid_blocked = nm_is_uid_blocked(fsuid);
-    int res = 0;
 
-    if (unlikely(nm_is_virtual_pos(ctx->pos)))
-        goto emit_virtual;
-
-    if (info && info->opaque) {
-        if (ctx->pos < 2 && !dir_emit_dots(file, ctx)) return 0;
-        ctx->pos = nm_pack_pos(0);
-        goto emit_virtual;
-    }
-
-    if (real_file) {
-        if (unlikely(uid_blocked || !dir_node))
-            return nm_call_iterate(real_file, ctx, real_file->f_op);
-
-        struct nm_proxy_ctx proxy_ctx = {
-            .ctx.actor = nm_actor_proxy, .ctx.pos = ctx->pos, .orig_ctx = ctx,
-            .dir_node = dir_node, .fsuid = fsuid, .emitted = false,
-        };
-        res = nm_call_iterate(real_file, &proxy_ctx.ctx, real_file->f_op);
-        ctx->pos = proxy_ctx.ctx.pos;
-        if (res < 0 || proxy_ctx.emitted) return res;
-        ctx->pos = nm_pack_pos(0);
-    } else if (info && !info->r_path.dentry) {
-        if (ctx->pos < 2 && !dir_emit_dots(file, ctx)) return 0;
-        ctx->pos = nm_pack_pos(0);
-    } else {
-        return -ENOTDIR;
-    }
-
-emit_virtual:
-    if (likely(!uid_blocked))
-        nm_emit_virtual_children(ctx, dir_node, fsuid, false);
-    return res;
+    return nm_iterate_view(file, ctx, real_file ? real_file->f_op : NULL, info->dir_node, false, info->opaque);
 }
 
 static struct dentry *nm_dir_lookup(struct inode *dir, struct dentry *dentry, unsigned int flags)
@@ -895,8 +862,6 @@ static struct dentry *nm_dir_lookup(struct inode *dir, struct dentry *dentry, un
         goto negative_dentry;
 
     if (r_dir->i_sb != dir->i_sb && !nm_dir_lookup_tolerates_cross_sb(r_dir->i_sb)) {
-        struct nm_inode_info *child_info;
-        struct inode *inode;
         struct dentry *backing;
 
         if (IS_ERR((backing = nm_lookup_one_len_unlocked(dentry->d_name.name, info->r_path.dentry, dentry->d_name.len))))
@@ -909,22 +874,14 @@ static struct dentry *nm_dir_lookup(struct inode *dir, struct dentry *dentry, un
             dput(backing);
             return ERR_PTR(-ELOOP);
         }
-        if (!(inode = new_inode(dir->i_sb)) || !(child_info = kmalloc(sizeof(*child_info), GFP_KERNEL))) {
-            iput(inode);
-            dput(backing);
-            return ERR_PTR(-ENOMEM);
-        }
-        memset(child_info, 0, sizeof(*child_info));
-        struct path tmp = { .mnt = info->r_path.mnt, .dentry = NULL };
-        path_get(&tmp);
-        child_info->r_path.mnt = tmp.mnt;
-        child_info->r_path.dentry = backing;
-        child_info->backing_child = true;
-        nm_init_prealloc_inode(inode, child_info, d_inode(backing)->i_ino);
-        res = d_splice_alias(inode, dentry);
-        if (!IS_ERR(res))
-            nm_hijack_dentry_ops(dir, res ? res : dentry, true);
-        return res;
+        rule_info = (struct nm_rule_info){
+            .r_path = { .mnt = info->r_path.mnt },
+            .v_ino = d_inode(backing)->i_ino,
+            .backing_child = true,
+        };
+        path_get(&rule_info.r_path);
+        rule_info.r_path.dentry = backing;
+        return nm_materialize_rule(dir, dentry, &rule_info);
     }
 
     if (r_dir->i_op->lookup) {
@@ -1015,31 +972,6 @@ static int nm_d_revalidate_common(struct inode *parent_inode, const struct qstr 
     if ((flags & LOOKUP_RENAME_TARGET) && inode && nm_inode_is_virtual(inode))
         return (flags & LOOKUP_RCU) ? -ECHILD : -EPERM;
 
-    if (inode && nm_inode_is_virtual(inode)) {
-        struct nm_inode_info *info = READ_ONCE(inode->i_private);
-        if (info && info->backing_child) {
-            struct nm_inode_info *pinfo;
-            struct dentry *backing, *backing_parent = NULL;;
-            bool valid;
-
-            if (flags & LOOKUP_RCU) return -ECHILD;
-            rcu_read_lock();
-            pinfo = READ_ONCE(parent_inode->i_private);
-            if (pinfo && pinfo->r_path.dentry)
-                backing_parent = dget(pinfo->r_path.dentry);
-            rcu_read_unlock();
-            if (!backing_parent)
-                return nm_drop_dentry(dentry, flags, weak);
-
-            backing = nm_lookup_one_len_unlocked(name->name, backing_parent, name->len);
-            dput(backing_parent);
-            if (IS_ERR(backing)) return PTR_ERR(backing);
-            valid = (backing == info->r_path.dentry && d_is_positive(backing) && d_inode(backing)->i_mode == inode->i_mode);
-            dput(backing);
-            return valid ? 1 : 0;
-        }
-    }
-
     rcu_read_lock();
     const struct inode_operations *parent_iop = rcu_dereference(parent_inode->i_op);
     if (parent_iop == &nm_dir_iops) {
@@ -1068,6 +1000,27 @@ static int nm_d_revalidate_common(struct inode *parent_inode, const struct qstr 
 
     if (whiteout) return weak ? (inode ? -ESTALE : 0) : !inode;
     if (match_rule) return 1;
+    if (!has_rule && inode && nm_inode_is_virtual(inode)) {
+        struct nm_inode_info *info = READ_ONCE(inode->i_private);
+        if (info && info->backing_child) {
+            struct nm_inode_info *pinfo;
+            struct dentry *backing, *backing_parent;
+            bool valid;
+
+            if (flags & LOOKUP_RCU) return -ECHILD;
+            pinfo = READ_ONCE(parent_inode->i_private);
+            backing_parent = pinfo ? pinfo->r_path.dentry : NULL;
+            if (!backing_parent)
+                return nm_drop_dentry(dentry, flags, weak);
+
+            backing = nm_lookup_one_len_unlocked(name->name, backing_parent, name->len);
+            if (IS_ERR(backing)) return PTR_ERR(backing);
+            valid = (backing == info->r_path.dentry && d_is_positive(backing) && nm_inode_matches_attrs(inode, d_inode(backing)));
+            dput(backing);
+            return valid ? 1 : 0;
+        }
+    }
+
     if (has_rule || (!uid_blocked && nm_is_our_dops(iop, READ_ONCE(dentry->d_op))) || (inode && nm_inode_is_virtual(inode)))
         return nm_drop_dentry(dentry, flags, weak);
     return nm_call_orig_revalidate(orig_dops, parent_inode, name, dentry, flags);
@@ -1168,8 +1121,10 @@ static int nm_hijack_superblock(struct super_block *sb, bool with_xattr)
         nm_sop->fake_sop = *sb->s_op;
         nm_sop->orig_sop = sb->s_op;
         nm_sop->sb = sb;
-        nm_sop->fake_sop.drop_inode = nm_hijacked_drop_inode;
-        nm_sop->fake_sop.evict_inode = nm_hijacked_evict_inode;
+        if (with_xattr) {
+            nm_sop->fake_sop.drop_inode = nm_hijacked_drop_inode;
+            nm_sop->fake_sop.evict_inode = nm_hijacked_evict_inode;
+        }
         if (!sb_rdonly(sb) && !nm_is_pseudo_fs(sb))
             nm_sop->fake_sop.sync_fs = nm_shutdown_sync_fs;
         list_add_tail_rcu(&nm_sop->list, &nm_sb_list);
@@ -1177,6 +1132,9 @@ static int nm_hijack_superblock(struct super_block *sb, bool with_xattr)
         nm_debug("Superblock successfully hijacked for dev: 0x%x\n", sb->s_dev);
     } else if (!with_xattr || nm_sop->fake_xattr) {
         return 0;
+    } else {
+        WRITE_ONCE(nm_sop->fake_sop.drop_inode, nm_hijacked_drop_inode);
+        WRITE_ONCE(nm_sop->fake_sop.evict_inode, nm_hijacked_evict_inode);
     }
 
     if (with_xattr && sb->s_xattr) {
@@ -1748,7 +1706,8 @@ static int nm_generate_virtual_topology(struct nm_leaf *target, unsigned int uid
                 err = -ENOTDIR;
             } else if (virtual) {
                 dir = ((struct nm_inode_info *)inode->i_private)->dir_node;
-                atomic_inc(&dir->refs);
+                if (dir) atomic_inc(&dir->refs);
+                else err = -EOPNOTSUPP;
             } else {
                 struct nm_dir_ops *iop = nm_get_nm_iop(smp_load_acquire(&inode->i_op));
                 struct nm_dir_ops *fop = nm_get_nm_fop(smp_load_acquire(&inode->i_fop));
