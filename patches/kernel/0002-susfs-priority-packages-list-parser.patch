@@ -9,7 +9,7 @@ diff --git a/fs/susfs_priority.c b/fs/susfs_priority.c
  #include <linux/workqueue.h>
  
  struct priority_bitmap {
-@@ -60,26 +61,103 @@
+@@ -60,26 +61,102 @@
  	return true;
  }
  
@@ -62,7 +62,6 @@ diff --git a/fs/susfs_priority.c b/fs/susfs_priority.c
 +	path_put(&file_path);
 +	if (IS_ERR(fp)) {
 +		ret = PTR_ERR(fp);
-+		SUSFS_LOGE("failed to open packages.list: %d\n", ret);
 +		return ret;
 +	}
 +
@@ -133,7 +132,7 @@ diff --git a/fs/susfs_priority.c b/fs/susfs_priority.c
  }
  
  static int priority_parse(char *names, const struct path *root,
-@@ -111,7 +189,7 @@
+@@ -111,7 +188,7 @@
  		 * Missing packages and changed app-id ranges disappear on refresh.
  		 * Transient failures must not replace a working filter with zeros.
  		 */
@@ -142,7 +141,7 @@ diff --git a/fs/susfs_priority.c b/fs/susfs_priority.c
  			err = 0;
  			continue;
  		}
-@@ -245,7 +323,7 @@
+@@ -245,7 +322,7 @@
  	err = priority_get_roots(&data, &system);
  	if (err)
  		goto out;
@@ -151,7 +150,7 @@ diff --git a/fs/susfs_priority.c b/fs/susfs_priority.c
  	if (err)
  		goto out;
  	mutex_lock(&priority_lock);
-@@ -301,7 +379,7 @@
+@@ -301,7 +378,7 @@
  		return;
  	}
  	names = priority_dup(priority_packages);
