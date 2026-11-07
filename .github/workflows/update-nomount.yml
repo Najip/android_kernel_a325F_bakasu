@@ -10,7 +10,7 @@ on:
         description: 'NoMount branch, tag or commit to vendor'
         required: false
         type: string
-        default: 'dev'
+        default: 'master'
 
 permissions:
   contents: write
