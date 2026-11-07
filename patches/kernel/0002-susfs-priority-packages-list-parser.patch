@@ -1,0 +1,162 @@
+diff --git a/fs/susfs_priority.c b/fs/susfs_priority.c
+--- a/fs/susfs_priority.c
++++ b/fs/susfs_priority.c
+@@ -17,6 +17,7 @@
+ #include <linux/susfs.h>
+ #include <linux/susfs_ksu.h>
+ #include <linux/uaccess.h>
++#include <linux/vmalloc.h>
+ #include <linux/workqueue.h>
+ 
+ struct priority_bitmap {
+@@ -60,26 +61,103 @@
+ 	return true;
+ }
+ 
+-/* Caller holds a reference to root and has overridden subjective credentials. */
+-static int priority_resolve(const struct path *root, const char *name, uid_t *uid)
+-{
+-	struct path path;
+-	struct kstat stat;
+-	int err;
+-
+-	err = vfs_path_lookup(root->dentry, root->mnt, name,
+-			      LOOKUP_FOLLOW | LOOKUP_DIRECTORY, &path);
+-	if (err)
+-		return err;
+-	err = vfs_getattr(&path, &stat, STATX_BASIC_STATS, 0);
+-	path_put(&path);
+-	if (err)
+-		return err;
+-	*uid = from_kuid(&init_user_ns, stat.uid);
+-	if (*uid < SUSFS_PRIORITY_UID_FILTER_MIN_UID ||
+-	    *uid > SUSFS_PRIORITY_UID_FILTER_MAX_UID)
+-		return -ERANGE;
+-	return 0;
++/* Caller holds a reference to system root and has overridden subjective credentials. */
++static int priority_resolve(const struct path *system_root, const char *app_name, uid_t *uid)
++{
++	struct path file_path;
++	struct file *fp;
++	char *buf = NULL;
++	char *line, *tmp, *p;
++	char *pkg_name, *uid_str;
++	loff_t pos = 0;
++	size_t size;
++	unsigned long val;
++	int ret = -ENOENT;
++
++	if (!app_name || !*app_name || !uid)
++		return -EINVAL;
++
++	if (!priority_valid_package(app_name))
++		return -EINVAL;
++
++	ret = vfs_path_lookup(system_root->dentry, system_root->mnt,
++			      "packages.list",
++			      LOOKUP_FOLLOW, &file_path);
++	if (ret)
++		return ret;
++
++	fp = dentry_open(&file_path, O_RDONLY, current_cred());
++	path_put(&file_path);
++	if (IS_ERR(fp)) {
++		ret = PTR_ERR(fp);
++		SUSFS_LOGE("failed to open packages.list: %d\n", ret);
++		return ret;
++	}
++
++	size = i_size_read(file_inode(fp));
++	if (size <= 0 || size > (4 * 1024 * 1024)) {
++		filp_close(fp, NULL);
++		return -EFBIG;
++	}
++
++	buf = vmalloc(size + 1);
++	if (!buf) {
++		filp_close(fp, NULL);
++		return -ENOMEM;
++	}
++	buf[size] = '\0';
++
++	ret = kernel_read(fp, buf, size, &pos);
++	filp_close(fp, NULL);
++	if (ret != (int)size) {
++		vfree(buf);
++		return -EIO;
++	}
++
++	line = buf;
++	while (line && *line) {
++		p = strchr(line, '\n');
++		if (p) {
++			*p = '\0';
++			tmp = p + 1;
++		} else {
++			tmp = NULL;
++		}
++
++		/* packages.list format: <package> <uid> <gid> ... */
++		pkg_name = strsep(&line, " \t");
++		if (!pkg_name || *pkg_name == '\0') {
++			line = tmp;
++			continue;
++		}
++
++		uid_str = strsep(&line, " \t");
++		if (!uid_str || *uid_str == '\0') {
++			line = tmp;
++			continue;
++		}
++
++		if (!strcmp(pkg_name, app_name)) {
++			if (kstrtoul(uid_str, 10, &val)) {
++				vfree(buf);
++				return -EINVAL;
++			}
++
++			*uid = (uid_t)val % 100000;
++			vfree(buf);
++
++			if (*uid < SUSFS_PRIORITY_UID_FILTER_MIN_UID ||
++			    *uid > SUSFS_PRIORITY_UID_FILTER_MAX_UID)
++				return -ERANGE;
++
++			return 0;
++		}
++
++		line = tmp;
++	}
++
++	vfree(buf);
++	return -ENOENT;
+ }
+ 
+ static int priority_parse(char *names, const struct path *root,
+@@ -111,7 +189,7 @@
+ 		 * Missing packages and changed app-id ranges disappear on refresh.
+ 		 * Transient failures must not replace a working filter with zeros.
+ 		 */
+-		if (refresh && (err == -ENOENT || err == -ENOTDIR || err == -ERANGE)) {
++		if (err == -ENOENT || err == -ENOTDIR || err == -ERANGE) {
+ 			err = 0;
+ 			continue;
+ 		}
+@@ -245,7 +323,7 @@
+ 	err = priority_get_roots(&data, &system);
+ 	if (err)
+ 		goto out;
+-	err = priority_parse(info->app_strings, &data, bitmap, false);
++	err = priority_parse(info->app_strings, &system, bitmap, false);
+ 	if (err)
+ 		goto out;
+ 	mutex_lock(&priority_lock);
+@@ -301,7 +379,7 @@
+ 		return;
+ 	}
+ 	names = priority_dup(priority_packages);
+-	root = priority_data_root;
++	root = priority_system_root;
+ 	path_get(&root);
+ 	generation = priority_generation;
+ 	mutex_unlock(&priority_lock);
