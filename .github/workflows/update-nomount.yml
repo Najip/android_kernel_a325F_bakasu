@@ -58,7 +58,21 @@ jobs:
 
           sha="$(git -C "$up" rev-parse HEAD)"
           count="$(git -C "$up" rev-list --count HEAD)"
-          ver="$(git -C "$up" describe --tags --abbrev=0 2>/dev/null || echo unversioned)"
+
+          # Previous version, read before the Makefile is regenerated
+          prev_ver=""
+          if [ -f "$dest/Makefile" ]; then
+            prev_ver="$(sed -n 's/^# NoMount \(v[0-9][0-9.]*\),.*/\1/p' "$dest/Makefile" | head -n1)"
+          fi
+
+          # Nearest tag reduced to base vX.Y.Z (v2.3.0-720 -> v2.3.0)
+          raw_tag="$(git -C "$up" describe --tags --abbrev=0 --match 'v[0-9]*' 2>/dev/null || true)"
+          ver="$(printf '%s' "$raw_tag" | grep -oE '^v[0-9]+(\.[0-9]+)+' || true)"
+
+          if [ -z "$ver" ]; then
+            ver="${prev_ver:-unversioned}"
+            echo "::notice::No usable upstream tag; keeping last version: $ver"
+          fi
 
           # Step 3: copy kernel/src/* into fs/nomount
           mkdir -p "$dest"
@@ -71,7 +85,7 @@ jobs:
           {
             echo "# NoMount $ver, $sha ($count commits)."
             echo "# Vendored source: keep the upstream version independent of kernel history."
-            printf 'ccflags-y += -DNOMOUNT_COMMIT_COUNT=\\"%s\\"\n' "$count"
+            printf 'ccflags-y += -DNOMOUNT_COMMIT_COUNT=\\\"%s\\\"\n' "$count"
             echo
             sed -n '/^obj-\$(CONFIG_NOMOUNT)/,$p' "$src/Makefile"
           } > "$dest/Makefile"
