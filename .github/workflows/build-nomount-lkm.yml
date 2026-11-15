@@ -39,6 +39,18 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
+      - name: Apply kernel compatibility patches (if this kernel has them)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f scripts/apply_kernel_patches.sh ]; then
+            sh scripts/apply_kernel_patches.sh
+          else
+            echo "No scripts/apply_kernel_patches.sh on this kernel; no patches to apply."
+          fi
+          patch_list="$( { find patches/kernel -maxdepth 1 -type f -name '*.patch' -printf '%f\n' 2>/dev/null | sort | paste -sd, -; } || true )"
+          echo "KERNEL_PATCHES=${patch_list:-none}" >> "$GITHUB_ENV"
+
       - name: Resolve NoMount source
         env:
           NOMOUNT_REF: ${{ inputs.nomount_ref }}
@@ -272,6 +284,7 @@ jobs:
             echo "Kernel ref input: ${KERNEL_REF_INPUT:-<blank: ${GITHUB_REF_NAME}>}"
             echo "Kernel commit: $kernel_sha"
             echo "Kernel release: $KERNEL_RELEASE"
+            echo "Kernel patches applied: $KERNEL_PATCHES"
             echo "NoMount ref input: ${NOMOUNT_REF_INPUT:-<blank: vendored>}"
             echo "NoMount upstream commit: $NOMOUNT_SHA"
             echo "NoMount overlaid from upstream: $NOMOUNT_OVERLAY"
@@ -285,6 +298,7 @@ jobs:
             echo "| Item | Value |"
             echo "|---|---|"
             echo "| Kernel ref | \`${KERNEL_REF_INPUT:-blank (${GITHUB_REF_NAME})}\` -> \`$kshort\` |"
+            echo "| Kernel patches | \`$KERNEL_PATCHES\` |"
             echo "| NoMount ref | \`${NOMOUNT_REF_INPUT:-blank (vendored)}\` -> \`$nshort\` |"
             echo "| Kernel release | \`$KERNEL_RELEASE\` |"
             echo "| ZIP | \`${name}.zip\` |"
