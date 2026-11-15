@@ -1,0 +1,40 @@
+From: Najip <najipmunajat22@gmail.com>
+Subject: [PATCH] susfs: provide selinux_hide_init_setxattr() link shim for BakaSU
+
+diff --git a/fs/Makefile b/fs/Makefile
+--- a/fs/Makefile
++++ b/fs/Makefile
+@@ -17,7 +17,7 @@
+ obj-y +=	no-block.o
+ endif
+ 
+-obj-$(CONFIG_KSU_SUSFS) += susfs.o susfs_priority.o susfs_sus_path_uid.o
++obj-$(CONFIG_KSU_SUSFS) += susfs.o susfs_priority.o susfs_sus_path_uid.o susfs_bakasu_compat.o
+ obj-$(CONFIG_NOMOUNT) += nomount/
+ 
+ obj-$(CONFIG_PROC_FS) += proc_namespace.o
+diff --git a/fs/susfs_bakasu_compat.c b/fs/susfs_bakasu_compat.c
+new file mode 100644
+--- /dev/null
++++ b/fs/susfs_bakasu_compat.c
+@@ -0,0 +1,20 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Link-time shim for BakaSU's selinux_hide feature.
++ *
++ * When security/selinux/hooks.c carries the SUSFS selinux_hide hook,
++ * BakaSU defines KSU_COMPAT_HAS_SUSFS_FEATURE_SELINUX_HIDE and compiles out
++ * its own selinux hooks, including the definition of
++ * selinux_hide_init_setxattr(). The call in ksu_selinux_hide_enable() is not
++ * inside that #ifndef, so the symbol must still exist at link time.
++ *
++ * This SUSFS v2.3.0 tree has no inode_setxattr hook to initialise, so there
++ * is nothing to do. The weak definition yields to a real one if BakaSU or
++ * SUSFS ever provides it, and a static definition in BakaSU is not affected.
++ */
++#ifdef CONFIG_KSU_SUSFS
++int __attribute__((weak)) selinux_hide_init_setxattr(void)
++{
++	return 0;
++}
++#endif
