@@ -2,6 +2,17 @@ name: Build NoMount LKM + flashable ZIP (4.14)
 
 on:
   workflow_dispatch:
+    inputs:
+      kernel_ref:
+        description: 'Kernel branch, tag or commit to build, e.g. common, sync-up, sync-up-patch. Blank = the branch you run this from. Guide: https://github.com/Najip/android_kernel_a325F_bakasu/blob/nomount-lkm/docs/NOMOUNT-LKM.md'
+        required: false
+        type: string
+        default: ''
+      nomount_ref:
+        description: 'Upstream NoMount branch, tag or commit, e.g. master, dev, v2.3.0-720. Blank = the NoMount commit already vendored in that kernel (fs/nomount/Makefile).'
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -24,23 +35,53 @@ jobs:
       - name: Checkout kernel and submodules
         uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.kernel_ref || github.ref }}
           fetch-depth: 0
           submodules: recursive
 
-      - name: Resolve vendored NoMount version
+      - name: Resolve NoMount source
+        env:
+          NOMOUNT_REF: ${{ inputs.nomount_ref }}
         shell: bash
         run: |
           set -euo pipefail
-          header="$(sed -n '1p' fs/nomount/Makefile)"
-          echo "Vendored header: $header"
-          sha="$(printf '%s' "$header" | grep -oE '[0-9a-f]{40}' | head -n1)"
-          count="$(printf '%s' "$header" | sed -n 's/.*(\([0-9][0-9]*\) commits).*/\1/p')"
-          if [ -z "$sha" ]; then
-            echo "::error::Cannot read the vendored NoMount commit from fs/nomount/Makefile"
-            exit 1
+          up="$RUNNER_TEMP/nomount-src"
+          git clone --quiet https://github.com/maxsteeel/nomount.git "$up"
+
+          if [ -n "$NOMOUNT_REF" ]; then
+            echo "nomount_ref given: $NOMOUNT_REF"
+            git -C "$up" fetch --quiet origin "$NOMOUNT_REF" 2>/dev/null || true
+            git -C "$up" checkout --quiet "$NOMOUNT_REF" 2>/dev/null \
+              || git -C "$up" checkout --quiet "origin/$NOMOUNT_REF"
+            overlay=true
+          else
+            if [ ! -f fs/nomount/Makefile ]; then
+              echo "::error::This kernel has no vendored NoMount (fs/nomount/Makefile). Set nomount_ref."
+              exit 1
+            fi
+            header="$(sed -n '1p' fs/nomount/Makefile)"
+            echo "Vendored header: $header"
+            sha="$(printf '%s' "$header" | grep -oE '[0-9a-f]{40}' | head -n1 || true)"
+            if [ -z "$sha" ]; then
+              echo "::error::Cannot read the vendored NoMount commit. Set nomount_ref."
+              exit 1
+            fi
+            git -C "$up" fetch --quiet origin "$sha" 2>/dev/null || true
+            git -C "$up" checkout --quiet "$sha"
+            overlay=false
           fi
-          echo "NOMOUNT_SHA=$sha" >> "$GITHUB_ENV"
-          echo "NOMOUNT_COUNT=${count:-0}" >> "$GITHUB_ENV"
+
+          test -f "$up/module/module.prop"
+          test -f "$up/kernel/src/nomount.c"
+          sha="$(git -C "$up" rev-parse HEAD)"
+          count="$(git -C "$up" rev-list --count HEAD)"
+          echo "Using NoMount $sha ($count commits), overlay=$overlay"
+          {
+            echo "NOMOUNT_UP=$up"
+            echo "NOMOUNT_SHA=$sha"
+            echo "NOMOUNT_COUNT=$count"
+            echo "NOMOUNT_OVERLAY=$overlay"
+          } >> "$GITHUB_ENV"
 
       - name: Install build dependencies
         shell: bash
@@ -59,6 +100,26 @@ jobs:
           sh scripts/fetch_aosp_clang.sh "$toolchain"
           echo "TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
           echo "$toolchain/bin" >> "$GITHUB_PATH"
+
+      - name: Overlay NoMount source (only when nomount_ref is set)
+        if: env.NOMOUNT_OVERLAY == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          src="$NOMOUNT_UP/kernel/src"
+          for f in Kconfig Makefile nomount.c nomount.h; do
+            test -f "$src/$f" || { echo "::error::Missing $src/$f upstream"; exit 1; }
+          done
+          mkdir -p fs/nomount
+          cp -f "$src/Kconfig" "$src/nomount.c" "$src/nomount.h" fs/nomount/
+          {
+            echo "# NoMount overlay, $NOMOUNT_SHA ($NOMOUNT_COUNT commits)."
+            echo "# Overlaid by CI for this run only; not committed."
+            printf 'ccflags-y += -DNOMOUNT_COMMIT_COUNT=\\\"%s\\\"\n' "$NOMOUNT_COUNT"
+            echo
+            sed -n '/^obj-\$(CONFIG_NOMOUNT)/,$p' "$src/Makefile"
+          } > fs/nomount/Makefile
+          grep -q 'obj-\$(CONFIG_NOMOUNT)' fs/nomount/Makefile
 
       - name: Configure kernel (same fragments as the kernel build)
         shell: bash
@@ -90,10 +151,9 @@ jobs:
             echo "::error::CONFIG_MODULES is not enabled; the kernel cannot load an LKM"
             exit 1
           }
-          grep -q '^CONFIG_NOMOUNT=m$' "$OUT_DIR/.config" || {
-            echo "::error::CONFIG_NOMOUNT did not resolve to =m (check fs/nomount/Kconfig dependencies)"
-            exit 1
-          }
+          if ! grep -q '^CONFIG_NOMOUNT=m$' "$OUT_DIR/.config"; then
+            echo "::warning::CONFIG_NOMOUNT is not in .config (kernel lacks the Kconfig hook); building with CONFIG_NOMOUNT=m on the command line"
+          fi
 
           make O="$OUT_DIR" -j"$(nproc)" modules_prepare
 
@@ -133,17 +193,6 @@ jobs:
           install -Dm644 fs/nomount/nomount.ko "artifacts/nomount-${KVER}.ko"
           "$TOOLCHAIN/bin/llvm-strip" --strip-unneeded "artifacts/nomount-${KVER}.ko"
           echo "KERNEL_RELEASE=$release" >> "$GITHUB_ENV"
-
-      - name: Fetch upstream NoMount at the vendored commit
-        shell: bash
-        run: |
-          set -euo pipefail
-          up="$RUNNER_TEMP/nomount-src"
-          git clone --quiet https://github.com/maxsteeel/nomount.git "$up"
-          git -C "$up" fetch --quiet origin "$NOMOUNT_SHA" || true
-          git -C "$up" checkout --quiet "$NOMOUNT_SHA"
-          test -f "$up/module/module.prop"
-          echo "NOMOUNT_UP=$up" >> "$GITHUB_ENV"
 
       - name: Setup zig
         uses: jetsung/setup-zig@v0.0.4
@@ -188,6 +237,9 @@ jobs:
           ls -l "$bin"
 
       - name: Assemble flashable module ZIP
+        env:
+          KERNEL_REF_INPUT: ${{ inputs.kernel_ref }}
+          NOMOUNT_REF_INPUT: ${{ inputs.nomount_ref }}
         shell: bash
         run: |
           set -euo pipefail
@@ -198,12 +250,14 @@ jobs:
           cp "$RUNNER_TEMP"/bin/* "$mod/bin/"
           cp "artifacts/nomount-${KVER}.ko" "$mod/lkm/nomount-${KVER}.ko"
 
+          kernel_sha="$(git rev-parse HEAD)"
+          kshort="${kernel_sha:0:8}"
+          nshort="${NOMOUNT_SHA:0:8}"
           base_ver="$(sed -n 's/^version=//p' "$mod/module.prop" | tr -d '\r ' | head -n1)"
-          short="${NOMOUNT_SHA:0:8}"
           sed -i "s/^versionCode=.*/versionCode=${NOMOUNT_COUNT}/" "$mod/module.prop"
-          sed -i "s/^version=.*/version=${base_ver} (${NOMOUNT_COUNT}-${short}, LKM ${KVER})/" "$mod/module.prop"
+          sed -i "s/^version=.*/version=${base_ver} (${NOMOUNT_COUNT}-${nshort}, LKM ${KVER})/" "$mod/module.prop"
 
-          name="NoMount-${base_ver}-lkm-${KVER}-${short}"
+          name="NoMount-${base_ver}-lkm-${KVER}-k${kshort}-n${nshort}"
           (cd "$mod" && zip -qr9 "$GITHUB_WORKSPACE/artifacts/${name}.zip" .)
 
           zip_path="artifacts/${name}.zip"
@@ -215,18 +269,33 @@ jobs:
 
           sha256sum "$zip_path" "artifacts/nomount-${KVER}.ko" | tee artifacts/SHA256SUMS.txt
           {
-            echo "Kernel commit: $(git rev-parse HEAD)"
+            echo "Kernel ref input: ${KERNEL_REF_INPUT:-<blank: ${GITHUB_REF_NAME}>}"
+            echo "Kernel commit: $kernel_sha"
             echo "Kernel release: $KERNEL_RELEASE"
+            echo "NoMount ref input: ${NOMOUNT_REF_INPUT:-<blank: vendored>}"
             echo "NoMount upstream commit: $NOMOUNT_SHA"
-            echo "NoMount vendored header: $(sed -n '1p' fs/nomount/Makefile)"
+            echo "NoMount overlaid from upstream: $NOMOUNT_OVERLAY"
             echo "Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
           } > artifacts/build-info.txt
           cat artifacts/build-info.txt
 
+          {
+            echo "### NoMount LKM build"
+            echo
+            echo "| Item | Value |"
+            echo "|---|---|"
+            echo "| Kernel ref | \`${KERNEL_REF_INPUT:-blank (${GITHUB_REF_NAME})}\` -> \`$kshort\` |"
+            echo "| NoMount ref | \`${NOMOUNT_REF_INPUT:-blank (vendored)}\` -> \`$nshort\` |"
+            echo "| Kernel release | \`$KERNEL_RELEASE\` |"
+            echo "| ZIP | \`${name}.zip\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "ARTIFACT_NAME=nomount-lkm-${KVER}-k${kshort}-n${nshort}" >> "$GITHUB_ENV"
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: nomount-lkm-${{ env.KVER }}-${{ github.sha }}
+          name: ${{ env.ARTIFACT_NAME }}
           path: artifacts/
           if-no-files-found: error
           retention-days: 14
