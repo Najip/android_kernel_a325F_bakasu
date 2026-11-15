@@ -20,7 +20,7 @@ One run produces:
 
 - `nomount-4.14.ko`, the NoMount kernel module built against the chosen kernel's config.
 - A flashable NoMount module ZIP (KernelSU/APatch) that already contains `lkm/nomount-4.14.ko`, `nm` and `lkmloader`.
-- `SHA256SUMS.txt` and `build-info.txt` (which refs and commits were used).
+- `SHA256SUMS.txt` and `build-info.txt` (which refs, commits and kernel patches were used).
 
 It is for kernels **without NoMount built in**. If the kernel already has NoMount built in, the module installer detects it and removes the bundled `.ko`.
 
@@ -49,6 +49,12 @@ The kernel source, config fragments and toolchain scripts come from this ref. Th
 
 - **Blank:** the build uses the NoMount source that is already inside the chosen kernel branch. The module ZIP is built from the matching upstream commit.
 - **Set:** the workflow copies upstream's `kernel/src` into `fs/nomount/` for this run only. Nothing is committed to any branch. The `.ko`, `nm`, `lkmloader` and module scripts all come from that same upstream commit, so they match each other.
+
+## Kernel patches
+
+If the chosen kernel has `scripts/apply_kernel_patches.sh` (for example `sync-up-patch`), the workflow first applies every `patches/kernel/*.patch`, exactly as that branch's own kernel workflow does. The `.ko` is therefore built against the same patched source. Branches without the script (`common`, `sync-up`) build unpatched.
+
+The patch script needs a clean tree, so it runs before NoMount is overlaid. The applied patch names appear in `build-info.txt` (`Kernel patches applied:`) and in the run summary. The same step is in the **A325X Kernel (no NoMount)** workflow, so both builds see the same source.
 
 ## Examples
 
@@ -87,6 +93,7 @@ The installer loads the `.ko` while flashing. If it cannot load a driver it abor
 |---|---|---|
 | "This kernel has no vendored NoMount" | The chosen kernel has no `fs/nomount/Makefile` | Set `nomount_ref` (for example `master` or `dev`) |
 | "CONFIG_MODULES is not enabled" | That kernel config cannot load modules | Enable `CONFIG_MODULES` in the kernel config first |
+| Patch step fails (`git apply --check`) | A patch no longer applies to the chosen kernel | Read the failing patch name in the log; fix or refresh that patch on the kernel branch |
 | vermagic does not match | Build used a different release string than expected | Check the `Verify and collect module` log lines |
 | `nm` step fails on headers | Upstream changed the layout of `nm.h` | Send the failing step's log |
 | Flash aborts: kernel module not detected | `.ko` rejected by the running kernel, or NoMount is in a different mode | Make sure the running kernel is the no-NoMount build from the same branch, then read the printed loader error |

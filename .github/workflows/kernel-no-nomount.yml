@@ -1,8 +1,8 @@
 name: A325X Kernel (no NoMount)
 
-# Same kernel, toolchain, configs and AnyKernel3 packaging as kernel.yml, but
-# CONFIG_NOMOUNT is switched off for this build only. Nothing in the source tree
-# or in build_a325n.sh is modified. Pair it with the NoMount LKM ZIP.
+# Same kernel, toolchain, configs, kernel patches and AnyKernel3 packaging as
+# kernel.yml, but CONFIG_NOMOUNT is switched off for this build only. Nothing in
+# the source tree or in build_a325n.sh is modified. Pair it with the NoMount LKM ZIP.
 
 on:
   workflow_dispatch:
@@ -84,6 +84,16 @@ jobs:
         shell: bash
         run: sh scripts/prepare_bakasu.sh --check
 
+      - name: Apply required kernel compatibility patches (if this kernel has them)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f scripts/apply_kernel_patches.sh ]; then
+            sh scripts/apply_kernel_patches.sh
+          else
+            echo "No scripts/apply_kernel_patches.sh on this kernel; no patches to apply."
+          fi
+
       - name: Prepare build script with NoMount disabled
         shell: bash
         run: |
@@ -92,7 +102,8 @@ jobs:
           printf '# CONFIG_NOMOUNT is not set\n' > "$fragment"
           echo "NO_NOMOUNT_FRAGMENT=$fragment" >> "$GITHUB_ENV"
 
-          # Untracked runtime copy of build_a325n.sh with one extra config fragment
+          # Untracked runtime copy of build_a325n.sh with one extra config fragment.
+          # Created after the patch step, which requires a clean worktree.
           sed 's|"$ROOT/arch/arm64/configs/a325n-release.config"|& "$NO_NOMOUNT_FRAGMENT"|' \
             build_a325n.sh > .build_a325n_no_nomount.sh
           grep -q 'NO_NOMOUNT_FRAGMENT' .build_a325n_no_nomount.sh || {
@@ -136,6 +147,14 @@ jobs:
                         susfs_set_priority_uid_filter susfs_is_priority_uid_filtered; do
             grep -q " $symbol$" "$OUT_DIR/symbols.txt"
           done
+          if grep -q 'susfs_parse_priority_app_strings' \
+            KernelSU/kernel/supercall/dispatch.c \
+            KernelSU/kernel/manager/pkg_observer.c 2>/dev/null; then
+            grep -q ' susfs_parse_priority_app_strings$' "$OUT_DIR/symbols.txt" || {
+              echo '::error::BakaSU priority UID adapter symbol missing from vmlinux'
+              exit 1
+            }
+          fi
 
           cat "$OUT_DIR/include/config/kernel.release"
           sha256sum "$OUT_DIR/arch/arm64/boot/Image" "$OUT_DIR/arch/arm64/boot/Image.gz"
@@ -165,10 +184,13 @@ jobs:
           grep -q '^device\.name1=a32$' "$packaged"
           grep -Eq '^BLOCK=/dev/block/by-name/boot;?$' "$packaged"
 
+          patch_list="$( { find patches/kernel -maxdepth 1 -type f -name '*.patch' -printf '%f\n' 2>/dev/null | sort | paste -sd, -; } || true )"
+
           kernel_short="$(git rev-parse --short=10 HEAD)"
           {
             echo "Kernel commit: $(git rev-parse HEAD)"
             echo "Kernel release: $(cat "$OUT_DIR/include/config/kernel.release")"
+            echo "Kernel patches applied: ${patch_list:-none}"
             echo "NoMount: disabled (CONFIG_NOMOUNT not set); use the NoMount LKM module ZIP"
             echo "BakaSU commit: $(git -C KernelSU rev-parse HEAD)"
             echo "Toolchain: pinned AOSP Clang 14"
