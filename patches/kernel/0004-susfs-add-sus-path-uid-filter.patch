@@ -1,0 +1,464 @@
+From: Najip <najipmunajat22@gmail.com>
+Subject: [PATCH] susfs: add SUSFS v2.4.0 sus_path UID filter for BakaSU
+
+diff --git a/include/linux/susfs_def.h b/include/linux/susfs_def.h
+--- a/include/linux/susfs_def.h
++++ b/include/linux/susfs_def.h
+@@ -26,6 +26,7 @@
+ #define CMD_SUSFS_SET_ANDROID_DATA_ROOT_PATH 0x55551 /* deprecated */
+ #define CMD_SUSFS_SET_SDCARD_ROOT_PATH 0x55552 /* deprecated */
+ #define CMD_SUSFS_ADD_SUS_PATH_LOOP 0x55553
++#define CMD_SUSFS_SET_SUS_PATH_UID_FILTER 0x55554
+ #define CMD_SUSFS_ADD_SUS_MOUNT 0x55560 /* deprecated */
+ #define CMD_SUSFS_HIDE_SUS_MNTS_FOR_NON_SU_PROCS 0x55561
+ #define CMD_SUSFS_UMOUNT_FOR_ZYGOTE_ISO_SERVICE 0x55562 /* deprecated */
+diff --git a/include/linux/susfs.h b/include/linux/susfs.h
+--- a/include/linux/susfs.h
++++ b/include/linux/susfs.h
+@@ -234,6 +234,15 @@
+ #ifdef CONFIG_KSU_SUSFS_SUS_PATH
+ void susfs_add_sus_path(void __user **user_info);
+ void susfs_add_sus_path_loop(void __user **user_info);
++
++/* sus_path uid filter: the listed apps are allowed to see the sus paths */
++struct st_susfs_sus_path_uid_filter {
++	char                                    app_strings[SUSFS_APP_STR_BUF_SIZE];
++	int                                     err;
++};
++void susfs_set_sus_path_uid_filter(void __user **user_info);
++void susfs_parse_sus_path_app_strings(void);
++bool susfs_is_uid_allowed_for_sus_path(uid_t uid);
+ #endif
+
+ /* sus_mount */
+diff --git a/fs/Makefile b/fs/Makefile
+--- a/fs/Makefile
++++ b/fs/Makefile
+@@ -17,7 +17,7 @@
+ obj-y +=	no-block.o
+ endif
+
+-obj-$(CONFIG_KSU_SUSFS) += susfs.o susfs_priority.o
++obj-$(CONFIG_KSU_SUSFS) += susfs.o susfs_priority.o susfs_sus_path_uid.o
+ obj-$(CONFIG_NOMOUNT) += nomount/
+
+ obj-$(CONFIG_PROC_FS) += proc_namespace.o
+diff --git a/fs/susfs.c b/fs/susfs.c
+--- a/fs/susfs.c
++++ b/fs/susfs.c
+@@ -150,6 +150,8 @@
+ 	if (!susfs_is_current_proc_umounted_app()) {
+ 		return false;
+ 	}
++	if (susfs_is_uid_allowed_for_sus_path(current_uid().val))
++		return false;
+ 	if (!inode->i_mapping) {
+ 		SUSFS_LOGE("inode->i_mapping is NULL\n");
+ 		return false;
+diff --git a/fs/susfs_sus_path_uid.c b/fs/susfs_sus_path_uid.c
+new file mode 100644
+--- /dev/null
++++ b/fs/susfs_sus_path_uid.c
+@@ -0,0 +1,402 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * SUSFS v2.4.0 sus_path UID filter (CMD_SUSFS_SET_SUS_PATH_UID_FILTER) for
++ * Linux 4.14. The listed apps are allowed to see paths added with
++ * add_sus_path; every other app UID is still hidden from them. Without a
++ * filter the behaviour is unchanged. The parent kernel owns the package
++ * resolution and refresh, so BakaSU stays an unmodified submodule.
++ */
++#include <linux/bitmap.h>
++#include <linux/cred.h>
++#include <linux/fs.h>
++#include <linux/fsnotify_backend.h>
++#include <linux/mm.h>
++#include <linux/mutex.h>
++#include <linux/namei.h>
++#include <linux/rcupdate.h>
++#include <linux/ratelimit.h>
++#include <linux/slab.h>
++#include <linux/susfs.h>
++#include <linux/susfs_ksu.h>
++#include <linux/uaccess.h>
++#include <linux/vmalloc.h>
++#include <linux/workqueue.h>
++
++#ifdef CONFIG_KSU_SUSFS_SUS_PATH
++
++struct spf_bitmap {
++	DECLARE_BITMAP(bits, SUSFS_PRIORITY_UID_FILTER_UID_NUM);
++};
++
++static struct spf_bitmap __rcu *spf_bitmap;
++static DEFINE_MUTEX(spf_lock);
++static char *spf_packages;
++static u64 spf_generation;
++static struct path spf_system_root;
++static struct fsnotify_group *spf_group;
++static atomic_t spf_events = ATOMIC_INIT(0);
++static void spf_refresh(struct work_struct *work);
++static DECLARE_DELAYED_WORK(spf_work, spf_refresh);
++
++static char *spf_dup(const char *s)
++{
++	size_t len = strlen(s) + 1;
++	char *copy = kvmalloc(len, GFP_KERNEL);
++
++	if (copy)
++		memcpy(copy, s, len);
++	return copy;
++}
++
++static bool spf_valid_package(const char *name)
++{
++	const char *p;
++	size_t len = strlen(name);
++
++	if (!len || len > 255 || !strcmp(name, ".") || !strcmp(name, ".."))
++		return false;
++	for (p = name; *p; p++) {
++		if ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') ||
++		    (*p >= '0' && *p <= '9') || *p == '.' || *p == '_')
++			continue;
++		return false;
++	}
++	return true;
++}
++
++/* Caller holds a reference to the system root and runs with the ksu creds. */
++static int spf_resolve(const struct path *system_root, const char *app_name, uid_t *uid)
++{
++	struct path file_path;
++	struct file *fp;
++	char *buf, *line, *next, *pkg_name, *uid_str;
++	loff_t pos = 0;
++	size_t size;
++	unsigned long val;
++	int ret;
++
++	if (!spf_valid_package(app_name))
++		return -EINVAL;
++	ret = vfs_path_lookup(system_root->dentry, system_root->mnt,
++			      "packages.list", LOOKUP_FOLLOW, &file_path);
++	if (ret)
++		return ret;
++	fp = dentry_open(&file_path, O_RDONLY, current_cred());
++	path_put(&file_path);
++	if (IS_ERR(fp))
++		return PTR_ERR(fp);
++	size = i_size_read(file_inode(fp));
++	if (size <= 0 || size > (4 * 1024 * 1024)) {
++		filp_close(fp, NULL);
++		return -EFBIG;
++	}
++	buf = vmalloc(size + 1);
++	if (!buf) {
++		filp_close(fp, NULL);
++		return -ENOMEM;
++	}
++	buf[size] = '\0';
++	ret = kernel_read(fp, buf, size, &pos);
++	filp_close(fp, NULL);
++	if (ret != (int)size) {
++		vfree(buf);
++		return -EIO;
++	}
++
++	line = buf;
++	while (line && *line) {
++		next = strchr(line, '\n');
++		if (next)
++			*next++ = '\0';
++		/* packages.list format: <package> <uid> <gid> ... */
++		pkg_name = strsep(&line, " \t");
++		uid_str = line ? strsep(&line, " \t") : NULL;
++		if (pkg_name && *pkg_name && uid_str && *uid_str &&
++		    !strcmp(pkg_name, app_name)) {
++			ret = kstrtoul(uid_str, 10, &val);
++			vfree(buf);
++			if (ret)
++				return -EINVAL;
++			*uid = (uid_t)val % 100000;
++			if (*uid < SUSFS_PRIORITY_UID_FILTER_MIN_UID ||
++			    *uid > SUSFS_PRIORITY_UID_FILTER_MAX_UID)
++				return -ERANGE;
++			return 0;
++		}
++		line = next;
++	}
++	vfree(buf);
++	return -ENOENT;
++}
++
++static int spf_parse(char *names, const struct path *system_root,
++		     struct spf_bitmap *bitmap)
++{
++	const struct cred *saved;
++	struct cred *cred = READ_ONCE(ksu_cred);
++	char *name;
++	uid_t uid;
++	int err = 0;
++
++	if (!cred)
++		return -EAGAIN;
++	saved = override_creds(cred);
++	if (!susfs_is_current_ksu_domain()) {
++		err = -EACCES;
++		goto out;
++	}
++	while ((name = strsep(&names, ","))) {
++		name = strim(name);
++		if (!*name)
++			continue;
++		if (!spf_valid_package(name)) {
++			err = -EINVAL;
++			break;
++		}
++		err = spf_resolve(system_root, name, &uid);
++		/* Uninstalled apps and moved app-id ranges are skipped. */
++		if (err == -ENOENT || err == -ENOTDIR || err == -ERANGE) {
++			err = 0;
++			continue;
++		}
++		if (err)
++			break;
++		set_bit(uid - SUSFS_PRIORITY_UID_FILTER_MIN_UID, bitmap->bits);
++	}
++out:
++	revert_creds(saved);
++	return err;
++}
++
++static void spf_queue_refresh(unsigned long delay)
++{
++	atomic_inc(&spf_events);
++	mod_delayed_work(system_unbound_wq, &spf_work, delay);
++}
++
++/* This callback holds fsnotify SRCU/rename locks: never resolve paths here. */
++static SUSFS_DECL_FSNOTIFY_OPS(spf_inode_event)
++{
++	if (file_name && susfs_fname_len(file_name) == 13 &&
++	    !memcmp(susfs_fname_arg(file_name), "packages.list", 13))
++		spf_queue_refresh(msecs_to_jiffies(250));
++	return 0;
++}
++
++static void spf_free_mark(struct fsnotify_mark *mark)
++{
++	kfree(mark);
++}
++
++static const struct fsnotify_ops spf_notify_ops = {
++	.handle_event = spf_inode_event,
++	.free_mark = spf_free_mark,
++};
++
++/* Called outside fsnotify callbacks, with spf_lock held. */
++static int spf_watch(const struct path *system)
++{
++	struct fsnotify_group *group;
++	struct fsnotify_mark *mark;
++	int err;
++
++	if (spf_group)
++		return d_backing_inode(spf_system_root.dentry) ==
++		       d_backing_inode(system->dentry) ? 0 : -EXDEV;
++	group = fsnotify_alloc_group(&spf_notify_ops);
++	if (IS_ERR(group))
++		return PTR_ERR(group);
++	mark = kzalloc(sizeof(*mark), GFP_KERNEL);
++	if (!mark) {
++		fsnotify_destroy_group(group);
++		return -ENOMEM;
++	}
++	fsnotify_init_mark(mark, group);
++	mark->mask = FS_CREATE | FS_MOVED_TO | FS_CLOSE_WRITE | FS_DELETE |
++		     FS_EVENT_ON_CHILD;
++	err = fsnotify_add_mark(mark, d_backing_inode(system->dentry), NULL, 0);
++	fsnotify_put_mark(mark);
++	if (err) {
++		fsnotify_destroy_group(group);
++		return err;
++	}
++	spf_system_root = *system;
++	path_get(&spf_system_root);
++	spf_group = group;
++	return 0;
++}
++
++static int spf_get_system_root(struct path *system)
++{
++	const struct cred *saved;
++	struct cred *cred = READ_ONCE(ksu_cred);
++	int err;
++
++	if (!cred)
++		return -EAGAIN;
++	saved = override_creds(cred);
++	if (!susfs_is_current_ksu_domain()) {
++		err = -EACCES;
++		goto out;
++	}
++	err = kern_path("/data/system", LOOKUP_FOLLOW | LOOKUP_DIRECTORY, system);
++out:
++	revert_creds(saved);
++	return err;
++}
++
++/* CMD_SUSFS_SET_SUS_PATH_UID_FILTER: *user_info points at the user payload. */
++void susfs_set_sus_path_uid_filter(void __user **user_info)
++{
++	struct st_susfs_sus_path_uid_filter __user *uinfo =
++		(struct st_susfs_sus_path_uid_filter __user *)*user_info;
++	struct st_susfs_sus_path_uid_filter *info = NULL;
++	struct spf_bitmap *bitmap = NULL, *old;
++	struct path system = { };
++	char *names = NULL, *old_names;
++	int err;
++
++	BUILD_BUG_ON(offsetof(struct st_susfs_sus_path_uid_filter, err) != 65536);
++	BUILD_BUG_ON(sizeof(struct st_susfs_sus_path_uid_filter) != 65540);
++	if (!uinfo)
++		return;
++	if (!uid_eq(current_uid(), GLOBAL_ROOT_UID)) {
++		err = -EPERM;
++		goto out;
++	}
++	info = kvmalloc(sizeof(*info), GFP_KERNEL);
++	if (!info) {
++		err = -ENOMEM;
++		goto out;
++	}
++	if (copy_from_user(info, uinfo, sizeof(*info))) {
++		err = -EFAULT;
++		goto out;
++	}
++	if (!memchr(info->app_strings, '\0', sizeof(info->app_strings)) ||
++	    !info->app_strings[0]) {
++		err = -EINVAL;
++		goto out;
++	}
++	names = spf_dup(info->app_strings);
++	bitmap = kzalloc(sizeof(*bitmap), GFP_KERNEL);
++	if (!names || !bitmap) {
++		err = -ENOMEM;
++		goto out;
++	}
++	err = spf_get_system_root(&system);
++	if (err)
++		goto out;
++	err = spf_parse(info->app_strings, &system, bitmap);
++	if (err)
++		goto out;
++	mutex_lock(&spf_lock);
++	err = spf_watch(&system);
++	if (err) {
++		mutex_unlock(&spf_lock);
++		goto out;
++	}
++	old = rcu_dereference_protected(spf_bitmap, lockdep_is_held(&spf_lock));
++	old_names = spf_packages;
++	spf_packages = names;
++	names = NULL;
++	spf_generation++;
++	rcu_assign_pointer(spf_bitmap, bitmap);
++	bitmap = NULL;
++	mutex_unlock(&spf_lock);
++	/* Readers own their RCU section; wait outside all config/fsnotify locks. */
++	synchronize_rcu();
++	kfree(old);
++	kvfree(old_names);
++	spf_queue_refresh(msecs_to_jiffies(250));
++out:
++	if (system.mnt)
++		path_put(&system);
++	kfree(bitmap);
++	kvfree(names);
++	kvfree(info);
++	/* Preserve the ksu_susfs payload ABI, including error reporting. */
++	if (put_user(err, &uinfo->err))
++		pr_warn_ratelimited("susfs: sus_path uid filter: cannot report %d\n", err);
++}
++
++static void spf_refresh(struct work_struct *work)
++{
++	struct spf_bitmap *bitmap = NULL, *old;
++	struct path root;
++	char *names;
++	u64 generation;
++	int event = atomic_read(&spf_events);
++	int err;
++
++	mutex_lock(&spf_lock);
++	if (!spf_packages) {
++		mutex_unlock(&spf_lock);
++		return;
++	}
++	names = spf_dup(spf_packages);
++	root = spf_system_root;
++	path_get(&root);
++	generation = spf_generation;
++	mutex_unlock(&spf_lock);
++	if (!names) {
++		err = -ENOMEM;
++		goto out;
++	}
++	bitmap = kzalloc(sizeof(*bitmap), GFP_KERNEL);
++	if (!bitmap) {
++		err = -ENOMEM;
++		goto out;
++	}
++	err = spf_parse(names, &root, bitmap);
++	if (err)
++		goto out;
++	mutex_lock(&spf_lock);
++	if (generation != spf_generation || event != atomic_read(&spf_events)) {
++		mutex_unlock(&spf_lock);
++		err = -EAGAIN;
++		goto out;
++	}
++	old = rcu_dereference_protected(spf_bitmap, lockdep_is_held(&spf_lock));
++	rcu_assign_pointer(spf_bitmap, bitmap);
++	bitmap = NULL;
++	mutex_unlock(&spf_lock);
++	synchronize_rcu();
++	kfree(old);
++out:
++	path_put(&root);
++	kvfree(names);
++	kfree(bitmap);
++	if (err) {
++		if (err != -EAGAIN)
++			pr_warn_ratelimited("susfs: sus_path UID refresh failed: %d\n", err);
++		mod_delayed_work(system_unbound_wq, &spf_work,
++				 err == -EAGAIN ? msecs_to_jiffies(250) : 5 * HZ);
++	}
++}
++
++/* Re-resolve the stored package names, e.g. after packages.list changed. */
++void susfs_parse_sus_path_app_strings(void)
++{
++	spf_queue_refresh(msecs_to_jiffies(250));
++}
++
++/* True if this app UID is allowed to see the added sus paths. */
++bool susfs_is_uid_allowed_for_sus_path(uid_t uid)
++{
++	struct spf_bitmap *bitmap;
++	uid_t app_id = uid % 100000;
++	bool allowed = false;
++
++	if (app_id < SUSFS_PRIORITY_UID_FILTER_MIN_UID ||
++	    app_id > SUSFS_PRIORITY_UID_FILTER_MAX_UID)
++		return false;
++	rcu_read_lock();
++	bitmap = rcu_dereference(spf_bitmap);
++	if (bitmap)
++		allowed = test_bit(app_id - SUSFS_PRIORITY_UID_FILTER_MIN_UID, bitmap->bits);
++	rcu_read_unlock();
++	return allowed;
++}
++
++#endif /* CONFIG_KSU_SUSFS_SUS_PATH */
