@@ -1,0 +1,222 @@
+name: Build NoMount LKM + flashable ZIP (4.14)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nomount-lkm-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  OUT_DIR: ${{ github.workspace }}/out-lkm
+  KVER: '4.14'
+
+jobs:
+  build:
+    name: Build nomount-4.14.ko and module ZIP
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout kernel and submodules
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Resolve vendored NoMount version
+        shell: bash
+        run: |
+          set -euo pipefail
+          header="$(sed -n '1p' fs/nomount/Makefile)"
+          echo "Vendored header: $header"
+          sha="$(printf '%s' "$header" | grep -oE '[0-9a-f]{40}' | head -n1)"
+          count="$(printf '%s' "$header" | sed -n 's/.*(\([0-9][0-9]*\) commits).*/\1/p')"
+          if [ -z "$sha" ]; then
+            echo "::error::Cannot read the vendored NoMount commit from fs/nomount/Makefile"
+            exit 1
+          fi
+          echo "NOMOUNT_SHA=$sha" >> "$GITHUB_ENV"
+          echo "NOMOUNT_COUNT=${count:-0}" >> "$GITHUB_ENV"
+
+      - name: Install build dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            bc binutils-aarch64-linux-gnu bison build-essential ca-certificates curl file flex git \
+            libelf-dev libssl-dev libncurses-dev lz4 python3 xz-utils zip unzip zlib1g-dev zstd
+
+      - name: Install pinned AOSP Clang 14
+        shell: bash
+        run: |
+          set -euo pipefail
+          toolchain="$RUNNER_TEMP/aosp-clang14"
+          sh scripts/fetch_aosp_clang.sh "$toolchain"
+          echo "TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
+          echo "$toolchain/bin" >> "$GITHUB_PATH"
+
+      - name: Configure kernel (same fragments as the kernel build)
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ARCH=arm64 LLVM=1 LLVM_IAS=0
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          export CC="$TOOLCHAIN/bin/clang" LD="$TOOLCHAIN/bin/ld.lld"
+          export AR="$TOOLCHAIN/bin/llvm-ar" NM="$TOOLCHAIN/bin/llvm-nm"
+          export STRIP="$TOOLCHAIN/bin/llvm-strip" OBJCOPY="$TOOLCHAIN/bin/llvm-objcopy"
+          export OBJDUMP="$TOOLCHAIN/bin/llvm-objdump" READELF="$TOOLCHAIN/bin/llvm-readelf"
+          export AS="$(command -v aarch64-linux-gnu-as)"
+          export KBUILD_BUILD_USER=bakasu KBUILD_BUILD_HOST=builder KBUILD_BUILD_VERSION=1
+          export KBUILD_BUILD_TIMESTAMP="$(git show -s --format=%cD HEAD)"
+
+          mkdir -p "$OUT_DIR"
+          scripts/kconfig/merge_config.sh -m -O "$OUT_DIR" \
+            arch/arm64/configs/mt6768_slm_defconfig \
+            arch/arm64/configs/a32.config \
+            arch/arm64/configs/battery.config \
+            arch/arm64/configs/ksu-a325n-common.config \
+            arch/arm64/configs/a325n-release.config
+
+          # Build NoMount as a module instead of built-in
+          scripts/config --file "$OUT_DIR/.config" -d NOMOUNT -m NOMOUNT
+          make O="$OUT_DIR" olddefconfig
+
+          grep -q '^CONFIG_MODULES=y$' "$OUT_DIR/.config" || {
+            echo "::error::CONFIG_MODULES is not enabled; the kernel cannot load an LKM"
+            exit 1
+          }
+          grep -q '^CONFIG_NOMOUNT=m$' "$OUT_DIR/.config" || {
+            echo "::error::CONFIG_NOMOUNT did not resolve to =m (check fs/nomount/Kconfig dependencies)"
+            exit 1
+          }
+
+          make O="$OUT_DIR" -j"$(nproc)" modules_prepare
+
+      - name: Build nomount.ko
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ARCH=arm64 LLVM=1 LLVM_IAS=0
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          export CC="$TOOLCHAIN/bin/clang" LD="$TOOLCHAIN/bin/ld.lld"
+          export AR="$TOOLCHAIN/bin/llvm-ar" NM="$TOOLCHAIN/bin/llvm-nm"
+          export STRIP="$TOOLCHAIN/bin/llvm-strip" OBJCOPY="$TOOLCHAIN/bin/llvm-objcopy"
+          export OBJDUMP="$TOOLCHAIN/bin/llvm-objdump" READELF="$TOOLCHAIN/bin/llvm-readelf"
+          export AS="$(command -v aarch64-linux-gnu-as)"
+          export KBUILD_BUILD_USER=bakasu KBUILD_BUILD_HOST=builder KBUILD_BUILD_VERSION=1
+          export KBUILD_BUILD_TIMESTAMP="$(git show -s --format=%cD HEAD)"
+          export KCFLAGS="-Wno-error -Wno-error=incompatible-pointer-types -Wno-error=int-conversion -Wno-error=implicit-function-declaration"
+
+          CONFIG_NOMOUNT=m make -C "$OUT_DIR" M="$GITHUB_WORKSPACE/fs/nomount" \
+            -j"$(nproc)" modules
+          test -s fs/nomount/nomount.ko
+
+      - name: Verify and collect module
+        shell: bash
+        run: |
+          set -euo pipefail
+          release="$(cat "$OUT_DIR/include/config/kernel.release")"
+          vermagic="$(strings fs/nomount/nomount.ko | grep -m1 '^vermagic=' || true)"
+          echo "kernel.release: $release"
+          echo "$vermagic"
+          case "$vermagic" in
+            *"$release"*) ;;
+            *) echo "::error::vermagic does not match kernel.release"; exit 1 ;;
+          esac
+
+          mkdir -p artifacts
+          install -Dm644 fs/nomount/nomount.ko "artifacts/nomount-${KVER}.ko"
+          "$TOOLCHAIN/bin/llvm-strip" --strip-unneeded "artifacts/nomount-${KVER}.ko"
+          echo "KERNEL_RELEASE=$release" >> "$GITHUB_ENV"
+
+      - name: Fetch upstream NoMount at the vendored commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          up="$RUNNER_TEMP/nomount-src"
+          git clone --quiet https://github.com/maxsteeel/nomount.git "$up"
+          git -C "$up" checkout --quiet "$NOMOUNT_SHA"
+          test -f "$up/module/module.prop"
+          echo "NOMOUNT_UP=$up" >> "$GITHUB_ENV"
+
+      - name: Setup zig
+        uses: jetsung/setup-zig@v0.0.4
+        with:
+          version: master
+
+      - name: Build nm and lkmloader (arm64, arm)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/bin"
+          bin="$RUNNER_TEMP/bin"
+
+          cd "$NOMOUNT_UP/userspace/src"
+          zig cc -target aarch64-linux -Oz -mcmodel=tiny -static -nostdlib -ffreestanding -fno-unwind-tables \
+            -fno-ident -Wno-invalid-noreturn -mllvm -enable-machine-outliner=always -Wl,--entry=_start nm.c -o "$bin/nm-arm64"
+          zig cc -target arm-linux -Oz -static -nostdlib -ffreestanding -fno-unwind-tables -fno-ident -Wno-invalid-noreturn \
+            -ffunction-sections -fdata-sections -Wl,--gc-sections -Wl,--entry=_start nm.c -o "$bin/nm-arm"
+
+          git clone --quiet https://github.com/maxsteeel/lkmloader.git "$RUNNER_TEMP/lkmloader_src"
+          cd "$RUNNER_TEMP/lkmloader_src"
+          zig cc -target aarch64-linux -Oz -mcmodel=tiny -static -Wl,--gc-sections,-z,norelro -fno-unwind-tables \
+            -fno-ident -flto -fmerge-all-constants -fomit-frame-pointer -mllvm -enable-machine-outliner=always \
+            src/lkmloader.c -o "$bin/lkmloader-arm64"
+          zig cc -target arm-linux -Oz -static -Wl,--gc-sections,-z,norelro -fno-unwind-tables \
+            -fno-ident -flto -fmerge-all-constants -fomit-frame-pointer src/lkmloader.c -o "$bin/lkmloader-arm"
+
+          # Optional size optimization; skipped if the download fails
+          if curl -fsSL https://distfiles.gentoo.org/distfiles/1e/ELFkickers-3.2.tar.gz | tar -xz -C "$RUNNER_TEMP" 2>/dev/null \
+             && make -C "$RUNNER_TEMP/ELFkickers-3.2" sstrip >/dev/null 2>&1; then
+            "$RUNNER_TEMP/ELFkickers-3.2/sstrip/sstrip" -z "$bin"/* || true
+          fi
+          ls -l "$bin"
+
+      - name: Assemble flashable module ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          mod="$RUNNER_TEMP/nomount-module"
+          rm -rf "$mod"
+          cp -a "$NOMOUNT_UP/module" "$mod"
+          mkdir -p "$mod/bin" "$mod/lkm"
+          cp "$RUNNER_TEMP"/bin/* "$mod/bin/"
+          cp "artifacts/nomount-${KVER}.ko" "$mod/lkm/nomount-${KVER}.ko"
+
+          base_ver="$(sed -n 's/^version=//p' "$mod/module.prop" | tr -d '\r ' | head -n1)"
+          short="${NOMOUNT_SHA:0:8}"
+          sed -i "s/^versionCode=.*/versionCode=${NOMOUNT_COUNT}/" "$mod/module.prop"
+          sed -i "s/^version=.*/version=${base_ver} (${NOMOUNT_COUNT}-${short}, LKM ${KVER})/" "$mod/module.prop"
+
+          name="NoMount-${base_ver}-lkm-${KVER}-${short}"
+          (cd "$mod" && zip -qr9 "$GITHUB_WORKSPACE/artifacts/${name}.zip" .)
+
+          zip_path="artifacts/${name}.zip"
+          unzip -tq "$zip_path"
+          unzip -l "$zip_path" | grep -q "lkm/nomount-${KVER}.ko"
+          unzip -l "$zip_path" | grep -q 'bin/nm-arm64'
+          unzip -l "$zip_path" | grep -q 'bin/lkmloader-arm64'
+          unzip -p "$zip_path" module.prop
+
+          sha256sum "$zip_path" "artifacts/nomount-${KVER}.ko" | tee artifacts/SHA256SUMS.txt
+          {
+            echo "Kernel commit: $(git rev-parse HEAD)"
+            echo "Kernel release: $KERNEL_RELEASE"
+            echo "NoMount upstream commit: $NOMOUNT_SHA"
+            echo "NoMount vendored header: $(sed -n '1p' fs/nomount/Makefile)"
+            echo "Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          } > artifacts/build-info.txt
+          cat artifacts/build-info.txt
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: nomount-lkm-${{ env.KVER }}-${{ github.sha }}
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 14
