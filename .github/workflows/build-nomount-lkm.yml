@@ -140,6 +140,7 @@ jobs:
           set -euo pipefail
           up="$RUNNER_TEMP/nomount-src"
           git clone --quiet https://github.com/maxsteeel/nomount.git "$up"
+          git -C "$up" fetch --quiet origin "$NOMOUNT_SHA" || true
           git -C "$up" checkout --quiet "$NOMOUNT_SHA"
           test -f "$up/module/module.prop"
           echo "NOMOUNT_UP=$up" >> "$GITHUB_ENV"
@@ -157,10 +158,19 @@ jobs:
           bin="$RUNNER_TEMP/bin"
 
           cd "$NOMOUNT_UP/userspace/src"
-          zig cc -target aarch64-linux -Oz -mcmodel=tiny -static -nostdlib -ffreestanding -fno-unwind-tables \
-            -fno-ident -Wno-invalid-noreturn -mllvm -enable-machine-outliner=always -Wl,--entry=_start nm.c -o "$bin/nm-arm64"
-          zig cc -target arm-linux -Oz -static -nostdlib -ffreestanding -fno-unwind-tables -fno-ident -Wno-invalid-noreturn \
-            -ffunction-sections -fdata-sections -Wl,--gc-sections -Wl,--entry=_start nm.c -o "$bin/nm-arm"
+          if grep -q '#include <unistd.h>' nm.h; then
+            echo "nm.h uses libc headers (upstream dev layout): hosted-header build"
+            zig cc -target aarch64-linux -Oz -mcmodel=tiny -static -ffreestanding -fno-unwind-tables -fno-ident \
+              -Wno-invalid-noreturn -mllvm -enable-machine-outliner=always nm.c -o "$bin/nm-arm64"
+            zig cc -target arm-linux -Oz -static -ffreestanding -fno-unwind-tables -fno-ident -Wno-invalid-noreturn \
+              -ffunction-sections -fdata-sections -Wl,--gc-sections nm.c -o "$bin/nm-arm"
+          else
+            echo "nm.h is self-contained (upstream master layout): freestanding build"
+            zig cc -target aarch64-linux -Oz -mcmodel=tiny -static -nostdlib -ffreestanding -fno-unwind-tables \
+              -fno-ident -Wno-invalid-noreturn -mllvm -enable-machine-outliner=always -Wl,--entry=_start nm.c -o "$bin/nm-arm64"
+            zig cc -target arm-linux -Oz -static -nostdlib -ffreestanding -fno-unwind-tables -fno-ident -Wno-invalid-noreturn \
+              -ffunction-sections -fdata-sections -Wl,--gc-sections -Wl,--entry=_start nm.c -o "$bin/nm-arm"
+          fi
 
           git clone --quiet https://github.com/maxsteeel/lkmloader.git "$RUNNER_TEMP/lkmloader_src"
           cd "$RUNNER_TEMP/lkmloader_src"
