@@ -1,0 +1,100 @@
+name: Update fgetpriority
+
+on:
+  schedule:
+    # Only fires when this file is on the default branch
+    - cron: '43 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      build:
+        description: 'Run the 4.14 LKM builder after updating'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: fgetpriority-auto-update
+  cancel-in-progress: false
+
+env:
+  TARGET_BRANCH: nomount-lkm-sync-up-patch
+  UPSTREAM_URL: https://github.com/aerath-stuff/fgetpriority.git
+  UPSTREAM_BRANCH: master
+
+jobs:
+  update:
+    name: Update fgetpriority submodule
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout kernel branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TARGET_BRANCH }}
+          fetch-depth: 0
+          submodules: recursive
+          persist-credentials: true
+
+      - name: Bootstrap or update submodule
+        id: fgp
+        shell: bash
+        run: |
+          set -euo pipefail
+          bootstrapped=false
+          updated=false
+
+          if ! git config -f .gitmodules --get submodule.fgetpriority.url >/dev/null 2>&1; then
+            echo "Adding fgetpriority submodule"
+            git submodule add -b "$UPSTREAM_BRANCH" "$UPSTREAM_URL" fgetpriority
+            bootstrapped=true
+          else
+            br="$(git config -f .gitmodules --get submodule.fgetpriority.branch || echo "$UPSTREAM_BRANCH")"
+            git check-ref-format --branch "$br" >/dev/null
+            current="$(git -C fgetpriority rev-parse HEAD)"
+            git -C fgetpriority fetch origin "+refs/heads/$br:refs/remotes/origin/$br" --tags
+            latest="$(git -C fgetpriority rev-parse "refs/remotes/origin/$br^{commit}")"
+            echo "Current: $current"
+            echo "Latest : $latest"
+            if [ "$current" != "$latest" ]; then
+              git -C fgetpriority checkout --detach "$latest"
+              updated=true
+            else
+              echo "fgetpriority is already current."
+            fi
+          fi
+
+          # Unmodified upstream + all compat patches must still apply
+          sh scripts/prepare_fgetpriority.sh --check
+
+          echo "bootstrapped=$bootstrapped" >> "$GITHUB_OUTPUT"
+          echo "updated=$updated" >> "$GITHUB_OUTPUT"
+          echo "short=$(git -C fgetpriority rev-parse --short=8 HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push
+        if: steps.fgp.outputs.bootstrapped == 'true' || steps.fgp.outputs.updated == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .gitmodules fgetpriority
+          git diff --cached --submodule=short
+          if [ "${{ steps.fgp.outputs.bootstrapped }}" = "true" ]; then
+            git commit -m "fgetpriority: add submodule at ${{ steps.fgp.outputs.short }}"
+          else
+            git commit -m "fgetpriority: update to ${{ steps.fgp.outputs.short }}"
+          fi
+          git push origin "HEAD:$TARGET_BRANCH"
+
+      - name: Trigger LKM build
+        if: (steps.fgp.outputs.bootstrapped == 'true' || steps.fgp.outputs.updated == 'true') && (github.event_name != 'workflow_dispatch' || inputs.build)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run build-fgetpriority-lkm.yml \
+            --repo "$GITHUB_REPOSITORY" --ref "$TARGET_BRANCH"
