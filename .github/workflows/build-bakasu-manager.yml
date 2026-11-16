@@ -1,0 +1,341 @@
+name: BakaSU manager APK (release, pinned toolchain)
+
+# Builds the BakaSU manager APK as the RELEASE variant (no debug), optionally as
+# the DEV flavour (com.resukisu.resukisu.dev / "BakaSU-DEV") like upstream's
+# non-main branch builds. Toolchains: JDK 21 (Temurin), the Gradle wrapper and
+# Kotlin/AGP/NDK versions pinned by the BakaSU revision itself, and a pinned
+# Rust nightly for ksud/ksuinit. Small fixes for known upstream build breaks are
+# applied from patches/bakasu/ at build time; the submodule stays untouched.
+
+on:
+  workflow_dispatch:
+    inputs:
+      bakasu_ref:
+        description: 'BakaSU commit, branch or tag. Blank = the commit pinned by the KernelSU submodule on the branch you run this from (matches your kernel).'
+        required: false
+        type: string
+        default: ''
+      dev_build:
+        description: 'DEV flavour: package com.resukisu.resukisu.dev, app name BakaSU-DEV (upstream does this for every non-main branch).'
+        required: false
+        type: boolean
+        default: true
+      rust_toolchain:
+        description: 'Pinned Rust nightly used for ksud and ksuinit, e.g. nightly-2026-11-10.'
+        required: false
+        type: string
+        default: 'nightly-2026-11-10'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bakasu-manager-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  resolve:
+    name: Resolve BakaSU revision
+    runs-on: ubuntu-latest
+    outputs:
+      ref: ${{ steps.pin.outputs.ref }}
+    steps:
+      - name: Checkout kernel repo (submodule pointer only)
+        uses: actions/checkout@v7
+
+      - name: Resolve BakaSU ref
+        id: pin
+        env:
+          INPUT_REF: ${{ inputs.bakasu_ref }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "$INPUT_REF" ]; then
+            ref="$INPUT_REF"
+          else
+            ref="$(git ls-tree HEAD KernelSU | awk '{print $3}')"
+          fi
+          test -n "$ref"
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+          echo "BakaSU ref: $ref"
+
+  native:
+    name: Build ksud (${{ matrix.target }})
+    needs: resolve
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: true
+      matrix:
+        target: [aarch64-linux-android, armv7-linux-androideabi]
+    env:
+      RUSTUP_TOOLCHAIN: ${{ inputs.rust_toolchain }}
+    steps:
+      - name: Checkout BakaSU
+        uses: actions/checkout@v7
+        with:
+          repository: Baka-SU/BakaSU
+          ref: ${{ needs.resolve.outputs.ref }}
+          path: bakasu
+          fetch-depth: 0
+
+      - name: Checkout build patches
+        uses: actions/checkout@v7
+        with:
+          path: ours
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            patches/bakasu/
+            scripts/apply_bakasu_patches.sh
+
+      - name: Apply BakaSU build fixes
+        shell: bash
+        run: sh ours/scripts/apply_bakasu_patches.sh "$GITHUB_WORKSPACE/bakasu" "$GITHUB_WORKSPACE/ours/patches/bakasu"
+
+      - name: Setup NDK r29 (ksuinit)
+        id: setup-ndk
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r29
+
+      - name: Install pinned Rust nightly
+        shell: bash
+        run: |
+          set -euo pipefail
+          rustup toolchain install "$RUSTUP_TOOLCHAIN" --profile minimal --component rust-src \
+            -t aarch64-linux-android -t armv7-linux-androideabi
+          rustc --version
+          cargo --version
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: bakasu-ksud-${{ matrix.target }}-${{ inputs.rust_toolchain }}
+          workspaces: |
+            bakasu/userspace/ksud
+            bakasu/userspace/ksuinit
+          cache-targets: true
+          add-job-id-key: false
+          add-rust-environment-hash-key: false
+
+      - name: Build ksuinit (aarch64 + armv7)
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd bakasu
+          build_init() {
+            local clang_triple="$1" rust_triple="$2" libarch="$3" outdir="$4"
+            ( source .github/scripts/setup-rust-build.sh "$clang_triple" 26 "$rust_triple"
+              BUILTINS="$($CLANG_PATH --print-resource-dir)/lib/linux/libclang_rt.builtins-${libarch}-android.a"
+              test -f "$BUILTINS"
+              export RUSTFLAGS="-C target-feature=+crt-static -C link-arg=-Wl,-z,max-page-size=16384 -C link-arg=-Wno-unused-command-line-argument -C link-arg=$BUILTINS"
+              cd userspace/ksuinit
+              cargo build --package ksuinit --target="$rust_triple" --release
+              mkdir -p "../ksud/bin/$outdir"
+              cp "target/$rust_triple/release/ksuinit" "../ksud/bin/$outdir/ksuinit" )
+          }
+          build_init aarch64-linux-android aarch64-linux-android aarch64 aarch64
+          build_init armv7a-linux-androideabi armv7-linux-androideabi arm arm
+          # Archs we do not ship: empty placeholders so ksud's embedded-file lookups still resolve.
+          for d in x86_64 riscv64; do
+            mkdir -p "userspace/ksud/bin/$d"
+            [ -e "userspace/ksud/bin/$d/ksuinit" ] || : > "userspace/ksud/bin/$d/ksuinit"
+          done
+
+      - name: Install cargo-ndk
+        shell: bash
+        run: cargo install cargo-ndk --locked
+
+      - name: Assemble LKM bootstrap
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd bakasu
+          clang --target=aarch64-linux-gnu -c -nostdlib \
+            -o userspace/ksud/.lkm_image_bootstrap.o \
+            userspace/ksud/src/lkm_image_bootstrap.S
+
+      - name: Build ksud
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd bakasu/userspace/ksud
+          if [ "${{ inputs.dev_build }}" = "true" ]; then
+            export KSU_PACKAGE_NAME="com.resukisu.resukisu.dev"
+          fi
+          cargo ndk b -P 26 -t "${{ matrix.target }}" -r -Z build-std-features="optimize_for_size" -Z trim-paths
+
+      - name: Upload ksud
+        uses: actions/upload-artifact@v7
+        with:
+          name: ksud-${{ matrix.target }}
+          path: bakasu/userspace/ksud/target/**/release/ksud
+          if-no-files-found: error
+          retention-days: 3
+
+  apk:
+    name: Build and repack manager (release)
+    needs: [resolve, native]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout BakaSU
+        uses: actions/checkout@v7
+        with:
+          repository: Baka-SU/BakaSU
+          ref: ${{ needs.resolve.outputs.ref }}
+          path: bakasu
+          fetch-depth: 0
+
+      - name: Checkout build patches
+        uses: actions/checkout@v7
+        with:
+          path: ours
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            patches/bakasu/
+            scripts/apply_bakasu_patches.sh
+
+      - name: Apply BakaSU build fixes
+        shell: bash
+        run: sh ours/scripts/apply_bakasu_patches.sh "$GITHUB_WORKSPACE/bakasu" "$GITHUB_WORKSPACE/ours/patches/bakasu"
+
+      - name: Setup Java 21 (Temurin)
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Prepare signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE }}
+          KEYSTORE_PASSWORD_IN: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS_IN: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD_IN: ${{ secrets.KEY_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ks="$RUNNER_TEMP/bakasu-sign.jks"
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$ks"
+            alias_name="$KEY_ALIAS_IN"; store_pass="$KEYSTORE_PASSWORD_IN"; key_pass="$KEY_PASSWORD_IN"
+            echo "SIGNING_SOURCE=repository secrets" >> "$GITHUB_ENV"
+          else
+            store_pass="$(openssl rand -hex 24)"; key_pass="$store_pass"; alias_name="bakasu-dev"
+            keytool -genkeypair -alias "$alias_name" -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass "$store_pass" -keypass "$key_pass" -dname "CN=BakaSU DEV self-built" \
+              -storetype JKS -keystore "$ks"
+            echo "SIGNING_SOURCE=temporary key (not reusable)" >> "$GITHUB_ENV"
+            echo "::warning::No KEYSTORE secret set: signed with a one-off key. Add KEYSTORE, KEYSTORE_PASSWORD, KEY_ALIAS and KEY_PASSWORD secrets so every build has the same signature."
+          fi
+          echo "::add-mask::$store_pass"; echo "::add-mask::$key_pass"
+          {
+            echo "SIGN_KEYSTORE_FILE=$ks"
+            echo "SIGN_KEY_ALIAS=$alias_name"
+            echo "SIGN_KEYSTORE_PASSWORD=$store_pass"
+            echo "SIGN_KEY_PASSWORD=$key_pass"
+          } >> "$GITHUB_ENV"
+          {
+            echo "KEYSTORE_FILE=$ks"
+            echo "KEYSTORE_PASSWORD=$store_pass"
+            echo "KEY_ALIAS=$alias_name"
+            echo "KEY_PASSWORD=$key_pass"
+          } >> bakasu/manager/gradle.properties
+
+      - name: Build manager (release only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd bakasu/manager
+          commit="$(git -C .. rev-parse HEAD)"
+          extra=""
+          if [ "${{ inputs.dev_build }}" = "true" ]; then
+            export KSU_PACKAGE_NAME="com.resukisu.resukisu.dev" KSU_NAME="BakaSU-DEV"
+            extra="-PKSU_PACKAGE_NAME=$KSU_PACKAGE_NAME -PKSU_NAME=$KSU_NAME"
+          fi
+          ./gradlew assembleRelease -Pcommit="$commit" $extra
+
+      - name: Download ksud binaries
+        uses: actions/download-artifact@v8
+        with:
+          pattern: ksud-*
+          path: ksud-artifacts
+
+      - name: Place ksud binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd bakasu
+          for t in aarch64-linux-android armv7-linux-androideabi; do
+            f="$(find "$GITHUB_WORKSPACE/ksud-artifacts/ksud-$t" -type f -name ksud | head -n 1)"
+            test -n "$f"
+            mkdir -p "target/$t/release"
+            cp -f "$f" "target/$t/release/ksud"
+          done
+
+      - name: Repack with ksud and sign
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd bakasu
+          python3 repack_apk_multi.py repack \
+            -b release \
+            -t release \
+            -a arm64-v8a \
+            -a armeabi-v7a \
+            -K "$SIGN_KEYSTORE_FILE" \
+            -A "$SIGN_KEY_ALIAS" \
+            -P "$SIGN_KEYSTORE_PASSWORD" \
+            -S "$SIGN_KEY_PASSWORD" \
+            --strip
+          ls -l dist
+          test -n "$(find dist -maxdepth 1 -name '*.apk' -print -quit)"
+
+      - name: Report signature and write build info
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd bakasu
+          keytool -exportcert -alias "$SIGN_KEY_ALIAS" -keystore "$SIGN_KEYSTORE_FILE" \
+            -storepass "$SIGN_KEYSTORE_PASSWORD" -file "$RUNNER_TEMP/cert.der"
+          size_dec="$(stat -c%s "$RUNNER_TEMP/cert.der")"
+          size_hex="$(printf '0x%04x' "$size_dec")"
+          hash="$(sha256sum "$RUNNER_TEMP/cert.der" | awk '{print $1}')"
+          {
+            echo "BakaSU commit: $(git rev-parse HEAD)"
+            echo "BakaSU ref: ${{ needs.resolve.outputs.ref }}"
+            echo "Variant: release, dev flavour: ${{ inputs.dev_build }}"
+            echo "Rust toolchain: ${{ inputs.rust_toolchain }}"
+            echo "Signing: $SIGNING_SOURCE"
+            echo "Signature size: $size_hex"
+            echo "Signature sha256: $hash"
+            echo "Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          } > dist/build-info.txt
+          cat dist/build-info.txt
+          {
+            echo "### BakaSU manager (release)"
+            echo
+            echo "| Item | Value |"
+            echo "|---|---|"
+            echo "| BakaSU commit | \`$(git rev-parse --short=8 HEAD)\` |"
+            echo "| Signing | $SIGNING_SOURCE |"
+            echo "| Signature size | \`$size_hex\` |"
+            echo "| Signature sha256 | \`$hash\` |"
+            echo
+            echo "The kernel only treats an APK as the manager if its signature is trusted. Either build the kernel with \`KSU_EXPECTED_SIZE=$size_hex\` and \`KSU_EXPECTED_HASH=$hash\`, or set this key through Dynamic Manager in an already-trusted manager."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: BakaSU-manager-release
+          path: |
+            bakasu/dist/*.apk
+            bakasu/dist/build-info.txt
+          if-no-files-found: error
+          retention-days: 30

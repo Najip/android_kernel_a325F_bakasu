@@ -1,0 +1,17 @@
+From: Najip <najipmunajat22@gmail.com>
+Subject: [PATCH] manager: drop duplicate "val context" in NavContainer
+
+NavContainer declares "val context = LocalContext.current" twice in the same
+scope, which Kotlin rejects with REDECLARATION (compileReleaseKotlin fails).
+
+diff --git a/manager/app/src/main/java/org/bakasu/bakasu/ui/NavContainer.kt b/manager/app/src/main/java/org/bakasu/bakasu/ui/NavContainer.kt
+--- a/manager/app/src/main/java/org/bakasu/bakasu/ui/NavContainer.kt
++++ b/manager/app/src/main/java/org/bakasu/bakasu/ui/NavContainer.kt
+@@ -240,7 +240,6 @@
+         onResult = permissionRequestInterface::onPermissionRequestCallback,
+     )
+
+-    val context = LocalContext.current
+     val uriHandler = LocalUriHandler.current
+
+     CompositionLocalProvider(
