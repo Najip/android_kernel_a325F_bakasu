@@ -25,7 +25,7 @@ Other SM-A325 regional variants may be compatible because they share the same ba
 <!-- AUTO:BAKASU:START -->
 - BakaSU `v4.2.0-rc3`
 - BakaSU kernel version code `35277`
-- BakaSU commit [`88213962`](https://github.com/Baka-SU/BakaSU/commit/882139626678f5034fbf11b4e6c4bdd0661ab8b4)
+- BakaSU commit [`252b1520`](https://github.com/Baka-SU/BakaSU/commit/252b15203940c00570c65c0d33db12d9e76c4dff)
 <!-- AUTO:BAKASU:END -->
 - SUSFS `v2.3.0`
 - KernelSU multi-manager support
