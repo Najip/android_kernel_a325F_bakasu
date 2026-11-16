@@ -37,6 +37,11 @@ export LLVM_IAS=0
 export KBUILD_BUILD_USER=${KBUILD_BUILD_USER:-bakasu}
 export KBUILD_BUILD_HOST=${KBUILD_BUILD_HOST:-builder}
 export KBUILD_BUILD_VERSION=${KBUILD_BUILD_VERSION:-1}
+# Trust the self-built BakaSU manager signing key (certificate size and sha256;
+# public values, not secrets). Needs CONFIG_KSU_MULTI_MANAGER_SUPPORT=y.
+# Override from the environment to use a different key.
+export KSU_EXPECTED_SIZE=${KSU_EXPECTED_SIZE:-0x039d}
+export KSU_EXPECTED_HASH=${KSU_EXPECTED_HASH:-08058b4d1ce70ce10657421652993a8b14f509a5d9aecca486bdf41c34ed9ec3}
 if [ -z "${KBUILD_BUILD_TIMESTAMP:-}" ]; then
   KBUILD_BUILD_TIMESTAMP=$(git -C "$ROOT" show -s --format=%cD HEAD)
   export KBUILD_BUILD_TIMESTAMP
