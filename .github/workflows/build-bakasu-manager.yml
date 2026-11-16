@@ -1,0 +1,21 @@
+name: BakaSU manager APK (release, pinned toolchain)
+
+# Stub so GitHub lists this workflow from the default branch.
+# The real workflow lives on nomount-lkm-sync-up-patch: open Actions, pick this
+# workflow, and set "Use workflow from" to that branch.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stub:
+    name: Use the real workflow
+    runs-on: ubuntu-latest
+    steps:
+      - name: Explain
+        run: |
+          echo "::error::This is only a stub. Re-run it with 'Use workflow from' = nomount-lkm-sync-up-patch."
+          exit 1
