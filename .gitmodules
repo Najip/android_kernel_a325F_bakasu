@@ -2,3 +2,7 @@
 	path = KernelSU
 	url = https://github.com/Baka-SU/BakaSU.git
 	branch = main
+[submodule "fgetpriority"]
+	path = fgetpriority
+	url = https://github.com/aerath-stuff/fgetpriority.git
+	branch = master
