@@ -1,0 +1,234 @@
+name: Build fgetpriority LKM + flashable ZIP (4.14) (Self-Hosted)
+
+# Self-hosted copy of build-fgetpriority-lkm.yml. Same build and packaging.
+# Differences: runs on the self-hosted runner, installs apt packages only when missing,
+# and keeps the AOSP Clang 14 toolchain in a persistent cache.
+
+on:
+  workflow_dispatch:
+    inputs:
+      kernel_ref:
+        description: 'Kernel branch, tag or commit. Blank = branch you run this from'
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fgetpriority-lkm-selfhosted-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  OUT_DIR: ${{ github.workspace }}/out-lkm
+  KVER: '4.14'
+
+jobs:
+  build:
+    name: Build fgetpriority-4.14.ko and module ZIP (self-hosted)
+    runs-on: self-hosted
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout kernel and submodules
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.kernel_ref || github.ref }}
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Apply kernel compatibility patches (if any)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f scripts/apply_kernel_patches.sh ]; then
+            sh scripts/apply_kernel_patches.sh
+          fi
+
+      - name: Validate and export patched fgetpriority source
+        shell: bash
+        run: |
+          set -euo pipefail
+          sh scripts/prepare_fgetpriority.sh --export "$RUNNER_TEMP/fgp-src" | tee fgp-source.txt
+          echo "FGP_SRC=$RUNNER_TEMP/fgp-src" >> "$GITHUB_ENV"
+          echo "FGP_SHA=$(git -C fgetpriority rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Check and install Ubuntu self-hosted dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          fail() { echo "::error::$*" >&2; exit 1; }
+          [[ "${RUNNER_ENVIRONMENT:-}" == self-hosted ]] || fail 'Expected a self-hosted runner.'
+          . /etc/os-release
+          [[ "$ID" == ubuntu ]] || fail 'Automatic dependency setup supports Ubuntu only.'
+          [[ "$(uname -m)" == x86_64 ]] || fail 'The AOSP Clang prebuilt requires x86_64 Linux.'
+          packages=(bc binutils binutils-aarch64-linux-gnu bison build-essential ca-certificates curl file flex git libelf-dev libssl-dev libncurses-dev lz4 python3 rsync xz-utils zip unzip zlib1g-dev zstd)
+          missing=()
+          for package in "${packages[@]}"; do
+            status=$(dpkg-query -W -f='${Status}' "$package" 2>/dev/null || true)
+            [[ "$status" == 'install ok installed' ]] || missing+=("$package")
+          done
+          if ((${#missing[@]})); then
+            privilege=()
+            if ((EUID != 0)); then
+              command -v sudo >/dev/null || fail 'Install the missing packages manually or provide non-interactive sudo.'
+              sudo -n true || fail 'Missing packages require non-interactive sudo.'
+              privilege=(sudo -n)
+            fi
+            printf 'Installing missing packages: %s\n' "${missing[*]}"
+            "${privilege[@]}" env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 -o Acquire::Retries=3 update
+            "${privilege[@]}" env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 -o Acquire::Retries=3 install -y --no-install-recommends --no-remove "${missing[@]}"
+          else
+            echo 'All build dependencies are already installed.'
+          fi
+
+      - name: Install pinned AOSP Clang 14 (cached)
+        shell: bash
+        run: |
+          set -euo pipefail
+          cache="${XDG_CACHE_HOME:-$HOME/.cache}/a325-kernel"
+          mkdir -p "$cache"
+          exec 9>"$cache/.lock"
+          flock 9
+          key=$(sha256sum scripts/fetch_aosp_clang.sh | cut -c1-16)
+          toolchain="$cache/aosp-clang14-$key"
+          if [ -x "$toolchain/bin/clang" ]; then
+            echo "Toolchain cache: HIT ($key)"
+          else
+            echo "Toolchain cache: MISS ($key)"
+            rm -rf "$toolchain.tmp"
+            sh scripts/fetch_aosp_clang.sh "$toolchain.tmp"
+            test -x "$toolchain.tmp/bin/clang"
+            mv "$toolchain.tmp" "$toolchain"
+          fi
+          find "$cache" -maxdepth 1 -name 'aosp-clang14-*' ! -name "aosp-clang14-$key" -exec rm -rf {} +
+          echo "TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
+          echo "$toolchain/bin" >> "$GITHUB_PATH"
+
+      - name: Configure kernel (same fragments as the kernel build)
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="$TOOLCHAIN/bin:$PATH"
+          echo "ld: $(command -v ld || echo MISSING)  gcc: $(command -v gcc)  ld.lld: $(command -v ld.lld)"
+
+          export ARCH=arm64 LLVM=1 LLVM_IAS=0 CROSS_COMPILE=aarch64-linux-gnu-
+          export CC="$TOOLCHAIN/bin/clang" LD="$TOOLCHAIN/bin/ld.lld"
+          export AR="$TOOLCHAIN/bin/llvm-ar" NM="$TOOLCHAIN/bin/llvm-nm"
+          export STRIP="$TOOLCHAIN/bin/llvm-strip" OBJCOPY="$TOOLCHAIN/bin/llvm-objcopy"
+          export OBJDUMP="$TOOLCHAIN/bin/llvm-objdump" READELF="$TOOLCHAIN/bin/llvm-readelf"
+          export AS="$(command -v aarch64-linux-gnu-as)"
+          export KBUILD_BUILD_USER=bakasu KBUILD_BUILD_HOST=builder KBUILD_BUILD_VERSION=1
+          export KBUILD_BUILD_TIMESTAMP="$(git show -s --format=%cD HEAD)"
+
+          rm -rf "$OUT_DIR"
+          mkdir -p "$OUT_DIR"
+          scripts/kconfig/merge_config.sh -m -O "$OUT_DIR" \
+            arch/arm64/configs/mt6768_slm_defconfig \
+            arch/arm64/configs/a32.config \
+            arch/arm64/configs/battery.config \
+            arch/arm64/configs/ksu-a325n-common.config \
+            arch/arm64/configs/a325n-release.config
+          make O="$OUT_DIR" olddefconfig
+
+          for c in CONFIG_MODULES CONFIG_KALLSYMS CONFIG_KALLSYMS_ALL CONFIG_KPROBES; do
+            grep -q "^$c=y$" "$OUT_DIR/.config" || { echo "::error::$c is not enabled in the kernel config"; exit 1; }
+          done
+          make O="$OUT_DIR" -j"$(nproc)" modules_prepare
+
+      - name: Build fgetpriority.ko
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="$TOOLCHAIN/bin:$PATH"
+          export ARCH=arm64 LLVM=1 LLVM_IAS=0 CROSS_COMPILE=aarch64-linux-gnu-
+          export CC="$TOOLCHAIN/bin/clang" LD="$TOOLCHAIN/bin/ld.lld"
+          export AR="$TOOLCHAIN/bin/llvm-ar" NM="$TOOLCHAIN/bin/llvm-nm"
+          export STRIP="$TOOLCHAIN/bin/llvm-strip" OBJCOPY="$TOOLCHAIN/bin/llvm-objcopy"
+          export OBJDUMP="$TOOLCHAIN/bin/llvm-objdump" READELF="$TOOLCHAIN/bin/llvm-readelf"
+          export AS="$(command -v aarch64-linux-gnu-as)"
+          export KBUILD_BUILD_USER=bakasu KBUILD_BUILD_HOST=builder KBUILD_BUILD_VERSION=1
+          export KBUILD_BUILD_TIMESTAMP="$(git show -s --format=%cD HEAD)"
+
+          CONFIG_FGETPRIORITY=m make -C "$OUT_DIR" M="$FGP_SRC/kernel" \
+            -j"$(nproc)" modules 2>&1 | tee build.log
+          test -s "$FGP_SRC/kernel/fgetpriority.ko"
+
+      - name: Verify vermagic and collect
+        shell: bash
+        run: |
+          set -euo pipefail
+          release="$(cat "$OUT_DIR/include/config/kernel.release")"
+          ko="$FGP_SRC/kernel/fgetpriority.ko"
+          vermagic="$(strings "$ko" | grep -m1 '^vermagic=' || true)"
+          echo "kernel.release: $release"
+          echo "$vermagic"
+          case "$vermagic" in
+            *"$release"*) ;;
+            *) echo "::error::vermagic does not match kernel.release"; exit 1 ;;
+          esac
+
+          rm -rf artifacts
+          mkdir -p artifacts
+          install -Dm644 "$ko" "artifacts/fgetpriority-${KVER}.ko"
+          "$TOOLCHAIN/bin/llvm-strip" -d "artifacts/fgetpriority-${KVER}.ko"
+          echo "KERNEL_RELEASE=$release" >> "$GITHUB_ENV"
+
+      - name: Assemble flashable module ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f "$FGP_SRC/module/module.prop"
+          mod="$RUNNER_TEMP/fgp-module"
+          rm -rf "$mod"
+          cp -a "$FGP_SRC/module" "$mod"
+          rm -rf "$mod/ko"
+          mkdir -p "$mod/ko"
+          cp "artifacts/fgetpriority-${KVER}.ko" "$mod/ko/custom-${KVER}_arm64_fgetpriority.ko"
+
+          fshort="${FGP_SHA:0:8}"
+          kshort="$(git rev-parse --short=8 HEAD)"
+          base_ver="$(sed -n 's/^version=//p' "$mod/module.prop" | tr -d '\r' | head -n1)"
+          sed -i "s/^version=.*/version=${base_ver} (LKM ${KVER}, ${fshort})/" "$mod/module.prop"
+
+          name="fgetpriority-${base_ver}-lkm-${KVER}-k${kshort}-f${fshort}"
+          (cd "$mod" && zip -qr9 "$GITHUB_WORKSPACE/artifacts/${name}.zip" .)
+          zip_path="artifacts/${name}.zip"
+          unzip -tq "$zip_path"
+          unzip -l "$zip_path" | grep -q "ko/custom-${KVER}_arm64_fgetpriority.ko"
+          unzip -l "$zip_path" | grep -q 'customize.sh'
+          unzip -p "$zip_path" module.prop
+
+          sha256sum "$zip_path" "artifacts/fgetpriority-${KVER}.ko" | tee artifacts/SHA256SUMS.txt
+          {
+            echo "Kernel commit: $(git rev-parse HEAD)"
+            echo "Kernel release: $KERNEL_RELEASE"
+            echo "fgetpriority commit: $FGP_SHA"
+            echo "Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          } > artifacts/build-info.txt
+          cat fgp-source.txt >> artifacts/build-info.txt
+          echo "ARTIFACT_NAME=fgetpriority-lkm-${KVER}-k${kshort}-f${fshort}" >> "$GITHUB_ENV"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: fgetpriority-build-log
+          path: |
+            build.log
+            fgp-source.txt
+          if-no-files-found: ignore
+
+      - name: Clean build output
+        if: always()
+        shell: bash
+        run: rm -rf "$OUT_DIR" artifacts build.log fgp-source.txt
