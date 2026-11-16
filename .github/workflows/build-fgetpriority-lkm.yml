@@ -1,4 +1,4 @@
-name: Build fgetpriority LKM (4.14)
+name: Build fgetpriority LKM + flashable ZIP (4.14)
 
 on:
   workflow_dispatch:
@@ -22,7 +22,7 @@ env:
 
 jobs:
   build:
-    name: Build fgetpriority-4.14.ko
+    name: Build fgetpriority-4.14.ko and module ZIP
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
@@ -56,7 +56,7 @@ jobs:
           set -euo pipefail
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            bc binutils-aarch64-linux-gnu bison build-essential ca-certificates curl file flex git \
+            bc binutils binutils-aarch64-linux-gnu bison build-essential ca-certificates curl file flex git \
             libelf-dev libssl-dev libncurses-dev lz4 python3 xz-utils zip unzip zlib1g-dev zstd
 
       - name: Install pinned AOSP Clang 14
@@ -66,11 +66,17 @@ jobs:
           toolchain="$RUNNER_TEMP/aosp-clang14"
           sh scripts/fetch_aosp_clang.sh "$toolchain"
           echo "TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
+          # Same as the NoMount builder: the toolchain must be on PATH so host
+          # tools (fixdep) can find the linker.
+          echo "$toolchain/bin" >> "$GITHUB_PATH"
 
       - name: Configure kernel (same fragments as the kernel build)
         shell: bash
         run: |
           set -euo pipefail
+          export PATH="$TOOLCHAIN/bin:$PATH"
+          echo "ld: $(command -v ld || echo MISSING)  gcc: $(command -v gcc)  ld.lld: $(command -v ld.lld)"
+
           export ARCH=arm64 LLVM=1 LLVM_IAS=0 CROSS_COMPILE=aarch64-linux-gnu-
           export CC="$TOOLCHAIN/bin/clang" LD="$TOOLCHAIN/bin/ld.lld"
           export AR="$TOOLCHAIN/bin/llvm-ar" NM="$TOOLCHAIN/bin/llvm-nm"
@@ -98,6 +104,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          export PATH="$TOOLCHAIN/bin:$PATH"
           export ARCH=arm64 LLVM=1 LLVM_IAS=0 CROSS_COMPILE=aarch64-linux-gnu-
           export CC="$TOOLCHAIN/bin/clang" LD="$TOOLCHAIN/bin/ld.lld"
           export AR="$TOOLCHAIN/bin/llvm-ar" NM="$TOOLCHAIN/bin/llvm-nm"
@@ -129,15 +136,44 @@ jobs:
           mkdir -p artifacts
           install -Dm644 "$ko" "artifacts/fgetpriority-${KVER}.ko"
           "$TOOLCHAIN/bin/llvm-strip" -d "artifacts/fgetpriority-${KVER}.ko"
-          sha256sum "artifacts/fgetpriority-${KVER}.ko" | tee artifacts/SHA256SUMS.txt
+          echo "KERNEL_RELEASE=$release" >> "$GITHUB_ENV"
+
+      - name: Assemble flashable module ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f "$FGP_SRC/module/module.prop"
+          mod="$RUNNER_TEMP/fgp-module"
+          rm -rf "$mod"
+          cp -a "$FGP_SRC/module" "$mod"
+          rm -rf "$mod/ko"
+          mkdir -p "$mod/ko"
+          # customize.sh falls back to *-<kernel version>_arm64_fgetpriority.ko
+          # when uname -r has no androidNN branch (vendor 4.14 kernel).
+          cp "artifacts/fgetpriority-${KVER}.ko" "$mod/ko/custom-${KVER}_arm64_fgetpriority.ko"
+
+          fshort="${FGP_SHA:0:8}"
+          kshort="$(git rev-parse --short=8 HEAD)"
+          base_ver="$(sed -n 's/^version=//p' "$mod/module.prop" | tr -d '\r' | head -n1)"
+          sed -i "s/^version=.*/version=${base_ver} (LKM ${KVER}, ${fshort})/" "$mod/module.prop"
+
+          name="fgetpriority-${base_ver}-lkm-${KVER}-k${kshort}-f${fshort}"
+          (cd "$mod" && zip -qr9 "$GITHUB_WORKSPACE/artifacts/${name}.zip" .)
+          zip_path="artifacts/${name}.zip"
+          unzip -tq "$zip_path"
+          unzip -l "$zip_path" | grep -q "ko/custom-${KVER}_arm64_fgetpriority.ko"
+          unzip -l "$zip_path" | grep -q 'customize.sh'
+          unzip -p "$zip_path" module.prop
+
+          sha256sum "$zip_path" "artifacts/fgetpriority-${KVER}.ko" | tee artifacts/SHA256SUMS.txt
           {
             echo "Kernel commit: $(git rev-parse HEAD)"
-            echo "Kernel release: $release"
+            echo "Kernel release: $KERNEL_RELEASE"
             echo "fgetpriority commit: $FGP_SHA"
             echo "Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
           } > artifacts/build-info.txt
           cat fgp-source.txt >> artifacts/build-info.txt
-          echo "ARTIFACT_NAME=fgetpriority-lkm-${KVER}-k$(git rev-parse --short=8 HEAD)-f${FGP_SHA:0:8}" >> "$GITHUB_ENV"
+          echo "ARTIFACT_NAME=fgetpriority-lkm-${KVER}-k${kshort}-f${fshort}" >> "$GITHUB_ENV"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
