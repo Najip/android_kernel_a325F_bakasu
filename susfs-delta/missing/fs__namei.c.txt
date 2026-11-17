@@ -1,0 +1,5 @@
+### fs/namei.c  (2 of 182 added lines missing)
+@@ -39,6 +39,9 @@
++#ifdef CONFIG_KSU_SUSFS
+@@ -46,6 +49,14 @@
++extern __attribute__((hot)) bool susfs_is_inode_sus_path(struct inode *inode);

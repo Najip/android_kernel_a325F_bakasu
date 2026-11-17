@@ -1,0 +1,9 @@
+### include/linux/susfs_def.h  (7 of 165 added lines missing)
+@@ -0,0 +1,229 @@
++#include <linux/bitops.h>
++#include <linux/bitmap.h>
++#define CMD_SUSFS_SET_SUS_PATH_UID_FILTER 0x55554
++#define SUSFS_UID_FILTER_MIN_UID 10000
++#define SUSFS_UID_FILTER_MAX_UID 19999
++#define SUSFS_UID_FILTER_UID_NUM (SUSFS_UID_FILTER_MAX_UID - SUSFS_UID_FILTER_MIN_UID + 1)
++#define SUSFS_UID_FILTER_BITMAP_LEN BITS_TO_LONGS(SUSFS_UID_FILTER_UID_NUM)

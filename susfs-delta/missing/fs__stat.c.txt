@@ -1,0 +1,25 @@
+### fs/stat.c  (23 of 33 added lines missing)
+@@ -75,9 +80,53 @@ int vfs_getattr_nosec(const struct path *path, struct kstat *stat,
++			if (!is_fuse) {
++				// stat->mnt_id = real_mount(path->mnt)->mnt_id;
++				// only for 5.10 kernel
++				stat->result_mask |= STATX_SUS_KSTAT;
++			// stat->mnt_id = real_mount(path->mnt)->mnt_id;
++			// only for 5.10 kernel
++			stat->result_mask |= STATX_SUS_KSTAT_FUSE;
++		int err = inode->i_op->getattr(path, stat, request_mask,
++					    query_flags);
++		if (!err) {
++			if (stat->result_mask & STATX_SUS_KSTAT) {
++				susfs_sus_kstat_spoof_generic_fillattr(inode, stat, STATX_SUS_KSTAT);
++				return err;
++			if (stat->result_mask & STATX_SUS_KSTAT_FUSE) {
++				susfs_sus_kstat_spoof_generic_fillattr(inode, stat, STATX_SUS_KSTAT_FUSE);
++			return err;
++		return err;
++	if (stat->result_mask & STATX_SUS_KSTAT) {
++		susfs_sus_kstat_spoof_generic_fillattr(inode, stat, STATX_SUS_KSTAT);
++	if (stat->result_mask & STATX_SUS_KSTAT_FUSE) {
++		generic_fillattr(inode, stat);
++		susfs_sus_kstat_spoof_generic_fillattr(inode, stat, STATX_SUS_KSTAT_FUSE);
++		return 0;

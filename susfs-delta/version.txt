@@ -1,0 +1,2 @@
+In-tree SUSFS_VERSION: v2.3.0
+Patch SUSFS_VERSION: v2.4.0

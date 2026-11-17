@@ -1,0 +1,11 @@
+### fs/super.c  (9 of 17 added lines missing)
+@@ -972,6 +980,22 @@ int get_anon_bdev(dev_t *p)
++	if (static_branch_unlikely(&susfs_is_sdcard_android_data_not_decrypted)) {
++		if (susfs_is_current_ksu_domain()) {
++			dev = ida_simple_get(&unnamed_dev_ida, DEFAULT_KSU_MNT_MINOR_DEV,
++					     (1 << MINORBITS), GFP_ATOMIC);
++			if (dev == -ENOSPC)
++				dev = -EMFILE;
++			if (dev < 0)
++				return dev;
++			*p = MKDEV(0, dev);
