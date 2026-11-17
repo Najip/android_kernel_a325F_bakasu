@@ -1,9 +1,13 @@
 name: SUSFS patch delta report (Jack 4.14, dry-run)
 
-# Report only: nothing is modified or committed. For every file in Jack's SUSFS patch it
-# counts the lines the patch ADDS, checks how many of them already exist in this kernel
-# tree (matched by content and count, ignoring whitespace and trivial lines such as braces),
-# and lists the ones that are missing. Tick "self_hosted" to use the self-hosted runner.
+# Report only: nothing in the kernel tree is modified or committed. For every file in Jack's
+# SUSFS patch it counts the lines the patch ADDS, checks how many of them already exist in this
+# kernel tree (matched by content and count, ignoring whitespace and trivial lines such as
+# braces), and lists the ones that are missing. Tick "self_hosted" to use the self-hosted runner.
+#
+# The report is uploaded as an artifact and also published to the directory susfs-delta/ on the
+# branch susfs-delta-report. That branch holds one commit that is replaced on every run, so the
+# previous report is removed when you re-run the workflow.
 
 on:
   workflow_dispatch:
@@ -30,7 +34,7 @@ on:
         default: 'Patches/Patch/susfs_patch_to_4.14.patch'
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: susfs-patch-delta-${{ inputs.self_hosted && 'selfhosted' || 'hosted' }}-${{ github.ref }}
@@ -70,6 +74,7 @@ jobs:
           set -euo pipefail
           patch_file="NonGKI_Kernel_Build_2nd/$PATCH_PATH"
           test -s "$patch_file" || { echo "::error::Patch not found: $patch_file"; exit 1; }
+          rm -rf report
           mkdir -p report/missing
           python3 - "$patch_file" <<'PY'
           import os, re, sys
@@ -193,7 +198,38 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-      - name: Clean report (self-hosted)
+      - name: Publish report to susfs-delta-report branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          branch=susfs-delta-report
+          dir="$RUNNER_TEMP/report-wt"
+          git worktree prune
+          rm -rf "$dir"
+          git worktree add --no-checkout --detach "$dir"
+          cd "$dir"
+          git checkout --orphan "$branch"
+          git read-tree --empty
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          mkdir susfs-delta
+          cp -a "$GITHUB_WORKSPACE/report/." susfs-delta/
+          {
+            echo "run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "kernel: $(git -C "$GITHUB_WORKSPACE" rev-parse HEAD)"
+            echo "jack: $(git -C "$GITHUB_WORKSPACE/NonGKI_Kernel_Build_2nd" rev-parse HEAD)"
+            echo "time: $(date -u +%FT%TZ)"
+          } > susfs-delta/RUN.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -q -m "SUSFS patch delta report (run $GITHUB_RUN_ID)"
+          git push --force origin "HEAD:refs/heads/$branch"
+          echo "Report published to branch $branch, directory susfs-delta/" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Clean up (self-hosted)
         if: ${{ always() && inputs.self_hosted }}
         shell: bash
-        run: rm -rf report
+        run: |
+          git worktree remove --force "$RUNNER_TEMP/report-wt" || true
+          git worktree prune || true
+          rm -rf report
