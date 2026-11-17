@@ -1,0 +1,195 @@
+name: Update submodules (KernelSU-Next, SUSFS, fgetpriority)
+
+# Run from branch ksun-susfs-JackA1ltman. Tick the submodules to update. A blank ref
+# moves a submodule to the tip of its branch; a commit SHA (full), branch or tag pins it.
+# A ticked submodule that is missing is added (fgetpriority is added this way).
+
+on:
+  workflow_dispatch:
+    inputs:
+      update_kernelsu:
+        description: 'Update KernelSU (KernelSU-Next)'
+        required: false
+        type: boolean
+        default: false
+      kernelsu_ref:
+        description: 'KernelSU-Next ref: full commit SHA, branch or tag. Blank = tip of branch legacy'
+        required: false
+        type: string
+        default: ''
+      update_susfs:
+        description: 'Update NonGKI_Kernel_Build_2nd (JackA1ltman SUSFS)'
+        required: false
+        type: boolean
+        default: false
+      susfs_ref:
+        description: 'NonGKI_Kernel_Build_2nd ref: full commit SHA, branch or tag. Blank = tip of default branch'
+        required: false
+        type: string
+        default: ''
+      update_fgetpriority:
+        description: 'Update fgetpriority (adds the submodule if missing)'
+        required: false
+        type: boolean
+        default: false
+      fgetpriority_ref:
+        description: 'fgetpriority ref: full commit SHA, branch or tag. Blank = tip of branch master'
+        required: false
+        type: string
+        default: ''
+      dry_run:
+        description: 'Dry run: show what would change, commit and push nothing'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-ksun-submodules-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Update submodules
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout kernel (no submodules)
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Update selected submodules
+        shell: bash
+        env:
+          UPDATE_KERNELSU: ${{ inputs.update_kernelsu }}
+          KERNELSU_REF: ${{ inputs.kernelsu_ref }}
+          UPDATE_SUSFS: ${{ inputs.update_susfs }}
+          SUSFS_REF: ${{ inputs.susfs_ref }}
+          UPDATE_FGP: ${{ inputs.update_fgetpriority }}
+          FGP_REF: ${{ inputs.fgetpriority_ref }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          changes=()
+          rows=()
+
+          update_one() {
+            local name=$1 url=$2 defbr=$3 tick=$4 ref=$5
+            local before='(new)' br target cand t
+            if [ "$tick" != true ]; then
+              echo "Skipping $name (not ticked)"
+              return 0
+            fi
+            ref=$(printf '%s' "$ref" | tr -d '[:space:]')
+
+            if ! git config -f .gitmodules --get "submodule.$name.url" >/dev/null 2>&1; then
+              echo "Adding submodule $name"
+              if [ -n "$defbr" ]; then
+                git submodule add -b "$defbr" "$url" "$name"
+              else
+                git submodule add "$url" "$name"
+              fi
+            else
+              git submodule update --init -- "$name"
+              before=$(git -C "$name" rev-parse HEAD)
+            fi
+
+            git -C "$name" fetch --tags --force origin '+refs/heads/*:refs/remotes/origin/*'
+
+            target=''
+            if [ -n "$ref" ]; then
+              for cand in "origin/$ref" "refs/tags/$ref" "$ref"; do
+                if t=$(git -C "$name" rev-parse --verify --quiet "$cand^{commit}"); then
+                  target=$t
+                  break
+                fi
+              done
+              if [ -z "$target" ]; then
+                git -C "$name" fetch origin "$ref" || {
+                  echo "::error::$name: '$ref' is not a branch, tag or full commit SHA of $url"
+                  exit 1
+                }
+                target=$(git -C "$name" rev-parse 'FETCH_HEAD^{commit}')
+              fi
+              echo "$name: pinned to $ref"
+            else
+              br=$(git config -f .gitmodules --get "submodule.$name.branch" || true)
+              if [ -z "$br" ]; then
+                br=$(git -C "$name" ls-remote --symref origin HEAD | awk '/^ref:/ {sub("refs/heads/", "", $2); print $2; exit}')
+              fi
+              [ -n "$br" ] || { echo "::error::$name: cannot find the default branch"; exit 1; }
+              target=$(git -C "$name" rev-parse "refs/remotes/origin/$br^{commit}")
+              echo "$name: following branch $br"
+            fi
+
+            if [ "$before" != "$target" ]; then
+              git -C "$name" checkout -q --detach "$target"
+            fi
+            if [ "$before" = "$target" ]; then
+              echo "$name is already at ${target:0:8}"
+              rows+=("| $name | ${before:0:8} | ${target:0:8} | no change |")
+            else
+              changes+=("$name@${target:0:8}")
+              rows+=("| $name | ${before:0:8} | ${target:0:8} | updated |")
+            fi
+          }
+
+          update_one KernelSU https://github.com/KernelSU-Next/KernelSU-Next.git legacy "$UPDATE_KERNELSU" "$KERNELSU_REF"
+          update_one NonGKI_Kernel_Build_2nd https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd.git '' "$UPDATE_SUSFS" "$SUSFS_REF"
+          update_one fgetpriority https://github.com/aerath-stuff/fgetpriority.git master "$UPDATE_FGP" "$FGP_REF"
+
+          if [ "$UPDATE_FGP" = true ]; then
+            if [ ! -f scripts/prepare_fgetpriority.sh ]; then
+              git fetch --no-tags --depth=1 origin nomount-lkm-sync-up-patch
+              git show FETCH_HEAD:scripts/prepare_fgetpriority.sh > scripts/prepare_fgetpriority.sh
+              mkdir -p patches/fgetpriority
+              for f in $(git ls-tree -r --name-only FETCH_HEAD -- patches/fgetpriority); do
+                git show "FETCH_HEAD:$f" > "$f"
+              done
+              changes+=('prepare_fgetpriority.sh')
+            fi
+            sh scripts/prepare_fgetpriority.sh --check
+          fi
+
+          {
+            echo '### Submodule update'
+            echo
+            echo '| Submodule | Before | After | Result |'
+            echo '|---|---|---|---|'
+            if [ "${#rows[@]}" -gt 0 ]; then
+              printf '%s\n' "${rows[@]}"
+            else
+              echo '| (none ticked) | | | |'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          paths=(.gitmodules)
+          for p in KernelSU NonGKI_Kernel_Build_2nd fgetpriority scripts/prepare_fgetpriority.sh patches/fgetpriority; do
+            [ -e "$p" ] && paths+=("$p")
+          done
+          git add -A -- "${paths[@]}"
+
+          if git diff --cached --quiet; then
+            echo 'Nothing to commit.'
+            exit 0
+          fi
+
+          echo '--- .gitmodules ---'
+          cat .gitmodules
+          git diff --cached --submodule=short --stat
+
+          if [ "$DRY_RUN" = true ]; then
+            echo 'Dry run: nothing committed or pushed.'
+            exit 0
+          fi
+
+          git commit -m "submodules: update ${changes[*]} [skip ci]"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
