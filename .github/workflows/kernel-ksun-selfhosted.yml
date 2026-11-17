@@ -3,7 +3,7 @@ name: A325X Kernel (KernelSU-Next legacy) (Self-Hosted)
 # Self-hosted copy of kernel-ksun.yml. Same build, configs and packaging.
 # Differences: runs on the self-hosted runner, installs apt packages only when missing,
 # and keeps the AOSP Clang 14 toolchain and an AnyKernel3 git mirror in a persistent cache.
-# The 0003 perf patch is fetched from nomount-lkm-sync-up-patch at build time.
+# Kernel patches are always applied by build_a325n_ksun.sh (see its header).
 
 on:
   workflow_dispatch:
@@ -13,16 +13,6 @@ on:
         required: false
         type: boolean
         default: true
-      perf_patch:
-        description: 'Apply the 0003 perf patch (UV/GPU tables, zram zstd, USB, charging, network fixes)'
-        required: false
-        type: boolean
-        default: true
-      perf_exclude:
-        description: 'Drop hunks for these paths from the 0003 patch: comma-separated globs, e.g. drivers/misc/mediatek/base/power/* (empty = none)'
-        required: false
-        type: string
-        default: ''
 
 permissions:
   contents: read
@@ -37,8 +27,6 @@ env:
   ANYKERNEL_REPO: https://github.com/osm0sis/AnyKernel3.git
   ANYKERNEL_COMMIT: af770f7b16cf8f8eb7c68614b2a693b3b361c90c
   NOMOUNT: ${{ inputs.nomount }}
-  PERF_PATCH: ${{ inputs.perf_patch }}
-  PERF_EXCLUDE: ${{ inputs.perf_exclude }}
 
 jobs:
   build:
@@ -171,8 +159,6 @@ jobs:
           set -euo pipefail
           chmod +x ./build_a325n_ksun.sh ./package_anykernel.sh
           NO_NOMOUNT="${{ inputs.nomount && '0' || '1' }}" \
-          APPLY_PERF_PATCH="${{ inputs.perf_patch && '1' || '0' }}" \
-          PERF_PATCH_EXCLUDE="$PERF_EXCLUDE" \
           TOOLCHAIN="$TOOLCHAIN" \
           OUT_DIR="$OUT_DIR" \
           ./build_a325n_ksun.sh 2>&1 | tee "$RUNNER_TEMP/a325n-build.log"
@@ -238,6 +224,7 @@ jobs:
           suffix=''
           [ "$NOMOUNT" = true ] || suffix='-no-nomount'
           susfs="$(sed -n 's/^#define SUSFS_VERSION "\([^"]*\)".*/\1/p' include/linux/susfs.h | head -n1 || true)"
+          applied="$( { [ -s "$OUT_DIR/applied-patches.txt" ] && paste -sd, "$OUT_DIR/applied-patches.txt"; } || echo none )"
           {
             echo "Kernel commit: $(git rev-parse HEAD)"
             echo "Kernel release: $(cat "$OUT_DIR/include/config/kernel.release")"
@@ -246,8 +233,7 @@ jobs:
             echo "NonGKI_Kernel_Build_2nd commit: $(git -C NonGKI_Kernel_Build_2nd rev-parse HEAD)"
             echo "SUSFS (in-tree): ${susfs:-unknown}"
             echo "NoMount built in: $NOMOUNT"
-            echo "Perf patch 0003 applied: $PERF_PATCH"
-            echo "Perf patch excluded paths: ${PERF_EXCLUDE:-none}"
+            echo "Kernel patches applied: $applied"
             echo "Toolchain: pinned AOSP Clang 14 (self-hosted cache)"
             echo "AnyKernel upstream: $ANYKERNEL_REPO@$ANYKERNEL_RESOLVED_COMMIT"
             echo "Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"

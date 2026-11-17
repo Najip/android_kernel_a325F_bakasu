@@ -2,9 +2,14 @@
 # KernelSU-Next (legacy) build of the A325F/N 4.14 kernel.
 # Same toolchain and config fragments as build_a325n.sh, without the BakaSU checks.
 # NO_NOMOUNT=1 appends "# CONFIG_NOMOUNT is not set" as the last config fragment.
-# APPLY_PERF_PATCH=1 (default) fetches the 0003 perf patch from PERF_PATCH_REF
-# (default nomount-lkm-sync-up-patch) and applies it; PERF_PATCH_EXCLUDE is a
-# comma-separated list of path globs whose hunks are dropped from that patch.
+#
+# Kernel patches are always applied:
+#   1. every patches/kernel/*.patch on this branch, in file-name order;
+#   2. if there are none, the perf patch (a file named NNNN-*perf-1100mhz*.patch)
+#      is looked up anywhere in the tree of PERF_PATCH_REF
+#      (default nomount-lkm-sync-up-patch) and applied.
+# The names of applied patches go to $OUT/applied-patches.txt.
+# NO_KERNEL_PATCHES=1 skips all of it (local experiments only).
 set -eu
 
 ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
@@ -68,33 +73,54 @@ VENDOR_WARN_FLAGS="-Wno-error \
 export KCFLAGS=${KCFLAGS:-$VENDOR_WARN_FLAGS}
 
 mkdir -p "$OUT"
+: > "$OUT/applied-patches.txt"
 
-apply_perf_patch() {
-  perf_patch='0003-wifi-fix-perf-1100mhz-1035mv_uv75_zstd_usbnoauto-juan.patch'
-  src_ref=${PERF_PATCH_REF:-nomount-lkm-sync-up-patch}
-  # Path globs must reach git apply unexpanded.
-  set -f
-  for path in $(printf '%s' "${PERF_PATCH_EXCLUDE:-}" | tr ',' ' '); do
-    echo "Perf patch: dropping hunks for $path"
-    set -- "$@" "--exclude=$path"
-  done
-  git -C "$ROOT" fetch --no-tags --depth=1 origin "$src_ref"
-  git -C "$ROOT" show "FETCH_HEAD:patches/kernel/$perf_patch" > "$OUT/$perf_patch"
-  test -s "$OUT/$perf_patch"
-  if git -C "$ROOT" apply --check --reverse "$@" "$OUT/$perf_patch" >/dev/null 2>&1; then
-    echo "Perf patch already applied: $perf_patch"
+apply_one() {
+  name=$(basename "$1")
+  if git -C "$ROOT" apply --check --reverse "$1" >/dev/null 2>&1; then
+    echo "Kernel patch already applied: $name"
   else
-    git -C "$ROOT" apply --check "$@" "$OUT/$perf_patch"
-    git -C "$ROOT" apply "$@" "$OUT/$perf_patch"
-    echo "Applied perf patch from $src_ref: $perf_patch"
+    git -C "$ROOT" apply --check "$1" || {
+      echo "::error::Kernel patch does not apply: $name" >&2
+      exit 1
+    }
+    git -C "$ROOT" apply "$1"
+    echo "Applied kernel patch: $name"
   fi
-  set +f
+  printf '%s\n' "$name" >> "$OUT/applied-patches.txt"
 }
 
-if [ "${APPLY_PERF_PATCH:-1}" = 1 ]; then
-  apply_perf_patch
+apply_kernel_patches() {
+  found=0
+  if [ -d "$ROOT/patches/kernel" ]; then
+    for p in $(find "$ROOT/patches/kernel" -maxdepth 1 -type f -name '*.patch' | sort); do
+      found=1
+      apply_one "$p"
+    done
+  fi
+  if [ "$found" = 1 ]; then
+    return 0
+  fi
+
+  src_ref=${PERF_PATCH_REF:-nomount-lkm-sync-up-patch}
+  echo "No patches/kernel/*.patch on this branch; looking for the perf patch on $src_ref"
+  git -C "$ROOT" fetch --no-tags --depth=1 origin "$src_ref"
+  path=$(git -C "$ROOT" ls-tree -r --name-only FETCH_HEAD \
+    | grep -E '(^|/)[0-9]{4}-.*perf-1100mhz.*\.patch$' | sort | tail -n1 || true)
+  if [ -z "$path" ]; then
+    echo "::error::No *perf-1100mhz*.patch found on $src_ref. Add patches/kernel/0001-*.patch to this branch." >&2
+    exit 1
+  fi
+  echo "Using $path from $src_ref"
+  git -C "$ROOT" show "FETCH_HEAD:$path" > "$OUT/$(basename "$path")"
+  test -s "$OUT/$(basename "$path")"
+  apply_one "$OUT/$(basename "$path")"
+}
+
+if [ "${NO_KERNEL_PATCHES:-0}" = 1 ]; then
+  echo "Kernel patches skipped (NO_KERNEL_PATCHES=1)"
 else
-  echo "Perf patch skipped (APPLY_PERF_PATCH=${APPLY_PERF_PATCH:-})"
+  apply_kernel_patches
 fi
 
 cp "$TOOLCHAIN/aosp-source.txt" "$OUT/toolchain-source.txt"
