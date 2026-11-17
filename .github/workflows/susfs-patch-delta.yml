@@ -1,8 +1,9 @@
 name: SUSFS patch delta report (Jack 4.14, dry-run)
 
-# Report only: nothing is modified or committed. Dry-runs Jack's susfs_patch_to_4.14.patch
-# file by file against this kernel tree and reports which files are already applied,
-# apply cleanly, conflict, or are missing. Tick "self_hosted" to use the self-hosted runner.
+# Report only: nothing is modified or committed. For every file in Jack's SUSFS patch it
+# counts the lines the patch ADDS, checks how many of them already exist in this kernel
+# tree (matched by content and count, ignoring whitespace and trivial lines such as braces),
+# and lists the ones that are missing. Tick "self_hosted" to use the self-hosted runner.
 
 on:
   workflow_dispatch:
@@ -37,7 +38,7 @@ concurrency:
 
 jobs:
   report:
-    name: Dry-run Jack's SUSFS patch
+    name: Report lines missing from Jack's SUSFS patch
     runs-on: ${{ inputs.self_hosted && 'self-hosted' || 'ubuntu-latest' }}
     timeout-minutes: 20
 
@@ -61,63 +62,113 @@ jobs:
           fi
           git -C NonGKI_Kernel_Build_2nd log -1 --format='%H %cI %s'
 
-      - name: Dry-run the patch file by file
+      - name: Compare added lines with the tree
         shell: bash
         env:
           PATCH_PATH: ${{ inputs.patch_path }}
         run: |
           set -euo pipefail
-          command -v patch >/dev/null || { sudo -n apt-get install -y patch; }
           patch_file="NonGKI_Kernel_Build_2nd/$PATCH_PATH"
           test -s "$patch_file" || { echo "::error::Patch not found: $patch_file"; exit 1; }
-          mkdir -p report
+          mkdir -p report/missing
           python3 - "$patch_file" <<'PY'
-          import os, re, subprocess, sys
+          import os, re, sys
+          from collections import Counter
+
+          def norm(l):
+              return re.sub(r'\s+', ' ', l.strip())
+
+          TRIV = re.compile(r'^(\{|\}|\};?|#else|#endif.*|else|break;|return;|/\*|\*/|\*)$')
+
+          def trivial(n):
+              return len(n) < 4 or bool(TRIV.match(n))
 
           text = open(sys.argv[1], encoding='utf-8', errors='replace').read()
           parts = [p for p in re.split(r'(?m)^(?=diff --git )', text) if p.startswith('diff --git ')]
           rows = []
+          combined = []
           for s in parts:
               f = re.match(r'diff --git a/(\S+) b/(\S+)', s).group(2)
-              head = s.split('\n@@')[0]
-              is_new = '\nnew file mode' in head
-              hunks = len(re.findall(r'(?m)^@@ ', s))
-              r = subprocess.run(
-                  ['patch', '-p1', '-N', '--dry-run', '--no-backup-if-mismatch', '-r', '/dev/null'],
-                  input=s, text=True, capture_output=True)
-              out = r.stdout + r.stderr
-              failed = len(re.findall(r'Hunk #\d+ FAILED', out))
-              ignored = len(re.findall(r'Hunk #\d+ ignored', out))
-              offset = len(re.findall(r'Hunk #\d+ succeeded at \d+ \(offset', out))
-              if is_new and 'already exists' in out:
-                  status = 'NEW FILE ALREADY EXISTS'
-              elif "can't find file" in out or 'No such file' in out:
-                  status = 'MISSING FILE'
-              elif failed:
-                  status = 'CONFLICT'
-              elif hunks and ignored >= hunks:
-                  status = 'ALREADY APPLIED'
-              elif ignored:
-                  status = 'PARTLY APPLIED'
-              elif r.returncode == 0:
-                  status = 'CLEAN (offset)' if offset else 'CLEAN'
+              is_new = '\nnew file mode' in s.split('\n@@')[0]
+              exists = os.path.isfile(f)
+              tree = Counter()
+              if exists:
+                  for l in open(f, encoding='utf-8', errors='replace'):
+                      n = norm(l)
+                      if n and not trivial(n):
+                          tree[n] += 1
+              avail = Counter(tree)
+              avail_rm = Counter(tree)
+              nh = nadd = present = rm_total = rm_present = 0
+              out = []
+              for line in s.split('\n'):
+                  if line.startswith('@@'):
+                      nh += 1
+                      out.append([line, []])
+                      continue
+                  if nh == 0:
+                      continue
+                  if line.startswith('+'):
+                      n = norm(line[1:])
+                      if not n or trivial(n):
+                          continue
+                      nadd += 1
+                      if avail[n] > 0:
+                          avail[n] -= 1
+                          present += 1
+                      else:
+                          out[-1][1].append(line[1:])
+                  elif line.startswith('-'):
+                      n = norm(line[1:])
+                      if not n or trivial(n):
+                          continue
+                      rm_total += 1
+                      if avail_rm[n] > 0:
+                          avail_rm[n] -= 1
+                          rm_present += 1
+              missing = nadd - present
+              if not exists and not is_new:
+                  status = 'FILE MISSING'
+              elif nadd == 0:
+                  status = 'NO ADDITIONS'
+              elif missing == 0:
+                  status = 'IN TREE'
+              elif present == 0:
+                  status = 'ALL MISSING'
               else:
-                  status = 'CHECK LOG'
-              rows.append((f, hunks, failed, ignored, offset, status))
-              name = f.replace('/', '__')
-              open(f'report/{name}.log', 'w').write(out)
+                  status = 'PARTIAL'
+              rows.append((f, nh, nadd, present, missing, rm_total, rm_present, status))
+              if missing:
+                  body = [f'### {f}  ({missing} of {nadd} added lines missing)']
+                  for hdr, ml in out:
+                      if ml:
+                          body.append(hdr)
+                          body.extend('+' + x for x in ml)
+                  chunk = '\n'.join(body) + '\n'
+                  open('report/missing/' + f.replace('/', '__') + '.txt', 'w').write(chunk)
+                  combined.append(chunk)
+
+          open('report/missing-all.txt', 'w').write('\n'.join(combined))
 
           with open('report/summary.md', 'w') as m:
-              m.write('| File | Hunks | Failed | Already applied | Offset | Status |\n|---|---|---|---|---|---|\n')
-              for f, h, fl, ig, off, st in rows:
-                  m.write(f'| `{f}` | {h} | {fl} | {ig} | {off} | {st} |\n')
-              counts = {}
-              for row in rows:
-                  counts[row[5]] = counts.get(row[5], 0) + 1
-              m.write('\n' + ', '.join(f'{k}: {v}' for k, v in sorted(counts.items())) + '\n')
+              m.write('| File | Hunks | Added lines | Already in tree | Missing | Removed lines still in tree | Status |\n')
+              m.write('|---|---|---|---|---|---|---|\n')
+              for f, nh, na, pr, mi, rt, rp, st in rows:
+                  m.write(f'| `{f}` | {nh} | {na} | {pr} | {mi} | {rp} of {rt} | {st} |\n')
+              counts = Counter(r[7] for r in rows)
+              m.write('\n' + ', '.join(f'{k}: {v}' for k, v in sorted(counts.items())))
+              m.write(f'\n\nTotal added lines: {sum(r[2] for r in rows)}, missing: {sum(r[4] for r in rows)}\n')
+
+          jack = re.findall(r'(?m)^\+#define SUSFS_VERSION "([^"]*)"', text)
+          tree_ver = ''
+          if os.path.isfile('include/linux/susfs.h'):
+              mm = re.search(r'#define SUSFS_VERSION "([^"]*)"', open('include/linux/susfs.h').read())
+              tree_ver = mm.group(1) if mm else ''
+          open('report/version.txt', 'w').write(
+              f"In-tree SUSFS_VERSION: {tree_ver or 'not found'}\nPatch SUSFS_VERSION: {jack[0] if jack else 'not set by this patch'}\n")
           PY
 
-      - name: Version and commit info
+      - name: Write run summary
         shell: bash
         env:
           PATCH_PATH: ${{ inputs.patch_path }}
@@ -129,8 +180,7 @@ jobs:
             echo "- Kernel commit: $(git rev-parse HEAD)"
             echo "- Jack commit: $(git -C NonGKI_Kernel_Build_2nd rev-parse HEAD)"
             echo "- Patch: $PATCH_PATH"
-            echo "- In-tree SUSFS_VERSION: $(sed -n 's/.*define SUSFS_VERSION \"\(.*\)\".*/\1/p' include/linux/susfs.h | head -n1)"
-            echo "- Patch SUSFS_VERSION: $(grep -m1 -o 'SUSFS_VERSION \"[^\"]*\"' \"NonGKI_Kernel_Build_2nd/$PATCH_PATH\" || echo 'not touched by this patch')"
+            sed 's/^/- /' report/version.txt
             echo
             cat report/summary.md
           } | tee -a "$GITHUB_STEP_SUMMARY" > report/header.md
