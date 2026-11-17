@@ -9,6 +9,7 @@ name: SUSFS 2.4.0 port - build review branch (Jack 4.14)
 #     the same method fs/susfs_priority.c uses, since KernelSU-Next legacy may not export setup_selinux
 #   - the priority macros, struct and prototypes your tree uses are put back into the headers
 #   - fs/Makefile gets the SUSFS_KERNEL_READ_NEW detection
+#   - SUSFS_LOGI_RL / SUSFS_LOGE_RL get no-op versions for builds without CONFIG_KSU_SUSFS_ENABLE_LOG
 # Structural anchors are asserted: the job fails instead of guessing when one is not found.
 # Leftover credential calls are listed (not fatal) in .susfs-port/PORT_NOTES.md on the review branch.
 
@@ -184,6 +185,12 @@ jobs:
               fail('no orig_cred declarations to retype in Jack fs/susfs.c')
           notes.append('- fs/susfs.c: %d orig_cred declaration(s) changed to const struct cred *.' % n)
 
+          pat_log = re.compile(r'(#else\s*\n#define SUSFS_LOGI\(fmt, \.\.\.\)[ \t]*\n#define SUSFS_LOGE\(fmt, \.\.\.\)[ \t]*\n)(#endif)')
+          c, n = pat_log.subn(lambda m: m.group(1) + '#define SUSFS_LOGI_RL(fmt, ...)\n#define SUSFS_LOGE_RL(fmt, ...)\n' + m.group(2), c, count=1)
+          if n != 1:
+              fail('could not find the disabled-log SUSFS_LOGI/SUSFS_LOGE macros in Jack fs/susfs.c')
+          notes.append('- fs/susfs.c: added no-op SUSFS_LOGI_RL/SUSFS_LOGE_RL for builds without CONFIG_KSU_SUSFS_ENABLE_LOG (Jack only defines them when logging is on; this caused the undefined symbol SUSFS_LOGI_RL link error).')
+
           warn = []
           for i, l in enumerate(c.split('\n'), 1):
               s2 = l.strip()
@@ -194,7 +201,7 @@ jobs:
                       warn.append((i, s2))
                       break
           notes.append('')
-          notes.append('## Credential calls still in the new fs/susfs.c (setup_selinux may not exist in KernelSU-Next legacy)')
+          notes.append('## Credential calls still in the new fs/susfs.c (setup_selinux exists in KernelSU-Next legacy)')
           notes.extend('- %d: `%s`' % (i, l[:140]) for i, l in warn[:60])
           if not warn:
               notes.append('- none')
