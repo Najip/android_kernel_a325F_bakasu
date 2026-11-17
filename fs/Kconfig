@@ -318,4 +318,6 @@ source "fs/unicode/Kconfig"
 
 source "fs/nomount/Kconfig"
 
+source "fs/Kconfig.susfs"
+
 endmenu

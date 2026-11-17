@@ -1,0 +1,71 @@
+# SPDX-License-Identifier: GPL-2.0
+#
+# SUSFS options for KernelSU-Next (legacy), which does not declare them itself.
+# BakaSU declared these in its own kernel/Kconfig; with KernelSU-Next they must
+# live in the parent kernel, otherwise olddefconfig silently drops every
+# CONFIG_KSU_SUSFS* line and the in-tree SUSFS code is never built.
+#
+
+menu "SUSFS (parent-kernel options for KernelSU-Next)"
+	depends on KSU
+
+config KSU_SUSFS
+	bool "SUSFS"
+	depends on KSU != m && THREAD_INFO_IN_TASK && 64BIT
+	default y
+	help
+	  Build the in-tree SUSFS (fs/susfs.c and the hooks around it).
+	  The command handler that connects it to KernelSU-Next lives in the
+	  parent kernel as well.
+
+config KSU_SUSFS_SUS_PATH
+	bool "Hide suspicious paths"
+	depends on KSU_SUSFS
+	default y
+
+config KSU_SUSFS_SUS_MOUNT
+	bool "Hide suspicious mounts"
+	depends on KSU_SUSFS
+	default y
+
+config KSU_SUSFS_SUS_KSTAT
+	bool "Spoof suspicious kstat"
+	depends on KSU_SUSFS
+	default y
+
+config KSU_SUSFS_SPOOF_UNAME
+	bool "Spoof uname"
+	depends on KSU_SUSFS
+	default y
+
+config KSU_SUSFS_ENABLE_LOG
+	bool "Log SUSFS messages to the kernel log"
+	depends on KSU_SUSFS
+	default n
+
+config KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS
+	bool "Hide ksu and susfs symbols from /proc/kallsyms"
+	depends on KSU_SUSFS
+	default y
+
+config KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
+	bool "Spoof /proc/cmdline"
+	depends on KSU_SUSFS
+	default y
+
+config KSU_SUSFS_OPEN_REDIRECT
+	bool "Redirect opens of a path to another path"
+	depends on KSU_SUSFS
+	default y
+
+config KSU_SUSFS_SUS_MAP
+	bool "Hide mapped files from /proc/<pid>/maps"
+	depends on KSU_SUSFS
+	default y
+
+config KSU_SUSFS_PRIORITY_UID_FILTER
+	bool "Priority UID filter (getpriority/ioprio hiding)"
+	depends on KSU_SUSFS
+	default y
+
+endmenu

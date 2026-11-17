@@ -28,11 +28,17 @@ TAG=$(git -C "$KSU_DIR" describe --abbrev=0 --tags 2>/dev/null || echo v4.1.0)
 SHA=$(git -C "$KSU_DIR" rev-parse --short=8 HEAD)
 COUNT=$(git -C "$KSU_DIR" rev-list --count HEAD)
 KSU_CODE=$((30700 + COUNT))
+# Label the package after the KernelSU variant that is actually checked out.
+KSU_URL=$(git -C "$ROOT" config -f .gitmodules --get submodule.KernelSU.url 2>/dev/null || true)
+case "$KSU_URL" in
+  *KernelSU-Next*) KSU_LABEL=KSUN; KSU_ID=$SHA ;;
+  *) KSU_LABEL=BakaSU; KSU_ID=$KSU_CODE ;;
+esac
 SUSFS=$(sed -n 's/^#define SUSFS_VERSION "\([^"]*\)"/\1/p' "$ROOT/include/linux/susfs.h" | head -n1)
 [ -n "$SUSFS" ] || { echo "ERROR: SUSFS version not found" >&2; exit 1; }
 SUSFS_DISPLAY=${SUSFS#v}
-KERNEL_STRING="A325N BakaSU ${TAG}(${KSU_CODE}) SUSFS ${SUSFS_DISPLAY}"
-ZIP_NAME="A325N-BakaSU-${TAG}-${KSU_CODE}-SUSFS-${SUSFS}-stable.zip"
+KERNEL_STRING="A325N ${KSU_LABEL} ${TAG}(${KSU_ID}) SUSFS ${SUSFS_DISPLAY}"
+ZIP_NAME="A325N-${KSU_LABEL}-${TAG}-${KSU_ID}-SUSFS-${SUSFS}-stable.zip"
 ZIP_PATH="$ZIP_OUT_DIR/$ZIP_NAME"
 
 STAGE_ROOT=$(mktemp -d "${TMPDIR:-/tmp}/a325n-anykernel.XXXXXX")
@@ -53,7 +59,7 @@ cp -f "$IMAGE_DIR/Image" "$STAGE_DIR/Image"
 cp -f "$IMAGE_DIR/Image.gz" "$STAGE_DIR/Image.gz"
 sed -i "s|^kernel\.string=.*|kernel.string=$KERNEL_STRING|" "$STAGE_DIR/anykernel.sh"
 
-printf '%s\n' "BakaSU : $TAG-$SHA ($KSU_CODE)"
+printf '%s\n' "$KSU_LABEL : $TAG-$SHA ($KSU_ID)"
 printf '%s\n' "SUSFS    : $SUSFS"
 printf '%s\n' "Source   : $IMAGE_DIR"
 printf '%s\n' "AnyKernel: $AK3_DIR"
