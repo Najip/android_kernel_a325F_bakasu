@@ -1,0 +1,101 @@
+name: KernelSU-Next manager APK (release)
+
+# Builds the KernelSU-Next manager (arm64-v8a, release, signed) on a GitHub-hosted runner.
+# Source: KernelSU-Next/KernelSU-Next, default ref dev (the legacy branch has no manager).
+# Signing: KEYSTORE, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD secrets, else a temporary key.
+# The summary prints KSU_NEXT_MANAGER_SIZE / KSU_NEXT_MANAGER_HASH, which the kernel must match.
+
+on:
+  workflow_dispatch:
+    inputs:
+      ksun_ref:
+        description: 'KernelSU-Next branch, tag or commit the manager is built from.'
+        required: false
+        type: string
+        default: 'dev'
+      spoofed:
+        description: 'Spoofed build (randomised package ID, like the upstream Spoofed build).'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ksun-manager-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build manager APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      SRC: ${{ github.workspace }}/ksun
+      OUT: ${{ github.workspace }}/manager-out
+      CARGO_TARGET_DIR: ${{ github.workspace }}/cargo-target
+      SPOOFED: ${{ inputs.spoofed }}
+    steps:
+      - name: Checkout build script
+        uses: actions/checkout@v7
+        with:
+          path: ours
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/build_ksun_manager.sh
+
+      - name: Checkout KernelSU-Next
+        uses: actions/checkout@v7
+        with:
+          repository: KernelSU-Next/KernelSU-Next
+          ref: ${{ inputs.ksun_ref }}
+          path: ksun
+          fetch-depth: 0
+
+      - name: Setup Java 21 (Temurin)
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle (cached)
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Setup NDK r29
+        id: ndk
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r29
+
+      - name: Cargo and target cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin
+            ${{ github.workspace }}/cargo-target
+          key: ksun-manager-cargo-${{ runner.os }}-${{ hashFiles('ksun/userspace/**/Cargo.lock') }}
+          restore-keys: |
+            ksun-manager-cargo-${{ runner.os }}-
+
+      - name: Build manager
+        env:
+          ANDROID_NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
+          KEYSTORE_B64: ${{ secrets.KEYSTORE }}
+          KEYSTORE_PASSWORD_IN: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS_IN: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD_IN: ${{ secrets.KEY_PASSWORD }}
+        shell: bash
+        run: bash ours/scripts/build_ksun_manager.sh
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: KernelSU-Next-manager${{ inputs.spoofed && '-spoofed' || '' }}
+          path: |
+            ${{ env.OUT }}/*.apk
+            ${{ env.OUT }}/build-info.txt
+          if-no-files-found: error
+          retention-days: 30
