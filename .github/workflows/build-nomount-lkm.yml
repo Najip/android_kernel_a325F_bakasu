@@ -1,24 +1,34 @@
 name: Build NoMount LKM + flashable ZIP (4.14)
 
+# Builds nomount-4.14.ko and the flashable module ZIP.
+# Tick "self_hosted" to run on the self-hosted runner: apt packages are installed only
+# when missing and the AOSP Clang 14 toolchain is kept in a persistent cache.
+# Default is a GitHub-hosted runner.
+
 on:
   workflow_dispatch:
     inputs:
+      self_hosted:
+        description: 'Run on the self-hosted runner (default: GitHub-hosted runner)'
+        required: false
+        type: boolean
+        default: false
       kernel_ref:
         description: 'Kernel branch, tag or commit to build. Blank = the branch you run this from.'
         required: false
         type: string
         default: ''
       nomount_ref:
-        description: 'Upstream NoMount branch, tag or commit, e.g. master, dev, v2.3.0-720. Blank = the NoMount commit already vendored in that kernel (fs/nomount/Makefile).'
+        description: 'Upstream NoMount branch, tag or commit, e.g. dev, master, v2.3.0-720. Clear the field to use the NoMount commit already vendored in that kernel (fs/nomount/Makefile).'
         required: false
         type: string
-        default: ''
+        default: 'dev'
 
 permissions:
   contents: read
 
 concurrency:
-  group: nomount-lkm-${{ github.ref }}
+  group: nomount-lkm-${{ inputs.self_hosted && 'selfhosted' || 'hosted' }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -28,7 +38,7 @@ env:
 jobs:
   build:
     name: Build nomount-4.14.ko and module ZIP
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.self_hosted && 'self-hosted' || 'ubuntu-latest' }}
     timeout-minutes: 60
 
     steps:
@@ -59,6 +69,46 @@ jobs:
           patch_list="$(IFS=,; echo "${applied[*]:-}")"
           echo "KERNEL_PATCHES=${patch_list:-none}" >> "$GITHUB_ENV"
 
+      - name: Install build dependencies (GitHub-hosted)
+        if: ${{ !inputs.self_hosted }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            bc binutils-aarch64-linux-gnu bison build-essential ca-certificates curl file flex git \
+            libelf-dev libssl-dev libncurses-dev lz4 python3 xz-utils zip unzip zlib1g-dev zstd
+
+      - name: Check and install Ubuntu self-hosted dependencies
+        if: ${{ inputs.self_hosted }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          fail() { echo "::error::$*" >&2; exit 1; }
+          [[ "${RUNNER_ENVIRONMENT:-}" == self-hosted ]] || fail 'Expected a self-hosted runner.'
+          . /etc/os-release
+          [[ "$ID" == ubuntu ]] || fail 'Automatic dependency setup supports Ubuntu only.'
+          [[ "$(uname -m)" == x86_64 ]] || fail 'The AOSP Clang prebuilt requires x86_64 Linux.'
+          packages=(bc binutils-aarch64-linux-gnu bison build-essential ca-certificates curl file flex git libelf-dev libssl-dev libncurses-dev lz4 python3 rsync xz-utils zip unzip zlib1g-dev zstd)
+          missing=()
+          for package in "${packages[@]}"; do
+            status=$(dpkg-query -W -f='${Status}' "$package" 2>/dev/null || true)
+            [[ "$status" == 'install ok installed' ]] || missing+=("$package")
+          done
+          if ((${#missing[@]})); then
+            privilege=()
+            if ((EUID != 0)); then
+              command -v sudo >/dev/null || fail 'Install the missing packages manually or provide non-interactive sudo.'
+              sudo -n true || fail 'Missing packages require non-interactive sudo.'
+              privilege=(sudo -n)
+            fi
+            printf 'Installing missing packages: %s\n' "${missing[*]}"
+            "${privilege[@]}" env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 -o Acquire::Retries=3 update
+            "${privilege[@]}" env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 -o Acquire::Retries=3 install -y --no-install-recommends --no-remove "${missing[@]}"
+          else
+            echo 'All build dependencies are already installed.'
+          fi
+
       - name: Resolve NoMount source
         env:
           NOMOUNT_REF: ${{ inputs.nomount_ref }}
@@ -66,6 +116,7 @@ jobs:
         run: |
           set -euo pipefail
           up="$RUNNER_TEMP/nomount-src"
+          rm -rf "$up"
           git clone --quiet https://github.com/maxsteeel/nomount.git "$up"
 
           if [ -n "$NOMOUNT_REF" ]; then
@@ -103,21 +154,37 @@ jobs:
             echo "NOMOUNT_OVERLAY=$overlay"
           } >> "$GITHUB_ENV"
 
-      - name: Install build dependencies
-        shell: bash
-        run: |
-          set -euo pipefail
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            bc binutils-aarch64-linux-gnu bison build-essential ca-certificates curl file flex git \
-            libelf-dev libssl-dev libncurses-dev lz4 python3 xz-utils zip unzip zlib1g-dev zstd
-
       - name: Install pinned AOSP Clang 14
+        if: ${{ !inputs.self_hosted }}
         shell: bash
         run: |
           set -euo pipefail
           toolchain="$RUNNER_TEMP/aosp-clang14"
           sh scripts/fetch_aosp_clang.sh "$toolchain"
+          echo "TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
+          echo "$toolchain/bin" >> "$GITHUB_PATH"
+
+      - name: Install pinned AOSP Clang 14 (cached)
+        if: ${{ inputs.self_hosted }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cache="${XDG_CACHE_HOME:-$HOME/.cache}/a325-kernel"
+          mkdir -p "$cache"
+          exec 9>"$cache/.lock"
+          flock 9
+          key=$(sha256sum scripts/fetch_aosp_clang.sh | cut -c1-16)
+          toolchain="$cache/aosp-clang14-$key"
+          if [ -x "$toolchain/bin/clang" ]; then
+            echo "Toolchain cache: HIT ($key)"
+          else
+            echo "Toolchain cache: MISS ($key)"
+            rm -rf "$toolchain.tmp"
+            sh scripts/fetch_aosp_clang.sh "$toolchain.tmp"
+            test -x "$toolchain.tmp/bin/clang"
+            mv "$toolchain.tmp" "$toolchain"
+          fi
+          find "$cache" -maxdepth 1 -name 'aosp-clang14-*' ! -name "aosp-clang14-$key" -exec rm -rf {} +
           echo "TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
           echo "$toolchain/bin" >> "$GITHUB_PATH"
 
@@ -155,6 +222,7 @@ jobs:
           export KBUILD_BUILD_USER=bakasu KBUILD_BUILD_HOST=builder KBUILD_BUILD_VERSION=1
           export KBUILD_BUILD_TIMESTAMP="$(git show -s --format=%cD HEAD)"
 
+          rm -rf "$OUT_DIR"
           mkdir -p "$OUT_DIR"
           scripts/kconfig/merge_config.sh -m -O "$OUT_DIR" \
             arch/arm64/configs/mt6768_slm_defconfig \
@@ -209,6 +277,7 @@ jobs:
             *) echo "::error::vermagic does not match kernel.release"; exit 1 ;;
           esac
 
+          rm -rf artifacts
           mkdir -p artifacts
           install -Dm644 fs/nomount/nomount.ko "artifacts/nomount-${KVER}.ko"
           "$TOOLCHAIN/bin/llvm-strip" --strip-unneeded "artifacts/nomount-${KVER}.ko"
@@ -223,8 +292,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p "$RUNNER_TEMP/bin"
           bin="$RUNNER_TEMP/bin"
+          rm -rf "$bin" "$RUNNER_TEMP/lkmloader_src" "$RUNNER_TEMP/ELFkickers-3.2"
+          mkdir -p "$bin"
 
           cd "$NOMOUNT_UP/userspace/src"
           if grep -q '#include <unistd.h>' nm.h; then
@@ -260,6 +330,7 @@ jobs:
         env:
           KERNEL_REF_INPUT: ${{ inputs.kernel_ref }}
           NOMOUNT_REF_INPUT: ${{ inputs.nomount_ref }}
+          SELF_HOSTED_INPUT: ${{ inputs.self_hosted }}
         shell: bash
         run: |
           set -euo pipefail
@@ -296,6 +367,7 @@ jobs:
             echo "NoMount ref input: ${NOMOUNT_REF_INPUT:-<blank: vendored>}"
             echo "NoMount upstream commit: $NOMOUNT_SHA"
             echo "NoMount overlaid from upstream: $NOMOUNT_OVERLAY"
+            echo "Self-hosted runner: $SELF_HOSTED_INPUT"
             echo "Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
           } > artifacts/build-info.txt
           cat artifacts/build-info.txt
@@ -309,6 +381,7 @@ jobs:
             echo "| Kernel patches | \`$KERNEL_PATCHES\` |"
             echo "| NoMount ref | \`${NOMOUNT_REF_INPUT:-blank (vendored)}\` -> \`$nshort\` |"
             echo "| Kernel release | \`$KERNEL_RELEASE\` |"
+            echo "| Self-hosted runner | $SELF_HOSTED_INPUT |"
             echo "| ZIP | \`${name}.zip\` |"
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -321,3 +394,8 @@ jobs:
           path: artifacts/
           if-no-files-found: error
           retention-days: 14
+
+      - name: Clean build output (self-hosted)
+        if: ${{ always() && inputs.self_hosted }}
+        shell: bash
+        run: rm -rf "$OUT_DIR" artifacts fs/nomount/nomount.ko "$RUNNER_TEMP/bin" "$RUNNER_TEMP/lkmloader_src" "$RUNNER_TEMP/ELFkickers-3.2" "$RUNNER_TEMP/nomount-src" "$RUNNER_TEMP/nomount-module"
