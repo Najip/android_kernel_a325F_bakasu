@@ -135,7 +135,7 @@ jobs:
               require(glue.count(anchor) == 1, 'Sus-path dispatch anchor changed')
               glue = glue.replace(anchor, anchor + '    case CMD_SUSFS_SET_SUS_PATH_UID_FILTER: susfs_set_sus_path_uid_filter(arg); break;\n', 1)
           for path, text in {'fs/susfs.c': c, 'include/linux/susfs.h': h, 'include/linux/susfs_def.h': d, 'fs/Makefile': mk, 'fs/susfs_ksu_glue.c': glue}.items():
-              Path(path).write_text(text)
+              Path(path).write_text('\n'.join(line.rstrip(' \t') for line in text.splitlines()).rstrip('\n') + '\n')
           Path('fs/susfs_priority.c').unlink(missing_ok=True)
           Path('.susfs-port').mkdir(exist_ok=True)
           Path('.susfs-port/PORT_NOTES.md').write_text(
