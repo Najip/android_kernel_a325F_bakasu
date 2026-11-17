@@ -16,7 +16,7 @@ on:
         description: 'Build NoMount into the kernel (CONFIG_NOMOUNT=y). Untick for the no-NoMount kernel.'
         required: false
         type: boolean
-        default: true
+        default: false
 
 permissions:
   contents: read
