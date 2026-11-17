@@ -296,12 +296,15 @@ SYSCALL_DEFINE4(reboot, int, magic1, int, magic2, unsigned int, cmd,
 #ifdef CONFIG_KSU_SUSFS
 	if (system_state == SYSTEM_RUNNING &&
 	    (u32)magic1 == SUSFS_KSU_INSTALL_MAGIC1) {
+#ifdef CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER
 		if ((u32)magic2 == SUSFS_MAGIC &&
 		    cmd == CMD_SUSFS_SET_PRIORITY_UID_FILTER) {
 			if (!uid_eq(current_uid(), GLOBAL_ROOT_UID))
 				return -EPERM;
-			return susfs_set_priority_uid_filter(arg);
+			susfs_set_priority_uid_filter(&arg);
+			return 0;
 		}
+#endif
 		return ksu_handle_sys_reboot(magic1, magic2, cmd, &arg);
 	}
 #endif
