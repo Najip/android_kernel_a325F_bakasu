@@ -1,8 +1,18 @@
 name: Build fgetpriority LKM + flashable ZIP (4.14)
 
+# Builds fgetpriority-4.14.ko and the flashable module ZIP.
+# Tick "self_hosted" to run on the self-hosted runner: apt packages are installed only
+# when missing and the AOSP Clang 14 toolchain is kept in a persistent cache.
+# Default is a GitHub-hosted runner.
+
 on:
   workflow_dispatch:
     inputs:
+      self_hosted:
+        description: 'Run on the self-hosted runner (default: GitHub-hosted runner)'
+        required: false
+        type: boolean
+        default: false
       kernel_ref:
         description: 'Kernel branch, tag or commit. Blank = branch you run this from'
         required: false
@@ -13,7 +23,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: fgetpriority-lkm-${{ github.ref }}
+  group: fgetpriority-lkm-${{ inputs.self_hosted && 'selfhosted' || 'hosted' }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -23,7 +33,7 @@ env:
 jobs:
   build:
     name: Build fgetpriority-4.14.ko and module ZIP
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.self_hosted && 'self-hosted' || 'ubuntu-latest' }}
     timeout-minutes: 60
 
     steps:
@@ -50,7 +60,8 @@ jobs:
           echo "FGP_SRC=$RUNNER_TEMP/fgp-src" >> "$GITHUB_ENV"
           echo "FGP_SHA=$(git -C fgetpriority rev-parse HEAD)" >> "$GITHUB_ENV"
 
-      - name: Install build dependencies
+      - name: Install build dependencies (GitHub-hosted)
+        if: ${{ !inputs.self_hosted }}
         shell: bash
         run: |
           set -euo pipefail
@@ -59,7 +70,38 @@ jobs:
             bc binutils binutils-aarch64-linux-gnu bison build-essential ca-certificates curl file flex git \
             libelf-dev libssl-dev libncurses-dev lz4 python3 xz-utils zip unzip zlib1g-dev zstd
 
+      - name: Check and install Ubuntu self-hosted dependencies
+        if: ${{ inputs.self_hosted }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          fail() { echo "::error::$*" >&2; exit 1; }
+          [[ "${RUNNER_ENVIRONMENT:-}" == self-hosted ]] || fail 'Expected a self-hosted runner.'
+          . /etc/os-release
+          [[ "$ID" == ubuntu ]] || fail 'Automatic dependency setup supports Ubuntu only.'
+          [[ "$(uname -m)" == x86_64 ]] || fail 'The AOSP Clang prebuilt requires x86_64 Linux.'
+          packages=(bc binutils binutils-aarch64-linux-gnu bison build-essential ca-certificates curl file flex git libelf-dev libssl-dev libncurses-dev lz4 python3 rsync xz-utils zip unzip zlib1g-dev zstd)
+          missing=()
+          for package in "${packages[@]}"; do
+            status=$(dpkg-query -W -f='${Status}' "$package" 2>/dev/null || true)
+            [[ "$status" == 'install ok installed' ]] || missing+=("$package")
+          done
+          if ((${#missing[@]})); then
+            privilege=()
+            if ((EUID != 0)); then
+              command -v sudo >/dev/null || fail 'Install the missing packages manually or provide non-interactive sudo.'
+              sudo -n true || fail 'Missing packages require non-interactive sudo.'
+              privilege=(sudo -n)
+            fi
+            printf 'Installing missing packages: %s\n' "${missing[*]}"
+            "${privilege[@]}" env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 -o Acquire::Retries=3 update
+            "${privilege[@]}" env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 -o Acquire::Retries=3 install -y --no-install-recommends --no-remove "${missing[@]}"
+          else
+            echo 'All build dependencies are already installed.'
+          fi
+
       - name: Install pinned AOSP Clang 14
+        if: ${{ !inputs.self_hosted }}
         shell: bash
         run: |
           set -euo pipefail
@@ -68,6 +110,30 @@ jobs:
           echo "TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
           # Same as the NoMount builder: the toolchain must be on PATH so host
           # tools (fixdep) can find the linker.
+          echo "$toolchain/bin" >> "$GITHUB_PATH"
+
+      - name: Install pinned AOSP Clang 14 (cached)
+        if: ${{ inputs.self_hosted }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cache="${XDG_CACHE_HOME:-$HOME/.cache}/a325-kernel"
+          mkdir -p "$cache"
+          exec 9>"$cache/.lock"
+          flock 9
+          key=$(sha256sum scripts/fetch_aosp_clang.sh | cut -c1-16)
+          toolchain="$cache/aosp-clang14-$key"
+          if [ -x "$toolchain/bin/clang" ]; then
+            echo "Toolchain cache: HIT ($key)"
+          else
+            echo "Toolchain cache: MISS ($key)"
+            rm -rf "$toolchain.tmp"
+            sh scripts/fetch_aosp_clang.sh "$toolchain.tmp"
+            test -x "$toolchain.tmp/bin/clang"
+            mv "$toolchain.tmp" "$toolchain"
+          fi
+          find "$cache" -maxdepth 1 -name 'aosp-clang14-*' ! -name "aosp-clang14-$key" -exec rm -rf {} +
+          echo "TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
           echo "$toolchain/bin" >> "$GITHUB_PATH"
 
       - name: Configure kernel (same fragments as the kernel build)
@@ -86,6 +152,7 @@ jobs:
           export KBUILD_BUILD_USER=bakasu KBUILD_BUILD_HOST=builder KBUILD_BUILD_VERSION=1
           export KBUILD_BUILD_TIMESTAMP="$(git show -s --format=%cD HEAD)"
 
+          rm -rf "$OUT_DIR"
           mkdir -p "$OUT_DIR"
           scripts/kconfig/merge_config.sh -m -O "$OUT_DIR" \
             arch/arm64/configs/mt6768_slm_defconfig \
@@ -133,6 +200,7 @@ jobs:
             *) echo "::error::vermagic does not match kernel.release"; exit 1 ;;
           esac
 
+          rm -rf artifacts
           mkdir -p artifacts
           install -Dm644 "$ko" "artifacts/fgetpriority-${KVER}.ko"
           "$TOOLCHAIN/bin/llvm-strip" -d "artifacts/fgetpriority-${KVER}.ko"
@@ -192,3 +260,8 @@ jobs:
             build.log
             fgp-source.txt
           if-no-files-found: ignore
+
+      - name: Clean build output (self-hosted)
+        if: ${{ always() && inputs.self_hosted }}
+        shell: bash
+        run: rm -rf "$OUT_DIR" artifacts build.log fgp-source.txt
