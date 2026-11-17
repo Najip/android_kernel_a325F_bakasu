@@ -1,291 +1,170 @@
 name: SUSFS 2.4.0 port - build review branch (Jack 4.14)
-
-# Builds a REVIEW branch (default: susfs-2.4.0-port) from this kernel tree. It never changes the
-# branch you run it from. Step 1 of the port:
-#   - fs/susfs.c, include/linux/susfs.h and include/linux/susfs_def.h are taken from Jack's patch
-#   - Jack's priority-UID-filter block is removed, because fs/susfs_priority.c (your own, tested
-#     implementation) is kept
-#   - Jack's credential switch (commit_creds + setup_selinux) is replaced by override_creds(ksu_cred),
-#     the same method fs/susfs_priority.c uses, since KernelSU-Next legacy may not export setup_selinux
-#   - the priority macros, struct and prototypes your tree uses are put back into the headers
-#   - fs/Makefile gets the SUSFS_KERNEL_READ_NEW detection
-#   - SUSFS_LOGI_RL / SUSFS_LOGE_RL get no-op versions for builds without CONFIG_KSU_SUSFS_ENABLE_LOG
-# Structural anchors are asserted: the job fails instead of guessing when one is not found.
-# Leftover credential calls are listed (not fatal) in .susfs-port/PORT_NOTES.md on the review branch.
-
 on:
   workflow_dispatch:
     inputs:
       self_hosted:
-        description: 'Run on the self-hosted runner (default: GitHub-hosted runner)'
-        required: false
+        description: Run on the self-hosted runner
         type: boolean
         default: false
       kernel_ref:
-        description: 'Kernel branch, tag or commit used as the base. Blank = branch you run this from'
-        required: false
+        description: 'Base kernel ref; blank = workflow branch'
         type: string
         default: ''
       jack_ref:
-        description: 'NonGKI_Kernel_Build_2nd branch, tag or commit. Blank = commit pinned by the submodule'
-        required: false
+        description: 'Jack ref; blank = pinned submodule commit'
         type: string
         default: ''
       patch_path:
-        description: 'Patch path inside NonGKI_Kernel_Build_2nd'
-        required: false
+        description: Patch path inside NonGKI_Kernel_Build_2nd
         type: string
-        default: 'Patches/Patch/susfs_patch_to_4.14.patch'
+        default: Patches/Patch/susfs_patch_to_4.14.patch
       target_branch:
-        description: 'Review branch to create or overwrite'
-        required: false
+        description: Review branch to create or overwrite
         type: string
-        default: 'susfs-2.4.0-port'
-
+        default: susfs-2.4.0-port
 permissions:
   contents: write
-
 concurrency:
   group: susfs-port-apply-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
   apply:
-    name: Build the SUSFS 2.4.0 review branch
     runs-on: ${{ inputs.self_hosted && 'self-hosted' || 'ubuntu-latest' }}
     timeout-minutes: 20
-
     steps:
-      - name: Checkout kernel and submodules
-        uses: actions/checkout@v7
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.kernel_ref || github.ref }}
           fetch-depth: 0
           submodules: recursive
-
-      - name: Select Jack's commit
+      - name: Select Jack commit and validate target
         shell: bash
         env:
           JACK_REF: ${{ inputs.jack_ref }}
+          TARGET_BRANCH: ${{ inputs.target_branch }}
         run: |
           set -euo pipefail
+          case "$TARGET_BRANCH" in
+            ''|common|main|master|ksun-susfs-JackA1ltman|susfs-delta-report)
+              echo '::error::Refusing to overwrite protected source/report branch'; exit 1 ;;
+          esac
+          git check-ref-format --branch "$TARGET_BRANCH"
           if [ -n "$JACK_REF" ]; then
             git -C NonGKI_Kernel_Build_2nd fetch origin "$JACK_REF"
             git -C NonGKI_Kernel_Build_2nd checkout --detach FETCH_HEAD
           fi
           git -C NonGKI_Kernel_Build_2nd log -1 --format='%H %cI %s'
-
-      - name: Generate the port
+      - name: Generate Jack priority filter port
         shell: bash
         env:
           PATCH_PATH: ${{ inputs.patch_path }}
         run: |
           set -euo pipefail
-          patch_file="NonGKI_Kernel_Build_2nd/$PATCH_PATH"
-          test -s "$patch_file" || { echo "::error::Patch not found: $patch_file"; exit 1; }
-          test -f fs/susfs_priority.c || { echo "::error::fs/susfs_priority.c not found in this tree"; exit 1; }
-          python3 - "$patch_file" <<'PY'
-          import os, re, sys
-
-          patch = open(sys.argv[1], encoding='utf-8', errors='replace').read()
-          parts = [p for p in re.split(r'(?m)^(?=diff --git )', patch) if p.startswith('diff --git ')]
+          python3 - "NonGKI_Kernel_Build_2nd/$PATCH_PATH" <<'PY'
+          import re, sys
+          from pathlib import Path
+          def require(ok, message):
+              if not ok:
+                  raise SystemExit(message)
+          patch = Path(sys.argv[1]).read_text()
           new = {}
-          for s in parts:
-              f = re.match(r'diff --git a/(\S+) b/(\S+)', s).group(2)
-              if '\nnew file mode' not in s.split('\n@@')[0]:
+          for section in re.split(r'(?m)^(?=diff --git )', patch):
+              if not section.startswith('diff --git '):
                   continue
-              lines = []
-              started = False
-              for line in s.split('\n'):
+              path = re.match(r'diff --git a/(\S+) b/(\S+)', section).group(2)
+              if '\nnew file mode' not in section.split('\n@@')[0]:
+                  continue
+              lines, started = [], False
+              for line in section.splitlines():
                   if line.startswith('@@'):
                       started = True
-                      continue
-                  if started and line.startswith('+'):
+                  elif started and line.startswith('+'):
                       lines.append(line[1:])
-              new[f] = '\n'.join(lines) + '\n'
-
-          notes = ['# SUSFS 2.4.0 port notes (step 1)', '']
-
-          def fail(msg):
-              print('::error::' + msg)
-              sys.exit(1)
-
-          for need in ('fs/susfs.c', 'include/linux/susfs.h', 'include/linux/susfs_def.h'):
-              if need not in new:
-                  fail(need + ' is not created by the patch')
-
-          def remove_blocks(text, start_re):
-              out = []
-              count = 0
-              lines = text.split('\n')
-              i = 0
-              while i < len(lines):
-                  if re.match(start_re, lines[i]):
-                      depth = 0
-                      while i < len(lines):
-                          l = lines[i].strip()
-                          if re.match(r'#\s*if', l):
-                              depth += 1
-                          elif re.match(r'#\s*endif', l):
-                              depth -= 1
-                          i += 1
-                          if depth == 0:
-                              break
-                      count += 1
-                      continue
-                  out.append(lines[i])
-                  i += 1
-              return '\n'.join(out), count
-
-          # ---- fs/susfs.c ----
-          c = new['fs/susfs.c']
-          c, n = remove_blocks(c, r'^#ifdef CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER\b')
-          if n < 1:
-              fail('no CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER block found in Jack fs/susfs.c')
-          notes.append('- fs/susfs.c: removed %d CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER block(s); fs/susfs_priority.c stays the implementation.' % n)
-
-          pat = re.compile(r'/\*\n \* Switches the selinux domain.*?static void susfs_restore_creds\(struct cred \*orig_cred\) \{.*?\n\}\n', re.S)
-          repl_lines = [
-              '/*',
-              ' * Overrides the credentials of the current task with the KernelSU ones, so that the',
-              ' * data paths of the apps can be accessed despite of the selinux restrictions.',
-              ' * Same method as fs/susfs_priority.c (override_creds(ksu_cred)); it does not need',
-              ' * setup_selinux() and does not commit new credentials to the calling task.',
-              ' * Returns the saved credentials on success, NULL on failure.',
-              ' */',
-              'static const struct cred *susfs_switch_to_ksu_domain(void) {',
-              '\tstruct cred *cred = READ_ONCE(ksu_cred);',
-              '\tconst struct cred *saved;',
-              '',
-              '\tif (!cred)',
-              '\t\treturn NULL;',
-              '\tsaved = override_creds(cred);',
-              '\tif (!susfs_is_current_ksu_domain()) {',
-              '\t\trevert_creds(saved);',
-              '\t\treturn NULL;',
-              '\t}',
-              '\treturn saved;',
-              '}',
-              '',
-              '/* Restores the credentials saved by susfs_switch_to_ksu_domain(). */',
-              'static void susfs_restore_creds(const struct cred *saved) {',
-              '\tif (saved)',
-              '\t\trevert_creds(saved);',
-              '}',
-              '',
-          ]
-          repl = '\n'.join(repl_lines)
-          c, n = pat.subn(lambda m: repl, c, count=1)
-          if n != 1:
-              fail('could not find susfs_switch_to_ksu_domain / susfs_restore_creds in Jack fs/susfs.c')
-          notes.append('- fs/susfs.c: susfs_switch_to_ksu_domain() now uses override_creds(ksu_cred) instead of prepare_creds + setup_selinux + commit_creds.')
-
-          c, n = re.subn(r'(?<!const )struct cred \*orig_cred = NULL;', 'const struct cred *orig_cred = NULL;', c)
-          if n < 1:
-              fail('no orig_cred declarations to retype in Jack fs/susfs.c')
-          notes.append('- fs/susfs.c: %d orig_cred declaration(s) changed to const struct cred *.' % n)
-
-          pat_log = re.compile(r'(#else\s*\n#define SUSFS_LOGI\(fmt, \.\.\.\)[ \t]*\n#define SUSFS_LOGE\(fmt, \.\.\.\)[ \t]*\n)(#endif)')
-          c, n = pat_log.subn(lambda m: m.group(1) + '#define SUSFS_LOGI_RL(fmt, ...)\n#define SUSFS_LOGE_RL(fmt, ...)\n' + m.group(2), c, count=1)
-          if n != 1:
-              fail('could not find the disabled-log SUSFS_LOGI/SUSFS_LOGE macros in Jack fs/susfs.c')
-          notes.append('- fs/susfs.c: added no-op SUSFS_LOGI_RL/SUSFS_LOGE_RL for builds without CONFIG_KSU_SUSFS_ENABLE_LOG (Jack only defines them when logging is on; this caused the undefined symbol SUSFS_LOGI_RL link error).')
-
-          warn = []
-          for i, l in enumerate(c.split('\n'), 1):
-              s2 = l.strip()
-              if s2.startswith('extern') or s2.startswith('*') or s2.startswith('/*') or s2.startswith('//'):
-                  continue
-              for bad in ('commit_creds(', 'abort_creds(', 'prepare_creds(', 'setup_selinux('):
-                  if bad in l:
-                      warn.append((i, s2))
-                      break
-          notes.append('')
-          notes.append('## Credential calls still in the new fs/susfs.c (setup_selinux exists in KernelSU-Next legacy)')
-          notes.extend('- %d: `%s`' % (i, l[:140]) for i, l in warn[:60])
-          if not warn:
-              notes.append('- none')
-
+              new[path] = '\n'.join(lines) + '\n'
+          for path in ('fs/susfs.c', 'include/linux/susfs.h', 'include/linux/susfs_def.h'):
+              require(path in new, 'Patch does not create ' + path)
+          c, h, d = (new[p] for p in ('fs/susfs.c', 'include/linux/susfs.h', 'include/linux/susfs_def.h'))
+          require('void susfs_set_priority_uid_filter(void __user **' in c, 'Expected Jack double-pointer priority command handler')
+          require('susfs_is_priority_uid_filtered' in c and 'CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER' in c, 'Jack priority implementation missing')
+          require('PRIORITY_UID_FILTER' in h and 'CMD_SUSFS_SET_PRIORITY_UID_FILTER' in d, 'Jack priority declarations missing')
+          pattern = re.compile(r'/\*\n \* Switches the selinux domain.*?static void susfs_restore_creds\(struct cred \*orig_cred\) \{.*?\n\}\n', re.S)
+          replacement = """/* Preserve the boot-tested KernelSU-Next credential adaptation. */
+          static const struct cred *susfs_switch_to_ksu_domain(void) {
+              struct cred *cred = READ_ONCE(ksu_cred);
+              const struct cred *saved;
+              if (!cred)
+                  return NULL;
+              saved = override_creds(cred);
+              if (!susfs_is_current_ksu_domain()) {
+                  revert_creds(saved);
+                  return NULL;
+              }
+              return saved;
+          }
+          static void susfs_restore_creds(const struct cred *saved) {
+              if (saved)
+                  revert_creds(saved);
+          }
+          """
+          c, count = pattern.subn(lambda m: replacement, c, count=1)
+          require(count == 1, 'Credential helper anchor changed')
+          c, count = re.subn(r'(?<!const )struct cred \*orig_cred = NULL;', 'const struct cred *orig_cred = NULL;', c)
+          require(count >= 1, 'Credential declaration anchor changed')
+          log_pattern = re.compile(r'(#else\s*\n#define SUSFS_LOGI\(fmt, \.\.\.\)[ \t]*\n#define SUSFS_LOGE\(fmt, \.\.\.\)[ \t]*\n)(#endif)')
+          c, count = log_pattern.subn(lambda m: m[1] + '#define SUSFS_LOGI_RL(fmt, ...)\n#define SUSFS_LOGE_RL(fmt, ...)\n' + m[2], c, count=1)
+          require(count == 1, 'Disabled-log fallback anchor changed')
           if 'susfs_get_data_path' not in c:
-              c = c.rstrip('\n') + '\n\n/* kept from the previous in-tree SUSFS */\nint susfs_get_data_path(struct path *path) {\n\treturn kern_path("/data", LOOKUP_FOLLOW, path);\n}\n'
-              notes.append('- fs/susfs.c: susfs_get_data_path() re-added (it existed in your tree, Jack removed it).')
-
-          left = [(i + 1, l.strip()) for i, l in enumerate(c.split('\n')) if 'priority' in l.lower()]
-          notes.append('')
-          notes.append('## Lines in the new fs/susfs.c that still mention priority (check these)')
-          notes.extend('- %d: `%s`' % (i, l[:140]) for i, l in left[:60])
-
-          # ---- include/linux/susfs.h ----
-          h = new['include/linux/susfs.h']
-          h, n = remove_blocks(h, r'^#ifdef CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER\b')
-          notes.append('')
-          notes.append('- include/linux/susfs.h: removed %d Jack priority block(s).' % n)
+              c += '\nint susfs_get_data_path(struct path *path) {\n\treturn kern_path("/data", LOOKUP_FOLLOW, path);\n}\n'
           anchor = '#include <linux/statfs.h>\n'
-          if h.count(anchor) != 1:
-              fail('anchor #include <linux/statfs.h> not found exactly once in Jack susfs.h')
-          macros = '\n#ifndef getname_safe\n#define getname_safe(name) (name == NULL ? ERR_PTR(-EINVAL) : getname(name))\n#endif\n#ifndef putname_safe\n#define putname_safe(name) (IS_ERR(name) ? NULL : putname(name))\n#endif\n'
-          h = h.replace(anchor, anchor + macros, 1)
-          if not h.rstrip().endswith('#endif'):
-              fail('Jack susfs.h does not end with the header guard #endif')
-          idx = h.rstrip().rfind('#endif')
-          prio = '/* priority uid filter (implemented in fs/susfs_priority.c) */\nstruct st_susfs_priority_uid_filter {\n\tchar app_strings[SUSFS_APP_STR_BUF_SIZE];\n\tint err;\n};\n\nint susfs_set_priority_uid_filter(void __user *arg);\nbool susfs_is_priority_uid_filtered(uid_t uid);\n\n'
-          h = h[:idx] + prio + h[idx:]
-          notes.append('- include/linux/susfs.h: re-added getname_safe/putname_safe and the in-tree priority struct and prototypes.')
-
-          # ---- include/linux/susfs_def.h ----
-          d = new['include/linux/susfs_def.h']
-          anchor = '#define SUSFS_UID_FILTER_BITMAP_LEN BITS_TO_LONGS(SUSFS_UID_FILTER_UID_NUM)\n'
-          if d.count(anchor) != 1:
-              fail('anchor SUSFS_UID_FILTER_BITMAP_LEN not found exactly once in Jack susfs_def.h')
-          extra = '#define SUSFS_PRIORITY_UID_FILTER_MIN_UID 10000\n#define SUSFS_PRIORITY_UID_FILTER_MAX_UID 19999\n#define SUSFS_PRIORITY_UID_FILTER_UID_NUM 10000\n'
-          d = d.replace(anchor, anchor + extra, 1)
-          notes.append('- include/linux/susfs_def.h: re-added SUSFS_PRIORITY_UID_FILTER_* macros used by fs/susfs_priority.c.')
-
-          # ---- fs/Makefile ----
-          mk = open('fs/Makefile', encoding='utf-8').read()
-          line = 'obj-$(CONFIG_KSU_SUSFS) += susfs.o susfs_priority.o susfs_ksu_glue.o\n'
-          if mk.count(line) != 1:
-              fail('expected SUSFS obj line not found exactly once in fs/Makefile')
-          if 'SUSFS_KERNEL_READ_NEW' in mk:
-              fail('fs/Makefile already has SUSFS_KERNEL_READ_NEW')
-          add = '# susfs: kernel_read() changed signature in v4.14; detect by signature, not by version.\nifeq ($(shell grep -q "ssize_t kernel_read" $(srctree)/fs/read_write.c $(srctree)/fs/exec.c 2>/dev/null; echo $$?),0)\nCFLAGS_susfs.o += -DSUSFS_KERNEL_READ_NEW\nendif\n'
-          mk = mk.replace(line, line + add, 1)
-          notes.append('- fs/Makefile: added the SUSFS_KERNEL_READ_NEW detection after the SUSFS object line.')
-
-          open('fs/susfs.c', 'w').write(c)
-          open('include/linux/susfs.h', 'w').write(h)
-          open('include/linux/susfs_def.h', 'w').write(d)
-          open('fs/Makefile', 'w').write(mk)
-          os.makedirs('.susfs-port', exist_ok=True)
-          open('.susfs-port/PORT_NOTES.md', 'w').write('\n'.join(notes) + '\n')
+          require(h.count(anchor) == 1, 'Header anchor changed')
+          h = h.replace(anchor, anchor + '\n#ifndef getname_safe\n#define getname_safe(name) (name == NULL ? ERR_PTR(-EINVAL) : getname(name))\n#endif\n#ifndef putname_safe\n#define putname_safe(name) (IS_ERR(name) ? NULL : putname(name))\n#endif\n', 1)
+          mk = Path('fs/Makefile').read_text()
+          obj_pattern = re.compile(r'^obj-\$\(CONFIG_KSU_SUSFS\)\s*\+=.*$', re.M)
+          require(len(obj_pattern.findall(mk)) == 1, 'Expected one SUSFS object line')
+          mk = obj_pattern.sub('obj-$(CONFIG_KSU_SUSFS) += susfs.o susfs_ksu_glue.o', mk)
+          if 'SUSFS_KERNEL_READ_NEW' not in mk:
+              obj = 'obj-$(CONFIG_KSU_SUSFS) += susfs.o susfs_ksu_glue.o\n'
+              mk = mk.replace(obj, obj + 'ifeq ($(shell grep -q "ssize_t kernel_read" $(srctree)/fs/read_write.c $(srctree)/fs/exec.c 2>/dev/null; echo $$?),0)\nCFLAGS_susfs.o += -DSUSFS_KERNEL_READ_NEW\nendif\n', 1)
+          glue = Path('fs/susfs_ksu_glue.c').read_text()
+          anchor = '    switch (cmd) {\n'
+          require(glue.count(anchor) == 1, 'Glue switch anchor changed')
+          if 'case CMD_SUSFS_SET_PRIORITY_UID_FILTER:' not in glue:
+              glue = glue.replace(anchor, anchor + '#ifdef CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER\n    case CMD_SUSFS_SET_PRIORITY_UID_FILTER: susfs_set_priority_uid_filter(arg); break;\n#endif\n', 1)
+          if 'case CMD_SUSFS_SET_SUS_PATH_UID_FILTER:' not in glue:
+              anchor = '    case CMD_SUSFS_ADD_SUS_PATH_LOOP: susfs_add_sus_path_loop(arg); break;\n'
+              require(glue.count(anchor) == 1, 'Sus-path dispatch anchor changed')
+              glue = glue.replace(anchor, anchor + '    case CMD_SUSFS_SET_SUS_PATH_UID_FILTER: susfs_set_sus_path_uid_filter(arg); break;\n', 1)
+          for path, text in {'fs/susfs.c': c, 'include/linux/susfs.h': h, 'include/linux/susfs_def.h': d, 'fs/Makefile': mk, 'fs/susfs_ksu_glue.c': glue}.items():
+              Path(path).write_text(text)
+          Path('fs/susfs_priority.c').unlink(missing_ok=True)
+          Path('.susfs-port').mkdir(exist_ok=True)
+          Path('.susfs-port/PORT_NOTES.md').write_text(
+              '# Jack priority UID filter migration\n\n'
+              '- Jack priority implementation, headers and feature-reporting blocks retained.\n'
+              '- Old standalone priority implementation removed from source and Kbuild.\n'
+              '- Priority and sus-path UID filter commands dispatched by parent-kernel glue.\n'
+              '- Existing KernelSU-Next credential, kernel_read and disabled-log adaptations retained.\n'
+              '- Logging configuration unchanged. No defconfig changes.\n'
+              '- This migration does not complete the remaining stat/super/sys hook audit.\n'
+              '- Generated source still needs a kernel build and device runtime testing.\n')
           PY
-
-      - name: Commit the review branch
+      - name: Commit review branch
         shell: bash
         env:
           TARGET_BRANCH: ${{ inputs.target_branch }}
         run: |
           set -euo pipefail
-          branch="$TARGET_BRANCH"
-          case "$branch" in
-            ''|common|main|master|ksun-susfs-JackA1ltman|susfs-delta-report)
-              echo "::error::Refusing to overwrite branch '$branch'"; exit 1 ;;
-          esac
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git checkout -B "$branch"
-          git add fs/susfs.c include/linux/susfs.h include/linux/susfs_def.h fs/Makefile .susfs-port/PORT_NOTES.md
+          git checkout -B "$TARGET_BRANCH"
+          git add -A -- fs/susfs.c fs/susfs_priority.c fs/susfs_ksu_glue.c fs/Makefile include/linux/susfs.h include/linux/susfs_def.h .susfs-port/PORT_NOTES.md
+          git diff --cached --check
           {
-            echo "## SUSFS 2.4.0 port, step 1"
-            echo
-            echo "- Review branch: $branch"
-            echo "- Base kernel commit: $(git rev-parse HEAD)"
-            echo "- Jack commit: $(git -C NonGKI_Kernel_Build_2nd rev-parse HEAD)"
-            echo
+            echo "Review branch: $TARGET_BRANCH"
+            echo "Base: $(git rev-parse HEAD)"
+            echo "Jack: $(git -C NonGKI_Kernel_Build_2nd rev-parse HEAD)"
             git diff --cached --stat
-            echo
             cat .susfs-port/PORT_NOTES.md
           } | tee -a "$GITHUB_STEP_SUMMARY"
-          git commit -q -m "SUSFS v2.4.0 port step 1: Jack's susfs.c and headers, in-tree priority filter kept"
-          git push --force origin "HEAD:refs/heads/$branch"
-          echo "Pushed review branch $branch" | tee -a "$GITHUB_STEP_SUMMARY"
+          git commit -m 'SUSFS v2.4.0: use Jack priority UID filter and wire command dispatch'
+          git push --force-with-lease origin "HEAD:refs/heads/$TARGET_BRANCH"
