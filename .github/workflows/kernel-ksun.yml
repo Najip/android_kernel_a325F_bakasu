@@ -20,7 +20,7 @@ on:
         description: 'Build NoMount into the kernel (CONFIG_NOMOUNT=y). Untick for the no-NoMount kernel.'
         required: false
         type: boolean
-        default: true
+        default: false
 
 permissions:
   contents: read
@@ -198,7 +198,7 @@ jobs:
         run: |
           set -euo pipefail
           intree="$(sed -n 's/^#define SUSFS_VERSION "\([^"]*\)".*/\1/p' include/linux/susfs.h | head -n1 || true)"
-          jack="$(sed -n '/^+#define SUSFS_VERSION/{s/.*"\(.*"\).*/\1/p;q}' NonGKI_Kernel_Build_2nd/Patches/Patch/susfs_patch_to_4.14.patch || true)"
+          jack="$(sed -n '/^+#define SUSFS_VERSION/{s/.*"\(.*\)".*/\1/p;q}' NonGKI_Kernel_Build_2nd/Patches/Patch/susfs_patch_to_4.14.patch || true)"
           echo "In-tree SUSFS : ${intree:-unknown}"
           echo "Jack 4.14 patch: ${jack:-not found in patch}"
           echo "Jack repo commit: $(git -C NonGKI_Kernel_Build_2nd rev-parse HEAD)"
