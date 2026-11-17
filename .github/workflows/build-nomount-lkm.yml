@@ -1,22 +1,34 @@
 name: Build NoMount LKM + flashable ZIP (4.14)
 
-# Stub on the default branch. GitHub only lists workflow_dispatch workflows that
-# exist on the default branch; the real workflow lives on the nomount-lkm branch.
-# Choose branch "nomount-lkm" when running this from the Actions tab.
-
 on:
   workflow_dispatch:
+    inputs:
+      self_hosted:
+        description: 'Run on the self-hosted runner (default: GitHub-hosted runner)'
+        required: false
+        type: boolean
+        default: false
+      kernel_ref:
+        description: 'Kernel branch, tag or commit to build. Blank = the branch you run this from.'
+        required: false
+        type: string
+        default: ''
+      nomount_ref:
+        description: 'Upstream NoMount branch, tag or commit. Clear the field to use the vendored NoMount commit.'
+        required: false
+        type: string
+        default: 'dev'
 
 permissions:
   contents: read
 
 jobs:
   stub:
-    name: Select the nomount-lkm branch
+    name: Select the ksun-susfs-JackA1ltman branch
     runs-on: ubuntu-latest
     timeout-minutes: 1
     steps:
-      - name: Wrong branch
+      - name: Select the implementation branch
         run: |
-          echo "::error::This is only a stub. Re-run this workflow and select branch 'nomount-lkm'."
+          echo "::error::This is only a stub. Re-run this workflow and select branch 'ksun-susfs-JackA1ltman' under 'Use workflow from'."
           exit 1
