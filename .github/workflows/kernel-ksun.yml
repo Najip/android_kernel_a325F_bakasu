@@ -1,0 +1,210 @@
+name: A325X Kernel (KernelSU-Next legacy)
+
+# KernelSU-Next legacy + the in-tree Jack-derived SUSFS, built with the pinned
+# AOSP Clang 14. Run setup-ksun-submodules once before the first build.
+# Untick "nomount" for the kernel without built-in NoMount (pair it with the NoMount LKM ZIP).
+
+on:
+  workflow_dispatch:
+    inputs:
+      nomount:
+        description: 'Build NoMount into the kernel (CONFIG_NOMOUNT=y). Untick for the no-NoMount kernel.'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: a325n-kernel-ksun-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  OUT_DIR: ${{ github.workspace }}/out-ci
+  PACKAGE_DIR: ${{ github.workspace }}/package-ci
+  ANYKERNEL_REPO: https://github.com/osm0sis/AnyKernel3.git
+  ANYKERNEL_COMMIT: af770f7b16cf8f8eb7c68614b2a693b3b361c90c
+  NOMOUNT: ${{ inputs.nomount }}
+
+jobs:
+  build:
+    name: Build A325X kernel (KernelSU-Next legacy)
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout kernel and submodules
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Restore full submodule history and tags
+        shell: bash
+        run: |
+          set -euo pipefail
+          git submodule foreach --recursive '
+            if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
+              git fetch --unshallow --tags --force
+            else
+              git fetch --tags --force
+            fi
+          '
+
+      - name: Check submodules
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="$(git config -f .gitmodules --get submodule.KernelSU.url || true)"
+          printf '%s' "$url" | grep -qi 'KernelSU-Next' || {
+            echo "::error::KernelSU is '$url'. Run the setup-ksun-submodules workflow first."
+            exit 1
+          }
+          test -f KernelSU/kernel/Kconfig
+          test -f NonGKI_Kernel_Build_2nd/Patches/Patch/susfs_patch_to_4.14.patch
+
+      - name: Install build dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            bc binutils-aarch64-linux-gnu bison build-essential ca-certificates curl file flex git \
+            libelf-dev libssl-dev libncurses-dev jq lz4 pahole python3 unzip xz-utils zip zlib1g-dev zstd
+
+      - name: Install pinned AOSP Clang 14
+        shell: bash
+        run: |
+          set -euo pipefail
+          toolchain="$RUNNER_TEMP/aosp-clang14"
+          sh scripts/fetch_aosp_clang.sh "$toolchain"
+          echo "TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
+          echo "$toolchain/bin" >> "$GITHUB_PATH"
+
+      - name: Clone pinned upstream AnyKernel3
+        shell: bash
+        run: |
+          set -euo pipefail
+          parent="$(mktemp -d "$RUNNER_TEMP/AnyKernel3-A325N.XXXXXX")"
+          ak3="$parent/repository"
+          git clone --filter=blob:none "$ANYKERNEL_REPO" "$ak3"
+          git -C "$ak3" checkout --detach "$ANYKERNEL_COMMIT"
+          resolved="$(git -C "$ak3" rev-parse HEAD)"
+          if [ "$resolved" != "$ANYKERNEL_COMMIT" ]; then
+            echo "::error::Unexpected AnyKernel3 commit: $resolved"
+            exit 1
+          fi
+          test -s "$GITHUB_WORKSPACE/anykernel/a325n-anykernel.sh"
+          echo "AK3_DIR=$ak3" >> "$GITHUB_ENV"
+          echo "ANYKERNEL_RESOLVED_COMMIT=$resolved" >> "$GITHUB_ENV"
+
+      - name: Show SUSFS versions (in-tree vs JackA1ltman patch)
+        shell: bash
+        run: |
+          set -euo pipefail
+          intree="$(sed -n 's/^#define SUSFS_VERSION "\([^"]*\)".*/\1/p' include/linux/susfs.h | head -n1 || true)"
+          jack="$(sed -n '/^+#define SUSFS_VERSION/{s/.*"\(.*"\).*/\1/p;q}' NonGKI_Kernel_Build_2nd/Patches/Patch/susfs_patch_to_4.14.patch || true)"
+          echo "In-tree SUSFS : ${intree:-unknown}"
+          echo "Jack 4.14 patch: ${jack:-not found in patch}"
+          echo "Jack repo commit: $(git -C NonGKI_Kernel_Build_2nd rev-parse HEAD)"
+
+      - name: Build kernel
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x ./build_a325n_ksun.sh ./package_anykernel.sh
+          NO_NOMOUNT="${{ inputs.nomount && '0' || '1' }}" \
+          TOOLCHAIN="$TOOLCHAIN" \
+          OUT_DIR="$OUT_DIR" \
+          ./build_a325n_ksun.sh 2>&1 | tee "$RUNNER_TEMP/a325n-build.log"
+
+      - name: Verify kernel outputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s "$OUT_DIR/arch/arm64/boot/Image"
+          test -s "$OUT_DIR/arch/arm64/boot/Image.gz"
+          grep -q '^CONFIG_KSU=y$' "$OUT_DIR/.config"
+          grep -q '^CONFIG_ALWAYS_ENFORCE=y$' "$OUT_DIR/.config"
+          if ! grep -q '^CONFIG_KSU_SUSFS=y$' "$OUT_DIR/.config"; then
+            echo '::warning::CONFIG_KSU_SUSFS=y is not in the final .config; KernelSU-Next legacy may use different SUSFS symbols'
+          fi
+          if [ "$NOMOUNT" = true ]; then
+            grep -q '^CONFIG_NOMOUNT=y$' "$OUT_DIR/.config"
+          else
+            if grep -q '^CONFIG_NOMOUNT=' "$OUT_DIR/.config"; then
+              echo '::error::CONFIG_NOMOUNT is still enabled in the final .config'
+              exit 1
+            fi
+            grep -q '^# CONFIG_NOMOUNT is not set$' "$OUT_DIR/.config"
+          fi
+          "$TOOLCHAIN/bin/llvm-nm" --defined-only "$OUT_DIR/vmlinux" > "$OUT_DIR/symbols.txt"
+          grep -q ' ksu_' "$OUT_DIR/symbols.txt" || {
+            echo '::error::No ksu_ symbols in vmlinux; KernelSU-Next was not linked'
+            exit 1
+          }
+          if [ "$NOMOUNT" != true ] && grep -qi 'nomount\|nm_hijack' "$OUT_DIR/symbols.txt"; then
+            echo '::error::NoMount symbols found in vmlinux'
+            exit 1
+          fi
+          cat "$OUT_DIR/include/config/kernel.release"
+          sha256sum "$OUT_DIR/arch/arm64/boot/Image" "$OUT_DIR/arch/arm64/boot/Image.gz"
+
+      - name: Package AnyKernel ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$PACKAGE_DIR"
+          mkdir -p "$PACKAGE_DIR"
+
+          TOOLCHAIN="$TOOLCHAIN" \
+          OUT_DIR="$OUT_DIR" \
+          AK3_DIR="$AK3_DIR" \
+          AK3_CONFIG="$GITHUB_WORKSPACE/anykernel/a325n-anykernel.sh" \
+          ZIP_OUT_DIR="$PACKAGE_DIR" \
+          ./package_anykernel.sh | tee "$RUNNER_TEMP/a325n-package.log"
+
+          zip_path="$(find "$PACKAGE_DIR" -maxdepth 1 -type f -name '*.zip' -print -quit)"
+          if [ -z "$zip_path" ] || [ ! -s "$zip_path" ]; then
+            echo '::error::Flashable ZIP was not created.'
+            exit 1
+          fi
+          unzip -tq "$zip_path"
+          packaged="$RUNNER_TEMP/packaged-anykernel.sh"
+          unzip -p "$zip_path" anykernel.sh > "$packaged"
+          grep -q '^device\.name1=a32$' "$packaged"
+          grep -Eq '^BLOCK=/dev/block/by-name/boot;?$' "$packaged"
+
+          kernel_short="$(git rev-parse --short=10 HEAD)"
+          suffix=''
+          [ "$NOMOUNT" = true ] || suffix='-no-nomount'
+          susfs="$(sed -n 's/^#define SUSFS_VERSION "\([^"]*\)".*/\1/p' include/linux/susfs.h | head -n1 || true)"
+          {
+            echo "Kernel commit: $(git rev-parse HEAD)"
+            echo "Kernel release: $(cat "$OUT_DIR/include/config/kernel.release")"
+            echo "KernelSU-Next commit: $(git -C KernelSU rev-parse HEAD)"
+            echo "KernelSU-Next describe: $(git -C KernelSU describe --tags --always)"
+            echo "NonGKI_Kernel_Build_2nd commit: $(git -C NonGKI_Kernel_Build_2nd rev-parse HEAD)"
+            echo "SUSFS (in-tree): ${susfs:-unknown}"
+            echo "NoMount built in: $NOMOUNT"
+            echo "Toolchain: pinned AOSP Clang 14"
+            echo "AnyKernel upstream: $ANYKERNEL_REPO@$ANYKERNEL_RESOLVED_COMMIT"
+            echo "Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          } > "$PACKAGE_DIR/build-info.txt"
+          cat "$OUT_DIR/toolchain-source.txt" "$OUT_DIR/ksun-source.txt" >> "$PACKAGE_DIR/build-info.txt"
+          sha256sum "$zip_path" > "$PACKAGE_DIR/SHA256SUMS.txt"
+          cat "$PACKAGE_DIR/build-info.txt"
+
+          echo "ARTIFACT_NAME=A325N-KSUN-legacy${suffix}-$kernel_short" >> "$GITHUB_ENV"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: |
+            ${{ env.PACKAGE_DIR }}/*.zip
+            ${{ env.PACKAGE_DIR }}/SHA256SUMS.txt
+            ${{ env.PACKAGE_DIR }}/build-info.txt
+          if-no-files-found: error
+          retention-days: 14
