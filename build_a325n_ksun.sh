@@ -10,6 +10,10 @@
 #      (default nomount-lkm-sync-up-patch) and applied.
 # The names of applied patches go to $OUT/applied-patches.txt.
 # NO_KERNEL_PATCHES=1 skips all of it (local experiments only).
+#
+# Manager signature: KSU_NEXT_MANAGER_SIZE and KSU_NEXT_MANAGER_HASH (environment,
+# or ksun-manager-signature.env) select the manager signing certificate the kernel
+# accepts. Both empty keeps the official KernelSU-Next key.
 set -eu
 
 ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
@@ -26,6 +30,32 @@ fi
 if ! git -C "$ROOT" config -f .gitmodules --get submodule.KernelSU.url | grep -qi 'KernelSU-Next'; then
   echo "KernelSU submodule is not KernelSU-Next; run the setup-ksun-submodules workflow first" >&2
   exit 1
+fi
+
+SIG_FILE="$ROOT/ksun-manager-signature.env"
+if [ -z "${KSU_NEXT_MANAGER_SIZE:-}${KSU_NEXT_MANAGER_HASH:-}" ] && [ -f "$SIG_FILE" ]; then
+  # shellcheck disable=SC1090
+  . "$SIG_FILE"
+fi
+KSU_NEXT_MANAGER_SIZE=${KSU_NEXT_MANAGER_SIZE:-}
+KSU_NEXT_MANAGER_HASH=${KSU_NEXT_MANAGER_HASH:-}
+if [ -n "$KSU_NEXT_MANAGER_SIZE" ] || [ -n "$KSU_NEXT_MANAGER_HASH" ]; then
+  case $KSU_NEXT_MANAGER_SIZE in
+    0x[0-9a-fA-F]*) ;;
+    *) echo "::error::KSU_NEXT_MANAGER_SIZE must look like 0x3e6 and be set together with the hash" >&2; exit 1 ;;
+  esac
+  case $KSU_NEXT_MANAGER_HASH in
+    ''|*[!0-9a-f]*) echo "::error::KSU_NEXT_MANAGER_HASH must be 64 lowercase hex characters" >&2; exit 1 ;;
+  esac
+  if [ "${#KSU_NEXT_MANAGER_HASH}" -ne 64 ]; then
+    echo "::error::KSU_NEXT_MANAGER_HASH must be 64 lowercase hex characters" >&2
+    exit 1
+  fi
+  export KSU_NEXT_MANAGER_SIZE KSU_NEXT_MANAGER_HASH
+  echo "Manager signature: custom (size $KSU_NEXT_MANAGER_SIZE)"
+else
+  unset KSU_NEXT_MANAGER_SIZE KSU_NEXT_MANAGER_HASH
+  echo "Manager signature: official KernelSU-Next key (default)"
 fi
 
 sh "$ROOT/scripts/fetch_aosp_clang.sh" "$TOOLCHAIN"
@@ -132,6 +162,8 @@ cat "$OUT/clang-version.txt" "$OUT/lld-version.txt" >> "$OUT/toolchain-source.tx
 {
   echo "KernelSU-Next commit: $(git -C "$ROOT/KernelSU" rev-parse HEAD)"
   echo "KernelSU-Next describe: $(git -C "$ROOT/KernelSU" describe --tags --always 2>/dev/null || echo unknown)"
+  echo "Manager signature size: ${KSU_NEXT_MANAGER_SIZE:-default (official key)}"
+  echo "Manager signature hash: ${KSU_NEXT_MANAGER_HASH:-default (official key)}"
 } > "$OUT/ksun-source.txt"
 cat "$OUT/ksun-source.txt"
 
