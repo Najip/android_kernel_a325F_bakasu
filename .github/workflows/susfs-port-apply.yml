@@ -134,7 +134,14 @@ jobs:
               anchor = '    case CMD_SUSFS_ADD_SUS_PATH_LOOP: susfs_add_sus_path_loop(arg); break;\n'
               require(glue.count(anchor) == 1, 'Sus-path dispatch anchor changed')
               glue = glue.replace(anchor, anchor + '    case CMD_SUSFS_SET_SUS_PATH_UID_FILTER: susfs_set_sus_path_uid_filter(arg); break;\n', 1)
-          for path, text in {'fs/susfs.c': c, 'include/linux/susfs.h': h, 'include/linux/susfs_def.h': d, 'fs/Makefile': mk, 'fs/susfs_ksu_glue.c': glue}.items():
+          reboot = Path('kernel/reboot.c').read_text()
+          old_reboot = '\t\tif ((u32)magic2 == SUSFS_MAGIC &&\n\t\t    cmd == CMD_SUSFS_SET_PRIORITY_UID_FILTER) {\n\t\t\tif (!uid_eq(current_uid(), GLOBAL_ROOT_UID))\n\t\t\t\treturn -EPERM;\n\t\t\treturn susfs_set_priority_uid_filter(arg);\n\t\t}\n'
+          fixed_reboot = '#ifdef CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER\n' + old_reboot.replace('return susfs_set_priority_uid_filter(arg);', 'susfs_set_priority_uid_filter(&arg);\n\t\t\treturn 0;') + '#endif\n'
+          if fixed_reboot not in reboot:
+              require(reboot.count(old_reboot) == 1, 'Priority reboot caller anchor changed')
+              reboot = reboot.replace(old_reboot, fixed_reboot, 1)
+          require('return susfs_set_priority_uid_filter(arg);' not in reboot, 'Old priority reboot call remains')
+          for path, text in {'fs/susfs.c': c, 'include/linux/susfs.h': h, 'include/linux/susfs_def.h': d, 'fs/Makefile': mk, 'fs/susfs_ksu_glue.c': glue, 'kernel/reboot.c': reboot}.items():
               Path(path).write_text('\n'.join(line.rstrip(' \t') for line in text.splitlines()).rstrip('\n') + '\n')
           Path('fs/susfs_priority.c').unlink(missing_ok=True)
           Path('.susfs-port').mkdir(exist_ok=True)
@@ -143,6 +150,7 @@ jobs:
               '- Jack priority implementation, headers and feature-reporting blocks retained.\n'
               '- Old standalone priority implementation removed from source and Kbuild.\n'
               '- Priority and sus-path UID filter commands dispatched by parent-kernel glue.\n'
+              '- Reboot priority caller uses Jack double-pointer API, a separate return 0 and a feature guard.\n'
               '- Existing KernelSU-Next credential, kernel_read and disabled-log adaptations retained.\n'
               '- Logging configuration unchanged. No defconfig changes.\n'
               '- This migration does not complete the remaining stat/super/sys hook audit.\n'
@@ -157,7 +165,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git checkout -B "$TARGET_BRANCH"
-          git add -A -- fs/susfs.c fs/susfs_priority.c fs/susfs_ksu_glue.c fs/Makefile include/linux/susfs.h include/linux/susfs_def.h .susfs-port/PORT_NOTES.md
+          git add -A -- fs/susfs.c fs/susfs_priority.c fs/susfs_ksu_glue.c fs/Makefile include/linux/susfs.h include/linux/susfs_def.h kernel/reboot.c .susfs-port/PORT_NOTES.md
           git diff --cached --check
           {
             echo "Review branch: $TARGET_BRANCH"
