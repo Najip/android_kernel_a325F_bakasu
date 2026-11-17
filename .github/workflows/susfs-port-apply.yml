@@ -144,34 +144,36 @@ jobs:
           notes.append('- fs/susfs.c: removed %d CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER block(s); fs/susfs_priority.c stays the implementation.' % n)
 
           pat = re.compile(r'/\*\n \* Switches the selinux domain.*?static void susfs_restore_creds\(struct cred \*orig_cred\) \{.*?\n\}\n', re.S)
-          repl = '''/*
- * Overrides the credentials of the current task with the KernelSU ones, so that the
- * data paths of the apps can be accessed despite of the selinux restrictions.
- * Same method as fs/susfs_priority.c (override_creds(ksu_cred)); it does not need
- * setup_selinux() and does not commit new credentials to the calling task.
- * Returns the saved credentials on success, NULL on failure.
- */
- static const struct cred *susfs_switch_to_ksu_domain(void) {
- \tstruct cred *cred = READ_ONCE(ksu_cred);
- \tconst struct cred *saved;
-
- \tif (!cred)
- \t\treturn NULL;
- \tsaved = override_creds(cred);
- \tif (!susfs_is_current_ksu_domain()) {
- \t\trevert_creds(saved);
- \t\treturn NULL;
- \t}
- \treturn saved;
- }
-
- /* Restores the credentials saved by susfs_switch_to_ksu_domain(). */
- static void susfs_restore_creds(const struct cred *saved) {
- \tif (saved)
- \t\trevert_creds(saved);
- }
- '''
-          repl = '\n'.join(l[1:] if l.startswith(' ') else l for l in repl.split('\n'))
+          repl_lines = [
+              '/*',
+              ' * Overrides the credentials of the current task with the KernelSU ones, so that the',
+              ' * data paths of the apps can be accessed despite of the selinux restrictions.',
+              ' * Same method as fs/susfs_priority.c (override_creds(ksu_cred)); it does not need',
+              ' * setup_selinux() and does not commit new credentials to the calling task.',
+              ' * Returns the saved credentials on success, NULL on failure.',
+              ' */',
+              'static const struct cred *susfs_switch_to_ksu_domain(void) {',
+              '\tstruct cred *cred = READ_ONCE(ksu_cred);',
+              '\tconst struct cred *saved;',
+              '',
+              '\tif (!cred)',
+              '\t\treturn NULL;',
+              '\tsaved = override_creds(cred);',
+              '\tif (!susfs_is_current_ksu_domain()) {',
+              '\t\trevert_creds(saved);',
+              '\t\treturn NULL;',
+              '\t}',
+              '\treturn saved;',
+              '}',
+              '',
+              '/* Restores the credentials saved by susfs_switch_to_ksu_domain(). */',
+              'static void susfs_restore_creds(const struct cred *saved) {',
+              '\tif (saved)',
+              '\t\trevert_creds(saved);',
+              '}',
+              '',
+          ]
+          repl = '\n'.join(repl_lines)
           c, n = pat.subn(lambda m: repl, c, count=1)
           if n != 1:
               fail('could not find susfs_switch_to_ksu_domain / susfs_restore_creds in Jack fs/susfs.c')
