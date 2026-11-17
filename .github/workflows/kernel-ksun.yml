@@ -3,11 +3,19 @@ name: A325X Kernel (KernelSU-Next legacy)
 # KernelSU-Next legacy + the in-tree Jack-derived SUSFS, built with the pinned
 # AOSP Clang 14. Run setup-ksun-submodules once before the first build.
 # Untick "nomount" for the kernel without built-in NoMount (pair it with the NoMount LKM ZIP).
+# Tick "self_hosted" (default) to run on the self-hosted runner: apt packages are installed
+# only when missing, and the Clang 14 toolchain and an AnyKernel3 git mirror are cached.
+# Untick it to run on a GitHub-hosted runner.
 # Kernel patches are always applied by build_a325n_ksun.sh (see its header).
 
 on:
   workflow_dispatch:
     inputs:
+      self_hosted:
+        description: 'Run on the self-hosted runner (untick for a GitHub-hosted runner)'
+        required: false
+        type: boolean
+        default: true
       nomount:
         description: 'Build NoMount into the kernel (CONFIG_NOMOUNT=y). Untick for the no-NoMount kernel.'
         required: false
@@ -18,7 +26,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: a325n-kernel-ksun-${{ github.ref }}
+  group: a325n-kernel-ksun-${{ inputs.self_hosted && 'selfhosted' || 'hosted' }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -27,11 +35,12 @@ env:
   ANYKERNEL_REPO: https://github.com/osm0sis/AnyKernel3.git
   ANYKERNEL_COMMIT: af770f7b16cf8f8eb7c68614b2a693b3b361c90c
   NOMOUNT: ${{ inputs.nomount }}
+  SELF_HOSTED: ${{ inputs.self_hosted }}
 
 jobs:
   build:
     name: Build A325X kernel (KernelSU-Next legacy)
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.self_hosted && 'self-hosted' || 'ubuntu-latest' }}
     timeout-minutes: 90
 
     steps:
@@ -65,7 +74,8 @@ jobs:
           test -f KernelSU/kernel/Kconfig
           test -f NonGKI_Kernel_Build_2nd/Patches/Patch/susfs_patch_to_4.14.patch
 
-      - name: Install build dependencies
+      - name: Install build dependencies (GitHub-hosted)
+        if: ${{ !inputs.self_hosted }}
         shell: bash
         run: |
           set -euo pipefail
@@ -74,7 +84,38 @@ jobs:
             bc binutils-aarch64-linux-gnu bison build-essential ca-certificates curl file flex git \
             libelf-dev libssl-dev libncurses-dev jq lz4 pahole python3 unzip xz-utils zip zlib1g-dev zstd
 
+      - name: Check and install Ubuntu self-hosted dependencies
+        if: ${{ inputs.self_hosted }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          fail() { echo "::error::$*" >&2; exit 1; }
+          [[ "${RUNNER_ENVIRONMENT:-}" == self-hosted ]] || fail 'Expected a self-hosted runner.'
+          . /etc/os-release
+          [[ "$ID" == ubuntu ]] || fail 'Automatic dependency setup supports Ubuntu only.'
+          [[ "$(uname -m)" == x86_64 ]] || fail 'The AOSP Clang prebuilt requires x86_64 Linux.'
+          packages=(bc binutils-aarch64-linux-gnu bison build-essential ca-certificates curl file flex git libelf-dev libssl-dev libncurses-dev jq lz4 pahole python3 rsync unzip xz-utils zip zlib1g-dev zstd)
+          missing=()
+          for package in "${packages[@]}"; do
+            status=$(dpkg-query -W -f='${Status}' "$package" 2>/dev/null || true)
+            [[ "$status" == 'install ok installed' ]] || missing+=("$package")
+          done
+          if ((${#missing[@]})); then
+            privilege=()
+            if ((EUID != 0)); then
+              command -v sudo >/dev/null || fail 'Install the missing packages manually or provide non-interactive sudo.'
+              sudo -n true || fail 'Missing packages require non-interactive sudo.'
+              privilege=(sudo -n)
+            fi
+            printf 'Installing missing packages: %s\n' "${missing[*]}"
+            "${privilege[@]}" env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 -o Acquire::Retries=3 update
+            "${privilege[@]}" env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 -o Acquire::Retries=3 install -y --no-install-recommends --no-remove "${missing[@]}"
+          else
+            echo 'All build dependencies are already installed.'
+          fi
+
       - name: Install pinned AOSP Clang 14
+        if: ${{ !inputs.self_hosted }}
         shell: bash
         run: |
           set -euo pipefail
@@ -83,13 +124,65 @@ jobs:
           echo "TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
           echo "$toolchain/bin" >> "$GITHUB_PATH"
 
+      - name: Install pinned AOSP Clang 14 (cached)
+        if: ${{ inputs.self_hosted }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cache="${XDG_CACHE_HOME:-$HOME/.cache}/a325-kernel"
+          mkdir -p "$cache"
+          exec 9>"$cache/.lock"
+          flock 9
+          key=$(sha256sum scripts/fetch_aosp_clang.sh | cut -c1-16)
+          toolchain="$cache/aosp-clang14-$key"
+          if [ -x "$toolchain/bin/clang" ]; then
+            echo "Toolchain cache: HIT ($key)"
+          else
+            echo "Toolchain cache: MISS ($key)"
+            rm -rf "$toolchain.tmp"
+            sh scripts/fetch_aosp_clang.sh "$toolchain.tmp"
+            test -x "$toolchain.tmp/bin/clang"
+            mv "$toolchain.tmp" "$toolchain"
+          fi
+          find "$cache" -maxdepth 1 -name 'aosp-clang14-*' ! -name "aosp-clang14-$key" -exec rm -rf {} +
+          echo "TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
+          echo "$toolchain/bin" >> "$GITHUB_PATH"
+
       - name: Clone pinned upstream AnyKernel3
+        if: ${{ !inputs.self_hosted }}
         shell: bash
         run: |
           set -euo pipefail
           parent="$(mktemp -d "$RUNNER_TEMP/AnyKernel3-A325N.XXXXXX")"
           ak3="$parent/repository"
           git clone --filter=blob:none "$ANYKERNEL_REPO" "$ak3"
+          git -C "$ak3" checkout --detach "$ANYKERNEL_COMMIT"
+          resolved="$(git -C "$ak3" rev-parse HEAD)"
+          if [ "$resolved" != "$ANYKERNEL_COMMIT" ]; then
+            echo "::error::Unexpected AnyKernel3 commit: $resolved"
+            exit 1
+          fi
+          test -s "$GITHUB_WORKSPACE/anykernel/a325n-anykernel.sh"
+          echo "AK3_DIR=$ak3" >> "$GITHUB_ENV"
+          echo "ANYKERNEL_RESOLVED_COMMIT=$resolved" >> "$GITHUB_ENV"
+
+      - name: Clone pinned upstream AnyKernel3 (cached mirror)
+        if: ${{ inputs.self_hosted }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cache="${XDG_CACHE_HOME:-$HOME/.cache}/a325-kernel"
+          mkdir -p "$cache"
+          exec 9>"$cache/.lock"
+          flock 9
+          mirror="$cache/AnyKernel3.git"
+          [ -d "$mirror" ] || git init --bare -q "$mirror"
+          if ! git -C "$mirror" cat-file -e "$ANYKERNEL_COMMIT^{commit}" 2>/dev/null; then
+            git -C "$mirror" fetch -q "$ANYKERNEL_REPO" '+refs/heads/*:refs/heads/*' '+refs/tags/*:refs/tags/*'
+          fi
+          parent="$(mktemp -d "$RUNNER_TEMP/AnyKernel3-A325N.XXXXXX")"
+          ak3="$parent/repository"
+          git clone -q "$mirror" "$ak3"
           git -C "$ak3" checkout --detach "$ANYKERNEL_COMMIT"
           resolved="$(git -C "$ak3" rev-parse HEAD)"
           if [ "$resolved" != "$ANYKERNEL_COMMIT" ]; then
@@ -182,6 +275,8 @@ jobs:
           [ "$NOMOUNT" = true ] || suffix='-no-nomount'
           susfs="$(sed -n 's/^#define SUSFS_VERSION "\([^"]*\)".*/\1/p' include/linux/susfs.h | head -n1 || true)"
           applied="$( { [ -s "$OUT_DIR/applied-patches.txt" ] && paste -sd, "$OUT_DIR/applied-patches.txt"; } || echo none )"
+          toolchain_note='pinned AOSP Clang 14'
+          [ "$SELF_HOSTED" != true ] || toolchain_note='pinned AOSP Clang 14 (self-hosted cache)'
           {
             echo "Kernel commit: $(git rev-parse HEAD)"
             echo "Kernel release: $(cat "$OUT_DIR/include/config/kernel.release")"
@@ -191,7 +286,7 @@ jobs:
             echo "SUSFS (in-tree): ${susfs:-unknown}"
             echo "NoMount built in: $NOMOUNT"
             echo "Kernel patches applied: $applied"
-            echo "Toolchain: pinned AOSP Clang 14"
+            echo "Toolchain: $toolchain_note"
             echo "AnyKernel upstream: $ANYKERNEL_REPO@$ANYKERNEL_RESOLVED_COMMIT"
             echo "Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
           } > "$PACKAGE_DIR/build-info.txt"
@@ -211,3 +306,8 @@ jobs:
             ${{ env.PACKAGE_DIR }}/build-info.txt
           if-no-files-found: error
           retention-days: 14
+
+      - name: Clean build output (self-hosted)
+        if: ${{ always() && inputs.self_hosted }}
+        shell: bash
+        run: rm -rf "$OUT_DIR" "$PACKAGE_DIR"
