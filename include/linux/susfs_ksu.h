@@ -19,6 +19,9 @@ extern struct cred *ksu_cred;
 bool susfs_is_current_ksu_domain(void);
 int ksu_handle_sys_reboot(int magic1, int magic2, unsigned int cmd,
 			  void __user **arg);
+/* Parent-kernel glue (fs/susfs_ksu_glue.c): SUSFS commands, then KernelSU. */
+int susfs_ksu_sys_reboot(int magic1, int magic2, unsigned int cmd,
+			 void __user **arg);
 
 /* Published by BakaSU's supported SUSFS manual SELinux hook mode. */
 extern bool ksu_selinux_hide_running;

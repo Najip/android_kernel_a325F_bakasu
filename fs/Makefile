@@ -22,7 +22,7 @@ else
 obj-y +=	no-block.o
 endif
 
-obj-$(CONFIG_KSU_SUSFS) += susfs.o susfs_priority.o
+obj-$(CONFIG_KSU_SUSFS) += susfs.o susfs_priority.o susfs_ksu_glue.o
 obj-$(CONFIG_KSU) += ksun_compat.o
 obj-$(CONFIG_NOMOUNT) += nomount/
 
