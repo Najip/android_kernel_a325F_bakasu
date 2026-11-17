@@ -1,21 +1,37 @@
 name: KernelSU-Next manager APK (release)
 
 # Stub so GitHub lists this workflow from the default branch.
-# The real workflow lives on ksun-susfs-JackA1ltman: open Actions, pick this
-# workflow, and set "Use workflow from" to that branch.
+# The real workflow lives on ksun-susfs-JackA1ltman.
 
 on:
   workflow_dispatch:
+    inputs:
+      self_hosted:
+        description: 'Use the self-hosted runner (untick for GitHub-hosted)'
+        required: false
+        type: boolean
+        default: true
+      ksun_ref:
+        description: 'KernelSU-Next branch, tag or commit the manager is built from.'
+        required: false
+        type: string
+        default: 'dev'
+      spoofed:
+        description: 'Spoofed build (randomised package ID, like the upstream Spoofed build).'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   stub:
-    name: Use the real workflow
+    name: Select the ksun-susfs-JackA1ltman branch
     runs-on: ubuntu-latest
+    timeout-minutes: 1
     steps:
-      - name: Explain
+      - name: Select the implementation branch
         run: |
-          echo "::error::This is only a stub. Re-run it with 'Use workflow from' = ksun-susfs-JackA1ltman."
+          echo "::error::This is only a stub. Re-run this workflow and select branch 'ksun-susfs-JackA1ltman' under 'Use workflow from'."
           exit 1
