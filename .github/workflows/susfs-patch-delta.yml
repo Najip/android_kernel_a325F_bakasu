@@ -1,0 +1,149 @@
+name: SUSFS patch delta report (Jack 4.14, dry-run)
+
+# Report only: nothing is modified or committed. Dry-runs Jack's susfs_patch_to_4.14.patch
+# file by file against this kernel tree and reports which files are already applied,
+# apply cleanly, conflict, or are missing. Tick "self_hosted" to use the self-hosted runner.
+
+on:
+  workflow_dispatch:
+    inputs:
+      self_hosted:
+        description: 'Run on the self-hosted runner (default: GitHub-hosted runner)'
+        required: false
+        type: boolean
+        default: false
+      kernel_ref:
+        description: 'Kernel branch, tag or commit. Blank = branch you run this from'
+        required: false
+        type: string
+        default: ''
+      jack_ref:
+        description: 'NonGKI_Kernel_Build_2nd branch, tag or commit. Blank = commit pinned by the submodule'
+        required: false
+        type: string
+        default: ''
+      patch_path:
+        description: 'Patch path inside NonGKI_Kernel_Build_2nd'
+        required: false
+        type: string
+        default: 'Patches/Patch/susfs_patch_to_4.14.patch'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: susfs-patch-delta-${{ inputs.self_hosted && 'selfhosted' || 'hosted' }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  report:
+    name: Dry-run Jack's SUSFS patch
+    runs-on: ${{ inputs.self_hosted && 'self-hosted' || 'ubuntu-latest' }}
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout kernel and submodules
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.kernel_ref || github.ref }}
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Select Jack's commit
+        shell: bash
+        env:
+          JACK_REF: ${{ inputs.jack_ref }}
+        run: |
+          set -euo pipefail
+          if [ -n "$JACK_REF" ]; then
+            git -C NonGKI_Kernel_Build_2nd fetch origin "$JACK_REF"
+            git -C NonGKI_Kernel_Build_2nd checkout --detach FETCH_HEAD
+          fi
+          git -C NonGKI_Kernel_Build_2nd log -1 --format='%H %cI %s'
+
+      - name: Dry-run the patch file by file
+        shell: bash
+        env:
+          PATCH_PATH: ${{ inputs.patch_path }}
+        run: |
+          set -euo pipefail
+          command -v patch >/dev/null || { sudo -n apt-get install -y patch; }
+          patch_file="NonGKI_Kernel_Build_2nd/$PATCH_PATH"
+          test -s "$patch_file" || { echo "::error::Patch not found: $patch_file"; exit 1; }
+          mkdir -p report
+          python3 - "$patch_file" <<'PY'
+          import os, re, subprocess, sys
+
+          text = open(sys.argv[1], encoding='utf-8', errors='replace').read()
+          parts = [p for p in re.split(r'(?m)^(?=diff --git )', text) if p.startswith('diff --git ')]
+          rows = []
+          for s in parts:
+              f = re.match(r'diff --git a/(\S+) b/(\S+)', s).group(2)
+              head = s.split('\n@@')[0]
+              is_new = '\nnew file mode' in head
+              hunks = len(re.findall(r'(?m)^@@ ', s))
+              r = subprocess.run(
+                  ['patch', '-p1', '-N', '--dry-run', '--no-backup-if-mismatch', '-r', '/dev/null'],
+                  input=s, text=True, capture_output=True)
+              out = r.stdout + r.stderr
+              failed = len(re.findall(r'Hunk #\d+ FAILED', out))
+              ignored = len(re.findall(r'Hunk #\d+ ignored', out))
+              offset = len(re.findall(r'Hunk #\d+ succeeded at \d+ \(offset', out))
+              if is_new and 'already exists' in out:
+                  status = 'NEW FILE ALREADY EXISTS'
+              elif "can't find file" in out or 'No such file' in out:
+                  status = 'MISSING FILE'
+              elif failed:
+                  status = 'CONFLICT'
+              elif hunks and ignored >= hunks:
+                  status = 'ALREADY APPLIED'
+              elif ignored:
+                  status = 'PARTLY APPLIED'
+              elif r.returncode == 0:
+                  status = 'CLEAN (offset)' if offset else 'CLEAN'
+              else:
+                  status = 'CHECK LOG'
+              rows.append((f, hunks, failed, ignored, offset, status))
+              name = f.replace('/', '__')
+              open(f'report/{name}.log', 'w').write(out)
+
+          with open('report/summary.md', 'w') as m:
+              m.write('| File | Hunks | Failed | Already applied | Offset | Status |\n|---|---|---|---|---|---|\n')
+              for f, h, fl, ig, off, st in rows:
+                  m.write(f'| `{f}` | {h} | {fl} | {ig} | {off} | {st} |\n')
+              counts = {}
+              for row in rows:
+                  counts[row[5]] = counts.get(row[5], 0) + 1
+              m.write('\n' + ', '.join(f'{k}: {v}' for k, v in sorted(counts.items())) + '\n')
+          PY
+
+      - name: Version and commit info
+        shell: bash
+        env:
+          PATCH_PATH: ${{ inputs.patch_path }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## SUSFS patch delta"
+            echo
+            echo "- Kernel commit: $(git rev-parse HEAD)"
+            echo "- Jack commit: $(git -C NonGKI_Kernel_Build_2nd rev-parse HEAD)"
+            echo "- Patch: $PATCH_PATH"
+            echo "- In-tree SUSFS_VERSION: $(sed -n 's/.*define SUSFS_VERSION \"\(.*\)\".*/\1/p' include/linux/susfs.h | head -n1)"
+            echo "- Patch SUSFS_VERSION: $(grep -m1 -o 'SUSFS_VERSION \"[^\"]*\"' \"NonGKI_Kernel_Build_2nd/$PATCH_PATH\" || echo 'not touched by this patch')"
+            echo
+            cat report/summary.md
+          } | tee -a "$GITHUB_STEP_SUMMARY" > report/header.md
+
+      - name: Upload report
+        uses: actions/upload-artifact@v7
+        with:
+          name: susfs-patch-delta
+          path: report/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Clean report (self-hosted)
+        if: ${{ always() && inputs.self_hosted }}
+        shell: bash
+        run: rm -rf report
