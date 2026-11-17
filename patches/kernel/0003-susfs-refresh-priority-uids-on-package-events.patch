@@ -1,0 +1,25 @@
+diff --git a/KernelSU/kernel/manager/pkg_observer.c b/KernelSU/kernel/manager/pkg_observer.c
+--- a/KernelSU/kernel/manager/pkg_observer.c
++++ b/KernelSU/kernel/manager/pkg_observer.c
+@@ -12,6 +12,10 @@
+ #include "throne_tracker.h"
+ #include "runtime/ksud_boot.h"
+ #include "compat/kernel_compat.h" // TWA_RESUME on < 5.7
++
++#ifdef CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER
++#include <linux/susfs.h>
++#endif
+ 
+ #define MASK_SYSTEM (FS_CREATE | FS_MOVE | FS_EVENT_ON_CHILD)
+ #define MASK_ADB (FS_CLOSE_WRITE | FS_MOVE | FS_DELETE | FS_EVENT_ON_CHILD)
+@@ -42,6 +46,10 @@
+ 	if (current->flags & PF_EXITING)
+ 		return;
+ 	track_throne(false);
++#ifdef CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER
++	/* Refresh configured package UIDs outside the fsnotify callback. */
++	susfs_parse_priority_app_strings();
++#endif
+ }
+ 
+ static void ksu_defer_track_throne(void)
