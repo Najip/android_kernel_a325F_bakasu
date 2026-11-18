@@ -66,14 +66,36 @@ cat "$OUT/clang-version.txt" "$OUT/lld-version.txt" >> "$OUT/toolchain-source.tx
 sh "$ROOT/scripts/prepare_bakasu.sh" --check > "$OUT/bakasu-source.txt"
 cat "$OUT/bakasu-source.txt"
 
+# Link Time Optimization: LTO=thin (default), full or none.
+LTO=${LTO:-thin}
+mkdir -p "$OUT"
+case "$LTO" in
+  thin) printf '%s\n' '# CONFIG_LTO_NONE is not set' CONFIG_LTO_CLANG=y CONFIG_THINLTO=y ;;
+  full) printf '%s\n' '# CONFIG_LTO_NONE is not set' CONFIG_LTO_CLANG=y '# CONFIG_THINLTO is not set' ;;
+  none) printf '%s\n' CONFIG_LTO_NONE=y '# CONFIG_LTO_CLANG is not set' ;;
+  *) echo "LTO must be thin, full or none (got: $LTO)" >&2; exit 1 ;;
+esac > "$OUT/lto.config"
 "$ROOT/scripts/kconfig/merge_config.sh" -m -O "$OUT" \
   "$ROOT/arch/arm64/configs/mt6768_slm_defconfig" \
   "$ROOT/arch/arm64/configs/a32.config" \
   "$ROOT/arch/arm64/configs/battery.config" \
   "$ROOT/arch/arm64/configs/ksu-a325n-common.config" \
-  "$ROOT/arch/arm64/configs/a325n-release.config"
+  "$ROOT/arch/arm64/configs/a325n-release.config" \
+  "$OUT/lto.config"
 
 make -C "$ROOT" O="$OUT" olddefconfig
+case "$LTO" in
+  thin) grep -qx CONFIG_LTO_CLANG=y "$OUT/.config" && grep -qx CONFIG_THINLTO=y "$OUT/.config" ;;
+  full) grep -qx CONFIG_LTO_CLANG=y "$OUT/.config" && ! grep -qx CONFIG_THINLTO=y "$OUT/.config" ;;
+  none) ! grep -qx CONFIG_LTO_CLANG=y "$OUT/.config" ;;
+esac || { echo "LTO=$LTO could not be enabled in .config" >&2; exit 1; }
+echo "LTO mode: $LTO"
+# Keep the ThinLTO cache between builds when THINLTO_CACHE is set (own PC runner).
+if [ "$LTO" = thin ] && [ -n "${THINLTO_CACHE:-}" ]; then
+  mkdir -p "$THINLTO_CACHE"
+  rm -rf "$OUT/.thinlto-cache"
+  ln -s "$THINLTO_CACHE" "$OUT/.thinlto-cache"
+fi
 # The embedded preinit runner uses these target headers. Install them before
 # Kbuild evaluates its code generators, including on a fresh output directory.
 make -C "$ROOT" O="$OUT" headers_install INSTALL_HDR_PATH="$OUT/usr"
