@@ -1,4 +1,4 @@
-name: SUSFS port - isolated xxKSU review branch (Jack 4.14)
+name: SUSFS port - isolated xxKSU manual-hook review
 on:
   workflow_dispatch:
     inputs:
@@ -6,10 +6,6 @@ on:
         description: Run on the self-hosted runner
         type: boolean
         default: false
-      kernel_ref:
-        description: 'Base kernel ref for the isolated migration'
-        type: string
-        default: xxksu-sufs-jack
       target_branch:
         description: 'NEW review branch only; existing targets are refused'
         type: string
@@ -23,146 +19,61 @@ jobs:
   apply:
     if: github.ref == 'refs/heads/xxksu-sufs-jack'
     runs-on: ${{ inputs.self_hosted && 'self-hosted' || 'ubuntu-latest' }}
-    timeout-minutes: 20
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
     steps:
-      - uses: actions/checkout@v7
+      - name: Checkout boot-tested source branch
+        uses: actions/checkout@v7
         with:
-          ref: ${{ inputs.kernel_ref }}
           fetch-depth: 0
           submodules: recursive
-      - name: Validate isolated target and pinned sources
-        shell: bash
+      - name: Validate new isolated target and locked sources
         env:
           TARGET_BRANCH: ${{ inputs.target_branch }}
         run: |
           set -euo pipefail
           case "$TARGET_BRANCH" in
             xxksu-manual-susfs-port|xxksu-manual-susfs-port-*) ;;
-            *) echo '::error::Target must use the isolated xxksu-manual-susfs-port namespace'; exit 1 ;;
+            *) echo '::error::Refusing target outside isolated manual-port namespace'; exit 1 ;;
           esac
           git check-ref-format --branch "$TARGET_BRANCH"
           refs=$(git ls-remote --heads origin "refs/heads/$TARGET_BRANCH")
           test -z "$refs" || { echo '::error::Target already exists; no overwrite allowed'; exit 1; }
           test "$(git -C KernelSU rev-parse HEAD)" = 1b8ce9e15a9402aa2192aed5d381366cf2150f0f
           test "$(git -C NonGKI_Kernel_Build_2nd rev-parse HEAD)" = bbe032eb06c50d24a9207bf2ece5e25cf2460bd0
-          git diff --quiet
-          git diff --cached --quiet
-      - name: Generate existing Jack priority migration (not full manual-hook port)
-        shell: bash
+          python3 -c "import ast; ast.parse(open('scripts/port_xxksu_manual.py').read())"
+      - name: Generate direct manual-hook review port
+        env:
+          TARGET_BRANCH: ${{ inputs.target_branch }}
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          import re
-          from pathlib import Path
-          def require(ok, message):
-              if not ok:
-                  raise SystemExit(message)
-          patch = Path('NonGKI_Kernel_Build_2nd/Patches/Patch/susfs_patch_to_4.14.patch').read_text()
-          new = {}
-          for section in re.split(r'(?m)^(?=diff --git )', patch):
-              if not section.startswith('diff --git '):
-                  continue
-              path = re.match(r'diff --git a/(\S+) b/(\S+)', section).group(2)
-              if '\nnew file mode' not in section.split('\n@@')[0]:
-                  continue
-              lines, started = [], False
-              for line in section.splitlines():
-                  if line.startswith('@@'):
-                      started = True
-                  elif started and line.startswith('+'):
-                      lines.append(line[1:])
-              new[path] = '\n'.join(lines) + '\n'
-          for path in ('fs/susfs.c', 'include/linux/susfs.h', 'include/linux/susfs_def.h'):
-              require(path in new, 'Patch does not create ' + path)
-          c, h, d = (new[p] for p in ('fs/susfs.c', 'include/linux/susfs.h', 'include/linux/susfs_def.h'))
-          require('void susfs_set_priority_uid_filter(void __user **' in c, 'Expected Jack double-pointer priority command handler')
-          require('susfs_is_priority_uid_filtered' in c and 'CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER' in c, 'Jack priority implementation missing')
-          require('PRIORITY_UID_FILTER' in h and 'CMD_SUSFS_SET_PRIORITY_UID_FILTER' in d, 'Jack priority declarations missing')
-          pattern = re.compile(r'/\*\n \* Switches the selinux domain.*?static void susfs_restore_creds\(struct cred \*orig_cred\) \{.*?\n\}\n', re.S)
-          replacement = """/* Preserve the parent-kernel credential adaptation. */
-          static const struct cred *susfs_switch_to_ksu_domain(void) {
-              struct cred *cred = READ_ONCE(ksu_cred);
-              const struct cred *saved;
-              if (!cred)
-                  return NULL;
-              saved = override_creds(cred);
-              if (!susfs_is_current_ksu_domain()) {
-                  revert_creds(saved);
-                  return NULL;
-              }
-              return saved;
-          }
-          static void susfs_restore_creds(const struct cred *saved) {
-              if (saved)
-                  revert_creds(saved);
-          }
-          """
-          c, count = pattern.subn(lambda m: replacement, c, count=1)
-          require(count == 1, 'Credential helper anchor changed')
-          c, count = re.subn(r'(?<!const )struct cred \*orig_cred = NULL;', 'const struct cred *orig_cred = NULL;', c)
-          require(count >= 1, 'Credential declaration anchor changed')
-          log_pattern = re.compile(r'(#else\s*\n#define SUSFS_LOGI\(fmt, \.\.\.\)[ \t]*\n#define SUSFS_LOGE\(fmt, \.\.\.\)[ \t]*\n)(#endif)')
-          c, count = log_pattern.subn(lambda m: m[1] + '#define SUSFS_LOGI_RL(fmt, ...)\n#define SUSFS_LOGE_RL(fmt, ...)\n' + m[2], c, count=1)
-          require(count == 1, 'Disabled-log fallback anchor changed')
-          if 'susfs_get_data_path' not in c:
-              c += '\nint susfs_get_data_path(struct path *path) {\n\treturn kern_path("/data", LOOKUP_FOLLOW, path);\n}\n'
-          anchor = '#include <linux/statfs.h>\n'
-          require(h.count(anchor) == 1, 'Header anchor changed')
-          h = h.replace(anchor, anchor + '\n#ifndef getname_safe\n#define getname_safe(name) (name == NULL ? ERR_PTR(-EINVAL) : getname(name))\n#endif\n#ifndef putname_safe\n#define putname_safe(name) (IS_ERR(name) ? NULL : putname(name))\n#endif\n', 1)
-          mk = Path('fs/Makefile').read_text()
-          obj_pattern = re.compile(r'^obj-\$\(CONFIG_KSU_SUSFS\)\s*\+=.*$', re.M)
-          require(len(obj_pattern.findall(mk)) == 1, 'Expected one SUSFS object line')
-          mk = obj_pattern.sub('obj-$(CONFIG_KSU_SUSFS) += susfs.o susfs_ksu_glue.o', mk)
-          if 'SUSFS_KERNEL_READ_NEW' not in mk:
-              obj = 'obj-$(CONFIG_KSU_SUSFS) += susfs.o susfs_ksu_glue.o\n'
-              mk = mk.replace(obj, obj + 'ifeq ($(shell grep -q "ssize_t kernel_read" $(srctree)/fs/read_write.c $(srctree)/fs/exec.c 2>/dev/null; echo $$?),0)\nCFLAGS_susfs.o += -DSUSFS_KERNEL_READ_NEW\nendif\n', 1)
-          glue = Path('fs/susfs_ksu_glue.c').read_text()
-          anchor = '    switch (cmd) {\n'
-          require(glue.count(anchor) == 1, 'Glue switch anchor changed')
-          if 'case CMD_SUSFS_SET_PRIORITY_UID_FILTER:' not in glue:
-              glue = glue.replace(anchor, anchor + '#ifdef CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER\n    case CMD_SUSFS_SET_PRIORITY_UID_FILTER: susfs_set_priority_uid_filter(arg); break;\n#endif\n', 1)
-          if 'case CMD_SUSFS_SET_SUS_PATH_UID_FILTER:' not in glue:
-              anchor = '    case CMD_SUSFS_ADD_SUS_PATH_LOOP: susfs_add_sus_path_loop(arg); break;\n'
-              require(glue.count(anchor) == 1, 'Sus-path dispatch anchor changed')
-              glue = glue.replace(anchor, anchor + '    case CMD_SUSFS_SET_SUS_PATH_UID_FILTER: susfs_set_sus_path_uid_filter(arg); break;\n', 1)
-          reboot = Path('kernel/reboot.c').read_text()
-          old_reboot = '\t\tif ((u32)magic2 == SUSFS_MAGIC &&\n\t\t    cmd == CMD_SUSFS_SET_PRIORITY_UID_FILTER) {\n\t\t\tif (!uid_eq(current_uid(), GLOBAL_ROOT_UID))\n\t\t\t\treturn -EPERM;\n\t\t\treturn susfs_set_priority_uid_filter(arg);\n\t\t}\n'
-          fixed_reboot = '#ifdef CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER\n' + old_reboot.replace('return susfs_set_priority_uid_filter(arg);', 'susfs_set_priority_uid_filter(&arg);\n\t\t\treturn 0;') + '#endif\n'
-          if fixed_reboot not in reboot:
-              require(reboot.count(old_reboot) == 1, 'Priority reboot caller anchor changed')
-              reboot = reboot.replace(old_reboot, fixed_reboot, 1)
-          require('return susfs_set_priority_uid_filter(arg);' not in reboot, 'Old priority reboot call remains')
-          for path, text in {'fs/susfs.c': c, 'include/linux/susfs.h': h, 'include/linux/susfs_def.h': d, 'fs/Makefile': mk, 'fs/susfs_ksu_glue.c': glue, 'kernel/reboot.c': reboot}.items():
-              Path(path).write_text('\n'.join(line.rstrip(' \t') for line in text.splitlines()).rstrip('\n') + '\n')
-          Path('fs/susfs_priority.c').unlink(missing_ok=True)
-          Path('.susfs-port').mkdir(exist_ok=True)
-          Path('.susfs-port/PORT_NOTES.md').write_text(
-              '# Isolated xxKSU SUSFS migration stage\n\n'
-              '- Imports Jack core/header priority implementation using the existing port generator.\n'
-              '- Replaces the standalone priority implementation and wires parent dispatch.\n'
-              '- Does NOT implement the full source-level manual-hook conversion.\n'
-              '- Does NOT modify hook-mode configuration, builder checks, or locked xxKSU patch series.\n'
-              '- Review compatibility with that patch series before attempting a build.\n'
-              '- Generated changes are uncompiled and unboot-tested; not a device-ready kernel.\n')
-          PY
-      - name: Commit NEW isolated review branch
-        shell: bash
+          python3 scripts/port_xxksu_manual.py 2>&1 | tee "$RUNNER_TEMP/xxksu-manual-port.log"
+      - name: Commit only to a NEW review branch
         env:
           TARGET_BRANCH: ${{ inputs.target_branch }}
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          base=$(git rev-parse HEAD)
           git checkout -b "$TARGET_BRANCH"
-          git add -A -- fs/susfs.c fs/susfs_priority.c fs/susfs_ksu_glue.c fs/Makefile include/linux/susfs.h include/linux/susfs_def.h kernel/reboot.c .susfs-port/PORT_NOTES.md
+          git add -A -- fs drivers/input/input.c security/security.c include/linux/xxksu_parent_bridge.h include/linux/xxksu_manual_hooks.h Kconfig arch/arm64/configs/ksu-a325n-common.config patches/xxksu/source-lock.json scripts/prepare_xxksu.py build_xxksu.sh package_xxksu.sh .github/workflows/kernel.yml .susfs-port/PORT_NOTES.md
           git diff --cached --check
           {
-            echo "Review branch: $TARGET_BRANCH"
-            echo "Base: $base"
-            echo "Jack: $(git -C NonGKI_Kernel_Build_2nd rev-parse HEAD)"
+            echo "Isolated manual-hook review target: $TARGET_BRANCH"
             git diff --cached --stat
             cat .susfs-port/PORT_NOTES.md
           } | tee -a "$GITHUB_STEP_SUMMARY"
-          git commit -m 'SUSFS: stage isolated xxKSU Jack priority migration for manual-port review'
+          git commit -m 'xxKSU: stage direct manual hooks on isolated review branch'
           git push --force-with-lease="refs/heads/$TARGET_BRANCH:" origin "HEAD:refs/heads/$TARGET_BRANCH"
+      - name: Retain generation diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: xxksu-manual-port-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/xxksu-manual-port.log
+            .susfs-port/PORT_NOTES.md
+          if-no-files-found: warn
+          retention-days: 14
