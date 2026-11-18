@@ -15,6 +15,12 @@ on:
       - 'KernelSU'
       - 'NonGKI_Kernel_Build_2nd'
   workflow_dispatch:
+    inputs:
+      self_hosted:
+        description: 'Run on the self-hosted runner (untick for a GitHub-hosted runner)'
+        required: false
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -23,11 +29,14 @@ concurrency:
   group: xxksu-compile-${{ github.ref }}
   cancel-in-progress: false
 
+env:
+  SELF_HOSTED: ${{ github.event_name == 'workflow_dispatch' && inputs.self_hosted }}
+
 jobs:
   build:
     name: xxKSU guarded compile and link
     if: github.ref == 'refs/heads/xxksu-sufs-jack'
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'workflow_dispatch' && inputs.self_hosted && 'self-hosted' || 'ubuntu-latest' }}
     timeout-minutes: 120
     permissions:
       contents: write
@@ -45,17 +54,63 @@ jobs:
       - name: Initialize external build paths
         run: |
           set -euo pipefail
-          echo "OUT_DIR=$RUNNER_TEMP/out-xxksu" >> "$GITHUB_ENV"
+          echo "OUT_DIR=$(mktemp -d "$RUNNER_TEMP/out-xxksu.XXXXXX")" >> "$GITHUB_ENV"
           echo "TOOLCHAIN=$RUNNER_TEMP/aosp-clang14" >> "$GITHUB_ENV"
           echo "BUILD_LOG=$RUNNER_TEMP/xxksu-build.log" >> "$GITHUB_ENV"
           df -h "$GITHUB_WORKSPACE" "$RUNNER_TEMP"
 
-      - name: Install dependencies
+      - name: Install dependencies (KSUN-style self-hosted checks)
         id: dependencies
         run: |
           set -euo pipefail
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends bc binutils-aarch64-linux-gnu bison build-essential ca-certificates curl file flex git libelf-dev libssl-dev libncurses-dev jq lz4 pahole python3 unzip xz-utils zip zlib1g-dev zstd
+          packages=(bc binutils-aarch64-linux-gnu bison build-essential ca-certificates curl file flex git libelf-dev libssl-dev libncurses-dev jq lz4 pahole python3 unzip xz-utils zip zlib1g-dev zstd util-linux)
+          if [[ "$SELF_HOSTED" != true ]]; then
+            sudo apt-get update
+            sudo apt-get install -y --no-install-recommends "${packages[@]}"
+            exit 0
+          fi
+          fail() { echo "::error::$*" >&2; exit 1; }
+          [[ "${RUNNER_ENVIRONMENT:-}" == self-hosted ]] || fail 'Expected a self-hosted runner.'
+          . /etc/os-release
+          [[ "$ID" == ubuntu ]] || fail 'Automatic dependency setup supports Ubuntu only.'
+          [[ "$(uname -m)" == x86_64 ]] || fail 'The AOSP Clang prebuilt requires x86_64 Linux.'
+          missing=()
+          for package in "${packages[@]}"; do
+            status=$(dpkg-query -W -f='${Status}' "$package" 2>/dev/null || true)
+            [[ "$status" == 'install ok installed' ]] || missing+=("$package")
+          done
+          if ((${#missing[@]})); then
+            privilege=()
+            if ((EUID != 0)); then
+              command -v sudo >/dev/null || fail 'Install the missing packages manually or provide non-interactive sudo.'
+              sudo -n true || fail 'Missing packages require non-interactive sudo.'
+              privilege=(sudo -n)
+            fi
+            printf 'Installing missing packages: %s\n' "${missing[*]}"
+            "${privilege[@]}" env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 -o Acquire::Retries=3 update
+            "${privilege[@]}" env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 -o Acquire::Retries=3 install -y --no-install-recommends --no-remove "${missing[@]}"
+          else
+            echo 'All build dependencies are already installed.'
+          fi
+
+      - name: Install pinned AOSP Clang 14 (self-hosted cache)
+        if: env.SELF_HOSTED == 'true'
+        run: |
+          set -euo pipefail
+          cache="${XDG_CACHE_HOME:-$HOME/.cache}/a325-kernel/xxksu"
+          mkdir -p "$cache"
+          exec 9>"$cache/.lock"
+          flock 9
+          key=$(sha256sum scripts/fetch_aosp_clang.sh scripts/aosp_clang14.conf | sha256sum | cut -c1-16)
+          toolchain="$cache/aosp-clang14-$key"
+          if [ -x "$toolchain/bin/clang" ]; then
+            echo "Toolchain cache: HIT ($key)"
+          else
+            echo "Toolchain cache: MISS ($key)"
+          fi
+          AOSP_CLANG_CACHE="$cache/archives" sh scripts/fetch_aosp_clang.sh "$toolchain"
+          echo "TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
+          echo "$toolchain/bin" >> "$GITHUB_PATH"
 
       - name: Check script syntax
         id: syntax
@@ -151,4 +206,11 @@ jobs:
           if ! git diff --cached --quiet; then
             git commit -m "audit: xxKSU compile $GITHUB_RUN_ID attempt $GITHUB_RUN_ATTEMPT [skip ci]"
             git push origin HEAD:refs/heads/xxksu-sufs-jack
+          fi
+
+      - name: Clean build output (self-hosted)
+        if: always() && env.SELF_HOSTED == 'true'
+        run: |
+          if [[ -n "${OUT_DIR:-}" && "$OUT_DIR" == "$RUNNER_TEMP"/out-xxksu.* ]]; then
+            rm -rf -- "$OUT_DIR"
           fi
