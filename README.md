@@ -49,6 +49,13 @@ What the build does (`build_xxksu.sh`, then `package_xxksu.sh`):
 To build on your own Linux PC: `git clone` this repository, then run `sh build_xxksu.sh` and
 `OUT_DIR=$PWD/out-xxksu PACKAGE_DIR=$PWD/package RUNNER_TEMP=/tmp TOOLCHAIN=$PWD/.toolchains/clang-r450784d sh package_xxksu.sh`.
 
+## NoMount LKM
+
+This kernel has no built-in NoMount. To use NoMount, build the module for this branch:
+Actions -> **NoMount LKM** -> **Run workflow** -> branch `xxksu`. Leave `self_hosted` unticked
+to use a GitHub runner; `nomount_ref` picks the upstream NoMount version (default `dev`).
+Download the `nomount-lkm-...` artifact, unzip it once and flash the `NoMount-...zip` in your root manager.
+
 ## Updating xxKSU and SUSFS
 
 The **Update sources** workflow runs every day at 08:23 WIB (started from the `common` branch).
@@ -82,6 +89,7 @@ The updater never applies risky changes silently:
 | `build_xxksu.sh`, `package_xxksu.sh` | Build and package scripts |
 | `.github/workflows/kernel.yml` | Build workflow |
 | `.github/workflows/update.yml` | Updater workflow |
+| `.github/workflows/nomount-lkm.yml` | NoMount module (LKM) workflow |
 
 The kernel config is `mt6768_slm_defconfig` + `a32.config` + `battery.config` +
 `ksu-a325n-common.config` + `a325n-release.config`. Some files keep the `a325n` name from the original

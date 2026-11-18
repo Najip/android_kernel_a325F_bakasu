@@ -2,6 +2,7 @@
 """Apply the device patches in patches/kernel/ to the kernel tree.
 
   0001 network fix ............ always
+  other patches/kernel files .. always (branch-specific fixes)
   0002 optional tuning ........ only when PERF_TUNING=true
   0003 original GPU voltages .. always, applied last
 
@@ -58,7 +59,10 @@ def main():
         raise ValueError('PERF_TUNING must be true or false')
     tuning = flag == 'true'
     selected, records = [], []
-    for name, kind in PATCHES:
+    known = {name for name, _ in PATCHES}
+    extras = [(path.name, 'required') for path in sorted((ROOT / 'patches/kernel').glob('*.patch'))
+              if path.name not in known]
+    for name, kind in PATCHES[:1] + extras + PATCHES[1:]:
         if kind == 'tuning' and not tuning:
             continue
         data = (ROOT / 'patches/kernel' / name).read_bytes()

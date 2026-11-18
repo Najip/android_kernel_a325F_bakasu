@@ -11,6 +11,12 @@ run-name: Check for KernelSU / SUSFS updates (${{ github.ref_name }})
 # Flash the test ZIP; if it works, press "Merge" on the pull request.
 on:
   workflow_dispatch:
+    inputs:
+      self_hosted:
+        description: 'Run on your own PC runner, and build the test kernel there too (untick to use GitHub runners)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -26,7 +32,7 @@ env:
 
 jobs:
   update:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.self_hosted && 'self-hosted' || 'ubuntu-latest' }}
     timeout-minutes: 20
     defaults:
       run:
@@ -69,7 +75,7 @@ jobs:
             gh pr create --repo "$GITHUB_REPOSITORY" --base "$BASE" --head "$UPDATE_BRANCH" \
               --title "$title" --body-file "$RUNNER_TEMP/update.md"
           fi
-          gh workflow run kernel.yml --repo "$GITHUB_REPOSITORY" --ref "$UPDATE_BRANCH" -f self_hosted=false
+          gh workflow run kernel.yml --repo "$GITHUB_REPOSITORY" --ref "$UPDATE_BRANCH" -f self_hosted="${{ inputs.self_hosted == true }}"
 
       - name: Report a blocked update
         if: steps.check.outputs.exit_code != '0'
