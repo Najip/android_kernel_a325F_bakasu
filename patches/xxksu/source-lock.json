@@ -1,0 +1,8 @@
+{
+  "sources": {
+    "KernelSU": "1b8ce9e15a9402aa2192aed5d381366cf2150f0f",
+    "NonGKI_Kernel_Build_2nd": "bbe032eb06c50d24a9207bf2ece5e25cf2460bd0"
+  },
+  "patches": [],
+  "status": "incomplete: adapter patches not yet supplied; runner must refuse to apply"
+}
