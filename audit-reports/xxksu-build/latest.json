@@ -1,11 +1,11 @@
 {
   "status": "NOT_PASS",
-  "compile_outcome": "failure",
-  "exit_code": "2",
-  "log_exit_code": "0",
+  "compile_outcome": "cancelled",
+  "exit_code": "",
+  "log_exit_code": "",
   "dependencies_outcome": "success",
   "syntax_outcome": "success",
-  "source_commit": "4e42f48a0f6c8809b7fd91a86a51dc092adceff6",
+  "source_commit": "166585266482ac7fd1b5d39e27a4c663944aeb56",
   "source_lock": {
     "sources": {
       "KernelSU": "1b8ce9e15a9402aa2192aed5d381366cf2150f0f",
@@ -45,14 +45,12 @@
     ],
     "status": "Sequential application and reversal validated in Actions run 44254995433 (attempt 1); prebuild helper and compile/link not yet validated."
   },
-  "run_id": "44263322677",
+  "run_id": "44273423755",
   "attempt": "1",
-  "run_url": "https://github.com/Najip/android_kernel_a325F_bakasu/actions/runs/44263322677",
+  "run_url": "https://github.com/Najip/android_kernel_a325F_bakasu/actions/runs/44273423755",
   "scope": "Guarded patch preparation and compile/link checks only. Warnings require review. No boot, root, SUSFS-runtime, LKM, APK, packaging or release validation.",
-  "warning_line_count": 357,
+  "warning_line_count": 0,
   "log_parts": [
-    "audit-reports/xxksu-build/44263322677-1/build.part-0001.txt",
-    "audit-reports/xxksu-build/44263322677-1/build.part-0002.txt",
-    "audit-reports/xxksu-build/44263322677-1/build.part-0003.txt"
+    "audit-reports/xxksu-build/44273423755-1/build.part-0001.txt"
   ]
 }
