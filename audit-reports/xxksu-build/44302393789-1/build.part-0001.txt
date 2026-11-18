@@ -1,0 +1,31 @@
+{
+  "source_branch": "nomount-lkm-sync-up-patch",
+  "source_commit": "53fe38b470a927e590b89eace39b7a71e4b90ea1",
+  "network_fixes": true,
+  "perf_tuning": false,
+  "original_gpu_voltages_restored_last": true,
+  "sequential_preflight": "PASS",
+  "reverse_restoration": "PASS",
+  "patches": [
+    {
+      "name": "0003-net-udp-gso-qdisc-juan.patch",
+      "kind": "network",
+      "source_git_blob": "7caa413200b57fdd865ef663e1095caa1241b494",
+      "source_sha256": "fd7eda4e97f635a670cf49ea9b17fc81c6fd58d2715aeb6c383101f82e629254",
+      "applied_sha256": "fd7eda4e97f635a670cf49ea9b17fc81c6fd58d2715aeb6c383101f82e629254",
+      "gpu_preimage_adapted": false
+    },
+    {
+      "name": "0006-restore-original-gpu-voltages.patch",
+      "kind": "restore",
+      "source_git_blob": "486a70ed37093833a0d533cc46bf69a672964015",
+      "source_sha256": "486c8aca9a27f7fa746c378463bdca4585ece599da5470c30289de2ec077936f",
+      "applied_sha256": "486c8aca9a27f7fa746c378463bdca4585ece599da5470c30289de2ec077936f",
+      "gpu_preimage_adapted": false
+    }
+  ]
+}
+
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0100  1.94M   0  1.94M   0      0  1.94M      0           00:01          1.94M100  7.07M   0  7.07M   0      0  2.92M      0           00:02          2.92M100 11.62M   0 11.62M   0      0  3.39M      0           00:03          3.39M100 15.11M   0 15.11M   0      0  3.41M      0           00:04          3.41M100 20.17M   0 20.17M   0      0  3.72M      0           00:05          3.72M100 25.42M   0 25.42M   0      0  3.95M      0           00:06          4.32M100 30.78M   0 30.78M   0      0  4.14M      0           00:07          4.73M100 35.47M   0 35.47M   0      0  4.20M      0           00:08          4.76M
