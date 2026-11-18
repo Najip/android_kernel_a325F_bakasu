@@ -1,0 +1,58 @@
+diff --git a/fs/namei.c b/fs/namei.c
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -1663,15 +1689,54 @@ static struct dentry *__lookup_hash(const struct qstr *name,
+ 		struct dentry *base, unsigned int flags)
+ {
+ 	struct dentry *dentry = lookup_dcache(name, base, flags);
++#ifdef CONFIG_KSU_SUSFS_SUS_PATH
++	bool found_sus_path = false;
++#endif // #ifdef CONFIG_KSU_SUSFS_SUS_PATH
+ 
++#ifdef CONFIG_KSU_SUSFS_SUS_PATH
++	if (dentry) {
++		return dentry;
++	}
++#else
+ 	if (dentry)
+ 		return dentry;
++#endif // #ifdef CONFIG_KSU_SUSFS_SUS_PATH
+ 
+ 	dentry = d_alloc(base, name);
++#ifdef CONFIG_KSU_SUSFS_SUS_PATH
++retry:
++#endif // #ifdef CONFIG_KSU_SUSFS_SUS_PATH
+ 	if (unlikely(!dentry))
+ 		return ERR_PTR(-ENOMEM);
+ 
++#ifdef CONFIG_KSU_SUSFS_SUS_PATH
++	dentry = lookup_real(base->d_inode, dentry, flags);
++
++	if (unlikely(dentry) && !IS_ERR(dentry) && dentry->d_inode && !found_sus_path && susfs_is_inode_sus_path(dentry->d_inode)) {
++		bool is_fuse = dentry->d_inode->i_sb->s_magic == FUSE_SUPER_MAGIC;
++
++		if (d_in_lookup(dentry))
++			d_lookup_done(dentry);
++		if (!(flags & LOOKUP_RCU))
++			dput(dentry);
++		// - Just in case if an user app has been granted full file access and
++		//   it is trying to find the fuse sus path with the create flag, then
++		//   at least we can prevent the fake qstr file from from being created,
++		//   although it is futile to do this, it is better than doing nothing.
++		if (is_fuse &&
++			(flags & (LOOKUP_CREATE | LOOKUP_EXCL)))
++			return ERR_PTR(-EACCES);
++		dentry = d_alloc(base, &susfs_fake_qstr_name);
++		found_sus_path = true;
++		goto retry;
++	}
++#endif // #ifdef CONFIG_KSU_SUSFS_SUS_PATH
++
++#ifdef CONFIG_KSU_SUSFS_SUS_PATH
++	return dentry;
++#else
+ 	return lookup_real(base->d_inode, dentry, flags);
++#endif // #ifdef CONFIG_KSU_SUSFS_SUS_PATH
+ }
+ 
+ static int lookup_fast(struct nameidata *nd,

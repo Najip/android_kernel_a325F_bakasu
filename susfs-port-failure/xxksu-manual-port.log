@@ -1,0 +1,60 @@
+{
+  "mode": "apply",
+  "sources": {
+    "KernelSU": "1b8ce9e15a9402aa2192aed5d381366cf2150f0f",
+    "NonGKI_Kernel_Build_2nd": "bbe032eb06c50d24a9207bf2ece5e25cf2460bd0"
+  },
+  "patches": [
+    {
+      "target": ".",
+      "path": "patches/xxksu/0001-parent-bridge-api.patch",
+      "sha256": "8b93787a84ff4e78004643d4242c88249fe4eb383c6533a3c941fa95f1393c4c"
+    },
+    {
+      "target": "KernelSU",
+      "path": "patches/xxksu/0002-xxksu-native-wrappers.patch",
+      "sha256": "8f5346c1ede95e8cb27b8f7389d2bbcbcc0a8109f6414b5ac1f58cfdc8aca333"
+    },
+    {
+      "target": ".",
+      "path": "patches/xxksu/0003-parent-access-stat-adapter.patch",
+      "sha256": "031b270764d99564d41b872c31d3da216a817b129abee9ef4c9d52e078d16433"
+    },
+    {
+      "target": ".",
+      "path": "patches/xxksu/0004-parent-native-hook-transition.patch",
+      "sha256": "f875fea67a4e97620e828b796534de2225661da521cbf5e5175c77a979c6ad7a"
+    },
+    {
+      "target": ".",
+      "path": "patches/xxksu/0005-parent-susfs-lifecycle.patch",
+      "sha256": "8d6466ddec9a0568ac22944f85ab5fc7d16551315bdcc50530f37f943ed7fab2"
+    },
+    {
+      "target": "KernelSU",
+      "path": "patches/xxksu/0006-xxksu-susfs-lifecycle-calls.patch",
+      "sha256": "384a36300febf1aab5aec4c4544e4ee1a0a731ef5513f26061ef4cc7e6e4058a"
+    }
+  ],
+  "sequential_preflight": "PASS",
+  "reverse_application": "PASS",
+  "clean_restoration": "PASS"
+}
+HEAD is now at 1b8ce9e15 KernelSU v3.3.1+
+{
+  "base": "8440be2896c74a70befd5673163e0b1310b709bb",
+  "target": "xxksu-manual-susfs-port-jack240",
+  "exec_hooks": {
+    "execve": 2,
+    "execveat": 2
+  },
+  "security_hooks": [
+    "security_task_fix_setuid",
+    "security_inode_rename",
+    "security_bprm_check",
+    "security_file_permission",
+    "security_setprocattr",
+    "security_inode_setxattr"
+  ],
+  "validation": "source-generation only"
+}

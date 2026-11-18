@@ -1,0 +1,16 @@
+diff --git a/fs/namei.c b/fs/namei.c
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -1785,6 +1880,12 @@ again:
+ 				if (!error) {
+ 					d_invalidate(dentry);
+ 					dput(dentry);
++#ifdef CONFIG_KSU_SUSFS_SUS_PATH
++					if (found_sus_path) {
++						dentry = d_alloc_parallel(dir, &susfs_fake_qstr_name, &wq);
++						goto retry;
++					}
++#endif // #ifdef CONFIG_KSU_SUSFS_SUS_PATH
+ 					goto again;
+ 				}
+ 				dput(dentry);

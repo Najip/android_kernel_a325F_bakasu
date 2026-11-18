@@ -1,0 +1,13 @@
+diff --git a/fs/namei.c b/fs/namei.c
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -528,6 +539,9 @@ struct nameidata {
+ 	struct path	root;
+ 	struct inode	*inode; /* path.dentry.d_inode */
+ 	unsigned int	flags;
++#ifdef CONFIG_KSU_SUSFS_SUS_PATH
++	unsigned int	state;
++#endif // #ifdef CONFIG_KSU_SUSFS_SUS_PATH
+ 	unsigned	seq, m_seq;
+ 	int		last_type;
+ 	unsigned	depth;

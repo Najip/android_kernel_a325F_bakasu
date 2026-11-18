@@ -1,0 +1,12 @@
+{
+  "run_url": "https://github.com/Najip/android_kernel_a325F_bakasu/actions/runs/44303745953",
+  "run_id": "44303745953",
+  "attempt": "1",
+  "workflow_commit": "8440be2896c74a70befd5673163e0b1310b709bb",
+  "source_ref": "refs/heads/xxksu-sufs-jack",
+  "target_branch": "xxksu-manual-susfs-port-jack240",
+  "intended_jack_commit": "26f2313be61f7a8603a50b2dcd12171495a79d27",
+  "checked_out_jack_commit": "26f2313be61f7a8603a50b2dcd12171495a79d27",
+  "rejected_hunk_count": 69,
+  "status": "FAILED; diagnostics only, not a usable kernel target"
+}
