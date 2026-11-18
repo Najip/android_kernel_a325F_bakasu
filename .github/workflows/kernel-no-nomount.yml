@@ -21,7 +21,6 @@ env:
   ANYKERNEL_REPO: https://github.com/osm0sis/AnyKernel3.git
   ANYKERNEL_COMMIT: af770f7b16cf8f8eb7c68614b2a693b3b361c90c
   NO_PERF_TUNING: ${{ inputs.perf_tuning && '0' || '1' }}
-  APPLIED_PATCHES_FILE: ${{ runner.temp }}/no-nomount-applied-patches.txt
 jobs:
   build:
     name: Build A325X kernel (NoMount disabled)
@@ -102,6 +101,8 @@ jobs:
       - name: Check BakaSU and apply selected patches
         run: |
           set -euo pipefail
+          export APPLIED_PATCHES_FILE="$RUNNER_TEMP/no-nomount-applied-patches.txt"
+          echo "APPLIED_PATCHES_FILE=$APPLIED_PATCHES_FILE" >> "$GITHUB_ENV"
           sh scripts/prepare_bakasu.sh --check
           sh scripts/apply_kernel_patches.sh
       - name: Prepare build script with NoMount disabled
