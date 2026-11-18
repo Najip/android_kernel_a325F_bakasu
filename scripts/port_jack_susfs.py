@@ -90,8 +90,8 @@ h = once(h, '#include <linux/statfs.h>\n', '#include <linux/statfs.h>\n#ifndef g
 for path, text in zip(core, (c, h, d)):
     write(path, text)
 mk = Path('fs/Makefile').read_text()
-obj = re.compile(r'^obj-\$\(CONFIG_KSU_SUSFS\)\s*\+=.*$', re.M)
-require(len(obj.findall(mk)) == 1, 'Ambiguous SUSFS Kbuild entry')
+obj = re.compile(r'^obj-\$\(CONFIG_KSU_SUSFS\)[ \t]*\+=[ \t]*susfs\.o(?:[ \t]+[^\n]*)?$', re.M)
+require(len(obj.findall(mk)) == 1, 'Expected exactly one SUSFS core Kbuild entry beginning with susfs.o')
 mk = obj.sub('obj-$(CONFIG_KSU_SUSFS) += susfs.o susfs_ksu_glue.o', mk)
 if 'SUSFS_KERNEL_READ_NEW' not in mk:
     anchor = 'obj-$(CONFIG_KSU_SUSFS) += susfs.o susfs_ksu_glue.o\n'
