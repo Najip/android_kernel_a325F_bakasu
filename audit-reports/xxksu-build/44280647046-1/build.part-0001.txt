@@ -1,225 +1,0 @@
-{
-  "source_branch": "nomount-lkm-sync-up-patch",
-  "source_commit": "53fe38b470a927e590b89eace39b7a71e4b90ea1",
-  "network_fixes": true,
-  "perf_tuning": false,
-  "original_gpu_voltages_restored_last": true,
-  "sequential_preflight": "PASS",
-  "reverse_restoration": "PASS",
-  "patches": [
-    {
-      "name": "0003-net-udp-gso-qdisc-juan.patch",
-      "kind": "network",
-      "source_git_blob": "7caa413200b57fdd865ef663e1095caa1241b494",
-      "source_sha256": "fd7eda4e97f635a670cf49ea9b17fc81c6fd58d2715aeb6c383101f82e629254",
-      "applied_sha256": "fd7eda4e97f635a670cf49ea9b17fc81c6fd58d2715aeb6c383101f82e629254",
-      "gpu_preimage_adapted": false
-    },
-    {
-      "name": "0006-restore-original-gpu-voltages.patch",
-      "kind": "restore",
-      "source_git_blob": "486a70ed37093833a0d533cc46bf69a672964015",
-      "source_sha256": "486c8aca9a27f7fa746c378463bdca4585ece599da5470c30289de2ec077936f",
-      "applied_sha256": "486c8aca9a27f7fa746c378463bdca4585ece599da5470c30289de2ec077936f",
-      "gpu_preimage_adapted": false
-    }
-  ]
-}
-
-AOSP Clang repository: https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86
-AOSP Clang revision: f3480869e8aea2016f5c9263a2c73f3c467cc731
-AOSP Clang directory: clang-r450784d
-AOSP Clang version: 14.0.6
-AOSP Clang tree: 12362e20aad2323231ad6031de145fbbcc533df5
-AOSP Clang archive SHA256: 4a76dfe9994cd99a94114eb964b88380ce9fb5b73d4bc8a78651c663df044d0c
-Using /home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/arch/arm64/configs/mt6768_slm_defconfig as base
-Merging /home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/arch/arm64/configs/a32.config
-Merging /home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/arch/arm64/configs/battery.config
-Merging /home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/arch/arm64/configs/ksu-a325n-common.config
-Value of CONFIG_KPROBES is redefined by fragment /home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/arch/arm64/configs/ksu-a325n-common.config:
-Previous value: # CONFIG_KPROBES is not set
-New value: CONFIG_KPROBES=y
-
-Merging /home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/arch/arm64/configs/a325n-release.config
-#
-# merged configuration written to /home/najip/actions-runner-a32/_work/_temp/xxksu-builder.cpFjx3/out/.config (needs make)
-#
-make: Entering directory '/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu'
-  HOSTCC  scripts/basic/fixdep
-  GEN     ./Makefile
-  HOSTCC  scripts/kconfig/conf.o
-  HOSTCC  scripts/kconfig/zconf.tab.o
-  HOSTLD  scripts/kconfig/conf
-scripts/kconfig/conf  --olddefconfig Kconfig
-drivers/misc/tzdev/4.1/Kconfig:1:warning: ignoring type redefinition of 'TZDEV' from 'tristate' to 'boolean'
-drivers/misc/tzdev/4.1/Kconfig:80:warning: ignoring type redefinition of 'ION_FD2PHYS' from 'boolean' to 'tristate'
-drivers/input/touchscreen/himax/himax_83xxx_i2c/Kconfig:82:warning: ignoring type redefinition of 'TOUCHSCREEN_HIMAX_DEBUG' from 'boolean' to 'tristate'
-drivers/sensorhub/debug/Kconfig:1:warning: ignoring unsupported character ''
-drivers/sensorhub/debug/Kconfig:2:warning: ignoring unsupported character ''
-drivers/sensorhub/debug/Kconfig:3:warning: ignoring unsupported character ''
-drivers/sensorhub/debug/Kconfig:4:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:1:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:2:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:3:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:3:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:5:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:6:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:7:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:7:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:9:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:10:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:11:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:12:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:12:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:15:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:16:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:17:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:17:warning: ignoring unsupported character ''
-drivers/input/sec_input/Kconfig:16:warning: ignoring type redefinition of 'INPUT_TOUCHSCREEN_TCLMV2' from 'boolean' to 'tristate'
-drivers/sensorhub/Kconfig:26:warning: config symbol defined without type
-#
-# configuration written to .config
-#
-make: Leaving directory '/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu'
-make: Entering directory '/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu'
-  CHK     include/generated/uapi/linux/version.h
-  UPD     include/generated/uapi/linux/version.h
-  WRAP    arch/arm64/include/generated/uapi/asm/errno.h
-  WRAP    arch/arm64/include/generated/uapi/asm/ioctl.h
-  WRAP    arch/arm64/include/generated/uapi/asm/ioctls.h
-  WRAP    arch/arm64/include/generated/uapi/asm/ipcbuf.h
-  WRAP    arch/arm64/include/generated/uapi/asm/kvm_para.h
-  WRAP    arch/arm64/include/generated/uapi/asm/mman.h
-  WRAP    arch/arm64/include/generated/uapi/asm/msgbuf.h
-  WRAP    arch/arm64/include/generated/uapi/asm/poll.h
-  WRAP    arch/arm64/include/generated/uapi/asm/resource.h
-  WRAP    arch/arm64/include/generated/uapi/asm/sembuf.h
-  WRAP    arch/arm64/include/generated/uapi/asm/shmbuf.h
-  WRAP    arch/arm64/include/generated/uapi/asm/socket.h
-  WRAP    arch/arm64/include/generated/uapi/asm/sockios.h
-  WRAP    arch/arm64/include/generated/uapi/asm/swab.h
-  WRAP    arch/arm64/include/generated/uapi/asm/termbits.h
-  WRAP    arch/arm64/include/generated/uapi/asm/termios.h
-  WRAP    arch/arm64/include/generated/uapi/asm/types.h
-  HOSTCC  scripts/unifdef
-  INSTALL include/asm-generic (37 files)
-  INSTALL include/drm (26 files)
-  INSTALL include/linux (494 files)
-  INSTALL include/linux/android (2 files)
-  INSTALL include/linux/byteorder (2 files)
-  INSTALL include/linux/caif (2 files)
-  INSTALL include/linux/can (6 files)
-  INSTALL include/linux/cifs (1 file)
-  INSTALL include/linux/dvb (8 files)
-  INSTALL include/linux/genwqe (1 file)
-  INSTALL include/linux/hdlc (1 file)
-  INSTALL include/linux/hsi (2 files)
-  INSTALL include/linux/iio (2 files)
-  INSTALL include/linux/isdn (1 file)
-  INSTALL include/linux/mmc (1 file)
-  INSTALL include/linux/netfilter (88 files)
-  INSTALL include/linux/netfilter/ipset (4 files)
-  INSTALL include/linux/netfilter_arp (2 files)
-  INSTALL include/linux/netfilter_bridge (17 files)
-  INSTALL include/linux/netfilter_ipv4 (9 files)
-  INSTALL include/linux/netfilter_ipv6 (12 files)
-  INSTALL include/linux/nfsd (5 files)
-  INSTALL include/linux/raid (2 files)
-  INSTALL include/linux/sched (1 file)
-  INSTALL include/linux/spi (1 file)
-  INSTALL include/linux/sunrpc (1 file)
-  INSTALL include/linux/tc_act (15 files)
-  INSTALL include/linux/tc_ematch (4 files)
-  INSTALL include/linux/usb (14 files)
-  INSTALL include/linux/wimax (1 file)
-  INSTALL include/mediatek (1 file)
-  INSTALL include/misc (1 file)
-  INSTALL include/mtd (5 files)
-  INSTALL include/rdma (20 files)
-  INSTALL include/rdma/hfi (2 files)
-  INSTALL include/scsi (4 files)
-  INSTALL include/scsi/fc (4 files)
-  INSTALL include/sound (15 files)
-  INSTALL include/video (3 files)
-  INSTALL include/xen (4 files)
-  INSTALL include/asm (36 files)
-make: Leaving directory '/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu'
-make: Entering directory '/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu'
-  GEN     ./Makefile
-  HOSTLD  scripts/kconfig/conf
-scripts/kconfig/conf  --silentoldconfig Kconfig
-drivers/misc/tzdev/4.1/Kconfig:1:warning: ignoring type redefinition of 'TZDEV' from 'tristate' to 'boolean'
-drivers/misc/tzdev/4.1/Kconfig:80:warning: ignoring type redefinition of 'ION_FD2PHYS' from 'boolean' to 'tristate'
-drivers/input/touchscreen/himax/himax_83xxx_i2c/Kconfig:82:warning: ignoring type redefinition of 'TOUCHSCREEN_HIMAX_DEBUG' from 'boolean' to 'tristate'
-drivers/sensorhub/debug/Kconfig:1:warning: ignoring unsupported character ''
-drivers/sensorhub/debug/Kconfig:2:warning: ignoring unsupported character ''
-drivers/sensorhub/debug/Kconfig:3:warning: ignoring unsupported character ''
-drivers/sensorhub/debug/Kconfig:4:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:1:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:2:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:3:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:3:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:5:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:6:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:7:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:7:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:9:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:10:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:11:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:12:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:12:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:15:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:16:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:17:warning: ignoring unsupported character ''
-drivers/sensorhub/sensorhub/Kconfig:17:warning: ignoring unsupported character ''
-drivers/input/sec_input/Kconfig:16:warning: ignoring type redefinition of 'INPUT_TOUCHSCREEN_TCLMV2' from 'boolean' to 'tristate'
-drivers/sensorhub/Kconfig:26:warning: config symbol defined without type
-  CHK     include/config/kernel.release
-  UPD     include/config/kernel.release
-  GEN     ./Makefile
-  CHK     include/generated/uapi/linux/version.h
-  CHK     include/generated/utsrelease.h
-  UPD     include/generated/utsrelease.h
-  HOSTCC  scripts/basic/fixdep
-  HOSTCC  scripts/basic/bin2c
-Warning: Kernel ABI header at 'tools/include/uapi/linux/bpf.h' differs from latest version at 'include/uapi/linux/bpf.h'
-Warning: Kernel ABI header at 'tools/include/uapi/linux/bpf_common.h' differs from latest version at 'include/uapi/linux/bpf_common.h'
-Warning: Kernel ABI header at 'tools/include/uapi/linux/netlink.h' differs from latest version at 'include/uapi/linux/netlink.h'
-Warning: Kernel ABI header at 'tools/include/uapi/linux/if_link.h' differs from latest version at 'include/uapi/linux/if_link.h'
-Warning: Kernel ABI header at 'tools/include/uapi/linux/if_xdp.h' differs from latest version at 'include/uapi/linux/if_xdp.h'
-gcc  -fuse-ld=lld -o /home/najip/actions-runner-a32/_work/_temp/xxksu-builder.cpFjx3/out/tools/bpf/resolve_btfids/fixdep /home/najip/actions-runner-a32/_work/_temp/xxksu-builder.cpFjx3/out/tools/bpf/resolve_btfids/fixdep-in.o
-rm -f /home/najip/actions-runner-a32/_work/_temp/xxksu-builder.cpFjx3/out/tools/bpf/resolve_btfids/libbpf.a; llvm-ar rcs /home/najip/actions-runner-a32/_work/_temp/xxksu-builder.cpFjx3/out/tools/bpf/resolve_btfids/libbpf.a /home/najip/actions-runner-a32/_work/_temp/xxksu-builder.cpFjx3/out/tools/bpf/resolve_btfids/libbpf-in.o
-rm -f /home/najip/actions-runner-a32/_work/_temp/xxksu-builder.cpFjx3/out/tools/bpf/resolve_btfids/libsubcmd.a && llvm-ar rcs /home/najip/actions-runner-a32/_work/_temp/xxksu-builder.cpFjx3/out/tools/bpf/resolve_btfids/libsubcmd.a /home/najip/actions-runner-a32/_work/_temp/xxksu-builder.cpFjx3/out/tools/bpf/resolve_btfids/libsubcmd-in.o
-  LINK     resolve_btfids
--- KDIR: 
--- MDIR: /home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/KernelSU/kernel
--- KernelSU Manager package name: me.weishu.kernelsu
--- KernelSU Manager signature size: 0x033b
--- KernelSU Manager signature hash: c371061b19d8c7d7d6133c6a9bafe198fa944e50c1b31c9d8daa8d7f1fc2d2d6
--- KernelSU/compat: iterate_dir found!
--- KernelSU/compat: f_op->read_iter found!
-/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu
-/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/ccu/src/Makefile:29: CCU_MAKE_FILE_CALLED
-/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/ccu/src/1.2/Makefile:24: CCU_INC=/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/ccu/src/mt6768/ccu_ext_interface
-FDVT: Drv use 4.0 folder
-/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu
-/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu
-/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu
-/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu
-/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu
-/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu
-$CONFIG_MTK_COMBO_CHIP is ["CONSYS_6768"]
-MTK_PLATFORM_ID is [6768]
-WIFI_IP_SET is 1
-FM_CHIP_ID is [6768]
-CFG_FM_CHIP_ID is [6768]
-CFG_FM_CHIP is [mt6631]
-CFG_BUILD_CONNAC2 is [false]
-/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/connectivity/bt/Makefile:30: yumin: bt 1
-/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/connectivity/bt/Makefile:35: yumin: bt 2
-os option: linux
-$MTK_PLATFORM is [mt6768]
-$WLAN_CHIP_ID is [6768]
-/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/connectivity/wlan_drv_gen4m/Makefile:436: wlan_6768_axi build-in boot.img
-SERVICE_DIR is [{}]
-$CCFLAG is [{-Wno-unused-value -Wno-unused-result -Wno-format -Wno-parentheses -DDRIVER_BUILD_DATE='"20210910000000"' -UMT6620 -UMT6628 -UMT5931 -UMT6630 -UMT6632 -UMT7663 -UCONNAC2X2 -UUT_TEST_MODE -UMT7915 -USOC3_0 -UMT7961 -DCONFIG_MTK_EMI=1 -DCONFIG_MTK_EMI=1 -DCFG_SUPPORT_DEBUG_FS=0 -DWLAN_INCLUDE_PROC -DCFG_SUPPORT_AGPS_ASSIST=0 -DCFG_SUPPORT_TSF_USING_BOOTTIME=1 -DARP_MONITER_ENABLE=1 -Werror -DLINUX -DCONNAC -DCFG_ANDORID_CONNINFRA_SUPPORT=0 -DCFG_ENABLE_HOST_BUS_TIMEOUT=0 -DCFG_SUPPORT_CONNAC2X=0 -DCFG_SUPPORT_CONNAC2X_2x2=0 -DCFG_SUPPORT_802_11AX=0 -DCFG_SUPPORT_TWT=0 -DCFG_DRIVER_INITIAL_RUNNING_MODE=3 -DCFG_SUPPORT_DUAL_STA=0 -DCFG_MTK_ANDROID_WMT=1 -DCFG_SUPPORT_CONNINFRA=0 -DCFG_ANDORID_CONNINFRA_COREDUMP_SUPPORT=0 -DCFG_SUPPORT_PRE_ON_PHY_ACTION=0 -I/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/connectivity/wmt_drv/common_main/include -I/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/connectivity/wmt_drv/common_main/linux/include -DWMT_IDC_SUPPORT=1 -DMTK_WCN_WMT_STP_EXP_SYMBOL_ABSTRACT -DCFG_MTK_ANDROID_EMI=1 -DCFG_WIFI_IP_SET=1 -DCFG_BUILT_IN_DRIVER=1 -DCFG_SUPPORT_CHNL_CONFLICT_REVISE=0 -DCFG_SUPPORT_AEE=0 -DBUILD_QA_DBG=1 -D_HIF_AXI=1 -DCFG_SUPPORT_PASSPOINT=0 -DCFG_HS20_DEBUG=0 -DCFG_ENABLE_GTK_FRAME_FILTER=0 -DCFG_MET_PACKET_TRACE_SUPPORT=1 -DCFG_MET_TAG_SUPPORT=0 -DCFG_TC3_FEATURE=0 -DCFG_TC10_FEATURE=1 -DCFG_TC1_FEATURE=0 -DDBG=0 -Idrivers/misc/mediatek/connectivity/wlan_drv_gen4m/os -Idrivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/include -Idrivers/misc/mediatek/connectivity/wlan_drv_gen4m/include -Idrivers/misc/mediatek/connectivity/wlan_drv_gen4m/include/nic -Idrivers/misc/mediatek/connectivity/wlan_drv_gen4m/include/mgmt -Idrivers/misc/mediatek/connectivity/wlan_drv_gen4m/include/chips -I/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/base/power/include/ -I/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/include/mt-plat/ -I/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/performance/include/ -I/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/emi/mt6768 -I/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/emi/submodule -I/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/connectivity/common -I/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/devfreq/ -I/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/net -DCFG_MTK_MCIF_WIFI_SUPPORT=0 -DCFG_MTK_MDDP_WH_SUPPORT=0 -Idrivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/hif/common/include -Idrivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linu

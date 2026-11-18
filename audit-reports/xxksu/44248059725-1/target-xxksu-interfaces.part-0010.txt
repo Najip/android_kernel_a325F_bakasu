@@ -1,2 +1,0 @@
-/supercall.h-16-
-kernel/supercall/supercall.h-17-// Install KSU fd to current process

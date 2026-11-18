@@ -1,5 +1,0 @@
-From https://github.com/osm0sis/AnyKernel3
- * branch            af770f7b16cf8f8eb7c68614b2a693b3b361c90c -> FETCH_HEAD
-HEAD is now at af770f7 README: escapes, fixes and explain unpack_vendorrd use further
-No errors detected in compressed data of /home/najip/actions-runner-a32/_work/_temp/xxksu-builder.cpFjx3/package/A325X-xxKSU-SUSFS-experimental-9041f88732.zip.
-Created experimental xxKSU package: /home/najip/actions-runner-a32/_work/_temp/xxksu-builder.cpFjx3/package/A325X-xxKSU-SUSFS-experimental-9041f88732.zip

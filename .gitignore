@@ -1,3 +1,8 @@
 out/
 .toolchains/
 arch/arm64/configs/compiled_defconfig
+
+# xxKSU source, downloaded at build time (see sources.json)
+/KernelSU/
+/out-xxksu/
+__pycache__/

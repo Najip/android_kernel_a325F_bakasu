@@ -18,9 +18,9 @@ for option in CONFIG_KSU CONFIG_KSU_SUSFS CONFIG_XXKSU_MANUAL_HOOKS; do
   grep -qx "$option=y" "$OUT_DIR/.config"
 done
 "$TOOLCHAIN/bin/llvm-nm" --defined-only "$OUT_DIR/vmlinux" > "$OUT_DIR/xxksu-symbols.txt"
-for symbol in xxksu_parent_sucompat_enabled xxksu_parent_uid_allowed xxksu_parent_reset_task xxksu_parent_deny_task xxksu_parent_finish_umount xxksu_parent_post_fs_data; do
+for symbol in xxksu_parent_sucompat_enabled xxksu_parent_uid_allowed xxksu_parent_reset_task xxksu_parent_deny_task xxksu_parent_finish_umount xxksu_parent_post_fs_data xxksu_parent_packages_changed ksu_handle_newfstat_ret ksu_handle_fstat64_ret susfs_set_priority_uid_filter susfs_is_priority_uid_filtered susfs_set_sus_path_uid_filter; do
   grep -Eq "[[:space:]]$symbol$" "$OUT_DIR/xxksu-symbols.txt" || {
-    echo "Missing linked xxKSU bridge symbol: $symbol" >&2; exit 1;
+    echo "Missing linked xxKSU/SUSFS symbol: $symbol" >&2; exit 1;
   }
 done
 AK3_REPO=https://github.com/osm0sis/AnyKernel3.git
@@ -39,12 +39,14 @@ rm -rf -- "$ak3/.git" "$ak3/.github"
 rm -f "$ak3"/Image* "$ak3"/zImage*
 cp "$config" "$ak3/anykernel.sh"
 short=$(git -C "$ROOT" rev-parse --short=10 HEAD)
-sed -i "s|^kernel\.string=.*|kernel.string=A325X xxKSU SUSFS experimental $short|" "$ak3/anykernel.sh"
+susfs=$(sed -n 's/^#define SUSFS_VERSION "\([^"]*\)"/\1/p' "$ROOT/include/linux/susfs.h" | head -n1)
+test -n "$susfs"
+sed -i "s|^kernel\.string=.*|kernel.string=A325X xxKSU SUSFS $susfs $short|" "$ak3/anykernel.sh"
 cp "$IMAGE" "$ak3/Image"
 gzip -n -c "$IMAGE" > "$ak3/Image.gz"
 gzip -t "$ak3/Image.gz"
 mkdir -p "$PACKAGE_DIR"
-zip_path="$PACKAGE_DIR/A325X-xxKSU-SUSFS-experimental-$short.zip"
+zip_path="$PACKAGE_DIR/A325X-xxKSU-SUSFS-$susfs-$short.zip"
 rm -f "$zip_path"
 (cd "$ak3" && zip -qr "$zip_path" . -x '.git/*' '.github/*' '*.zip' '*~' '*.bak')
 unzip -tq "$zip_path"
@@ -53,17 +55,16 @@ cmp "$IMAGE" "$work/Image"
 unzip -p "$zip_path" Image.gz | gzip -dc > "$work/Image-uncompressed"
 cmp "$IMAGE" "$work/Image-uncompressed"
 unzip -p "$zip_path" anykernel.sh > "$work/anykernel.sh"
-grep -q '^kernel.string=A325X xxKSU SUSFS experimental ' "$work/anykernel.sh"
+grep -q '^kernel.string=A325X xxKSU SUSFS ' "$work/anykernel.sh"
 grep -q '^device\.name1=a32$' "$work/anykernel.sh"
 grep -Eq '^BLOCK=/dev/block/by-name/boot;?$' "$work/anykernel.sh"
 cp "$OUT_DIR/xxksu-source.json" "$OUT_DIR/toolchain-source.txt" "$PACKAGE_DIR/"
 {
   echo "Kernel source: $(git -C "$ROOT" rev-parse HEAD)"
   echo "KernelSU source: $(git -C "$ROOT/KernelSU" rev-parse HEAD)"
-  echo "Jack source: $(git -C "$ROOT/NonGKI_Kernel_Build_2nd" rev-parse HEAD)"
+  echo "SUSFS: $susfs (Jack source $(python3 -c "import json;print(json.load(open('$ROOT/sources.json'))['susfs']['commit'])"))"
   echo "Kernel release: $(cat "$OUT_DIR/include/config/kernel.release")"
   echo "AnyKernel3: $AK3_REPO@$AK3_COMMIT"
-  echo 'Experimental package. Compile/link and archive checks only; boot, root, SUSFS runtime and LKM compatibility are untested.'
 } > "$PACKAGE_DIR/build-info.txt"
 (cd "$PACKAGE_DIR" && sha256sum ./*.zip > SHA256SUMS.txt)
-echo "Created experimental xxKSU package: $zip_path"
+echo "Created xxKSU package: $zip_path"

@@ -1,0 +1,14 @@
+{
+  "_comment": "Pinned upstream sources. The 'Update xxKSU and SUSFS' workflow edits this file; there is normally no need to edit it by hand.",
+  "xxksu": {
+    "repo": "https://github.com/backslashxx/KernelSU.git",
+    "branch": "master",
+    "commit": "1b8ce9e15a9402aa2192aed5d381366cf2150f0f"
+  },
+  "susfs": {
+    "repo": "https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd.git",
+    "branch": "mainline",
+    "commit": "26f2313be61f7a8603a50b2dcd12171495a79d27",
+    "patch": "Patches/Patch/susfs_patch_to_4.14.patch"
+  }
+}

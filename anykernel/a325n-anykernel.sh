@@ -4,7 +4,7 @@
 ### AnyKernel setup
 # global properties
 properties() { '
-kernel.string=A325N BakaSU Kernel
+kernel.string=A325X xxKSU SUSFS Kernel
 do.devicecheck=1
 do.modules=0
 do.systemless=1

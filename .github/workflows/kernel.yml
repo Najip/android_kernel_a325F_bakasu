@@ -1,77 +1,88 @@
 name: A325X Kernel
-run-name: xxKSU experimental kernel build (${{ github.ref_name }})
+run-name: A325X xxKSU kernel (${{ github.ref_name }})
 
+# Builds the flashable AnyKernel3 ZIP.
+# - Runs by itself after every change on the default branch (GitHub runner).
+# - Run it by hand from the Actions tab for any branch. Tick "Publish a GitHub
+#   Release" to put the ZIP on the Releases page.
 on:
   push:
-    branches: [xxksu-sufs-jack, xxksu-manual-susfs-port, 'xxksu-manual-susfs-port-*']
+    branches: [common]
     paths:
       - '.github/workflows/kernel.yml'
       - 'build_xxksu.sh'
       - 'package_xxksu.sh'
-      - 'anykernel/a325n-anykernel.sh'
+      - 'sources.json'
+      - 'anykernel/**'
       - 'scripts/**'
-      - 'patches/xxksu/**'
-      - 'arch/arm64/configs/**'
-      - 'kernel/**'
+      - 'patches/**'
+      - 'arch/arm64/**'
+      - 'block/**'
+      - 'drivers/**'
       - 'fs/**'
       - 'include/**'
-      - 'KernelSU'
-      - 'NonGKI_Kernel_Build_2nd'
+      - 'kernel/**'
+      - 'mm/**'
+      - 'net/**'
+      - 'security/**'
   workflow_dispatch:
     inputs:
       self_hosted:
-        description: 'Run on the self-hosted runner (untick for a GitHub-hosted runner)'
-        required: false
+        description: 'Run on your own PC runner (untick to use a GitHub runner)'
         type: boolean
         default: true
       perf_tuning:
-        description: 'Apply optional tuning; network fixes always enabled, original GPU voltages retained'
-        required: false
+        description: 'Apply the optional performance tuning patch'
+        type: boolean
+        default: false
+      publish_release:
+        description: 'Publish a GitHub Release with the ZIP'
         type: boolean
         default: false
 
 permissions:
   contents: read
+
 concurrency:
-  group: xxksu-compile-${{ github.ref }}
+  group: a325x-kernel-${{ github.ref }}
   cancel-in-progress: false
+
 env:
   SELF_HOSTED: ${{ github.event_name == 'workflow_dispatch' && inputs.self_hosted }}
   PERF_TUNING: ${{ github.event_name == 'workflow_dispatch' && inputs.perf_tuning }}
 
 jobs:
   build:
-    name: Build and package experimental xxKSU kernel
-    if: github.ref == 'refs/heads/xxksu-sufs-jack' || github.ref == 'refs/heads/xxksu-manual-susfs-port' || startsWith(github.ref, 'refs/heads/xxksu-manual-susfs-port-')
+    name: Build xxKSU + SUSFS kernel
     runs-on: ${{ github.event_name == 'workflow_dispatch' && inputs.self_hosted && 'self-hosted' || 'ubuntu-latest' }}
     timeout-minutes: 120
-    permissions:
-      contents: write
+    outputs:
+      release_tag: ${{ steps.package.outputs.release_tag }}
+      artifact: ${{ steps.package.outputs.artifact }}
     defaults:
       run:
         shell: bash
     steps:
-      - name: Checkout pinned sources
-        id: checkout
+      - name: Checkout
         uses: actions/checkout@v7
         with:
-          fetch-depth: 0
-          submodules: recursive
+          fetch-depth: 1
 
-      - name: Initialize external build paths
+      - name: Prepare build folders
         run: |
           set -euo pipefail
-          work=$(mktemp -d "$RUNNER_TEMP/xxksu-builder.XXXXXX")
-          echo "BUILD_WORK=$work" >> "$GITHUB_ENV"
-          echo "OUT_DIR=$work/out" >> "$GITHUB_ENV"
-          echo "PACKAGE_DIR=$work/package" >> "$GITHUB_ENV"
-          echo "TOOLCHAIN=$RUNNER_TEMP/aosp-clang14" >> "$GITHUB_ENV"
-          echo "BUILD_LOG=$work/build.log" >> "$GITHUB_ENV"
-          echo "PACKAGE_LOG=$work/package.log" >> "$GITHUB_ENV"
+          work=$(mktemp -d "$RUNNER_TEMP/a325x-build.XXXXXX")
+          {
+            echo "BUILD_WORK=$work"
+            echo "OUT_DIR=$work/out"
+            echo "PACKAGE_DIR=$work/package"
+            echo "TOOLCHAIN=$RUNNER_TEMP/aosp-clang14"
+            echo "BUILD_LOG=$work/build.log"
+            echo "PACKAGE_LOG=$work/package.log"
+          } >> "$GITHUB_ENV"
           df -h "$GITHUB_WORKSPACE" "$RUNNER_TEMP"
 
-      - name: Install dependencies (KSUN-style self-hosted checks)
-        id: dependencies
+      - name: Install build dependencies
         run: |
           set -euo pipefail
           packages=(bc binutils-aarch64-linux-gnu bison build-essential ca-certificates curl file flex git libelf-dev libssl-dev libncurses-dev jq lz4 pahole python3 unzip xz-utils zip zlib1g-dev zstd util-linux)
@@ -81,7 +92,6 @@ jobs:
             exit 0
           fi
           fail() { echo "::error::$*" >&2; exit 1; }
-          [[ "${RUNNER_ENVIRONMENT:-}" == self-hosted ]] || fail 'Expected a self-hosted runner.'
           . /etc/os-release
           [[ "$ID" == ubuntu ]] || fail 'Automatic dependency setup supports Ubuntu only.'
           [[ "$(uname -m)" == x86_64 ]] || fail 'The AOSP Clang prebuilt requires x86_64 Linux.'
@@ -93,17 +103,16 @@ jobs:
           if ((${#missing[@]})); then
             privilege=()
             if ((EUID != 0)); then
-              command -v sudo >/dev/null || fail 'Install missing packages or provide non-interactive sudo.'
-              sudo -n true || fail 'Missing packages require non-interactive sudo.'
+              sudo -n true || fail "Missing packages need non-interactive sudo: ${missing[*]}"
               privilege=(sudo -n)
             fi
-            "${privilege[@]}" env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 -o Acquire::Retries=3 update
-            "${privilege[@]}" env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 -o Acquire::Retries=3 install -y --no-install-recommends --no-remove "${missing[@]}"
+            "${privilege[@]}" env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 update
+            "${privilege[@]}" env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 install -y --no-install-recommends --no-remove "${missing[@]}"
           else
             echo 'All build dependencies are already installed.'
           fi
 
-      - name: Install pinned AOSP Clang 14 (self-hosted cache)
+      - name: Use cached AOSP Clang 14 (own PC runner)
         if: env.SELF_HOSTED == 'true'
         run: |
           set -euo pipefail
@@ -113,185 +122,93 @@ jobs:
           flock 9
           key=$(sha256sum scripts/fetch_aosp_clang.sh scripts/aosp_clang14.conf | sha256sum | cut -c1-16)
           toolchain="$cache/aosp-clang14-$key"
-          if [ -x "$toolchain/bin/clang" ]; then
-            echo "Toolchain cache: HIT ($key)"
-          else
-            echo "Toolchain cache: MISS ($key)"
-          fi
           AOSP_CLANG_CACHE="$cache/archives" sh scripts/fetch_aosp_clang.sh "$toolchain"
           echo "TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
-          echo "$toolchain/bin" >> "$GITHUB_PATH"
 
-      - name: Check script syntax
-        id: syntax
-        run: |
-          set -euo pipefail
-          sh -n build_xxksu.sh
-          sh -n package_xxksu.sh
-          python3 -c "import ast; [ast.parse(open(p).read()) for p in ('scripts/prepare_xxksu.py', 'scripts/apply_xxksu_kernel_patches.py')]"
-
-      - name: Prepare selected patches and compile kernel
+      - name: Download xxKSU, apply patches and compile
         id: compile
         run: |
-          set -uo pipefail
-          set +e
+          set -euo pipefail
           sh build_xxksu.sh 2>&1 | tee "$BUILD_LOG"
-          codes=("${PIPESTATUS[@]}")
-          echo "exit_code=${codes[0]}" >> "$GITHUB_OUTPUT"
-          echo "log_exit_code=${codes[1]}" >> "$GITHUB_OUTPUT"
-          if [ "${codes[0]}" -ne 0 ]; then exit "${codes[0]}"; fi
-          exit "${codes[1]}"
 
-      - name: Package and verify experimental AnyKernel3 ZIP
+      - name: Package AnyKernel3 ZIP
         id: package
         run: |
-          set -uo pipefail
-          set +e
+          set -euo pipefail
           sh package_xxksu.sh 2>&1 | tee "$PACKAGE_LOG"
-          codes=("${PIPESTATUS[@]}")
-          echo "exit_code=${codes[0]}" >> "$GITHUB_OUTPUT"
-          if [ "${codes[0]}" -ne 0 ]; then exit "${codes[0]}"; fi
-          if [ "${codes[1]}" -ne 0 ]; then exit "${codes[1]}"; fi
-          set -e
-          cp "$OUT_DIR/xxksu-kernel-patches.json" "$OUT_DIR/applied-patches.txt" "$PACKAGE_DIR/"
+          cp "$OUT_DIR/kernel-patches.json" "$OUT_DIR/applied-patches.txt" "$PACKAGE_DIR/"
+          echo "Optional tuning: $PERF_TUNING" >> "$PACKAGE_DIR/build-info.txt"
+          echo "Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> "$PACKAGE_DIR/build-info.txt"
+          zip=$(basename "$(ls "$PACKAGE_DIR"/*.zip)")
+          name="${zip%.zip}"
+          [[ "$PERF_TUNING" == true ]] && name="$name-tuning"
+          echo "artifact=$name" >> "$GITHUB_OUTPUT"
+          echo "release_tag=${name#A325X-}" >> "$GITHUB_OUTPUT"
           {
-            echo "Optional tuning: $PERF_TUNING"
-            echo 'Network fixes: enabled; original GPU voltage restoration: applied last'
-            cat "$OUT_DIR/xxksu-kernel-patches.json"
-          } >> "$PACKAGE_DIR/build-info.txt"
+            echo "### Kernel ZIP ready: \`$name\`"
+            echo '```'
+            cat "$PACKAGE_DIR/build-info.txt"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Record build and package results
-        id: report
-        if: always() && steps.checkout.outcome == 'success'
-        env:
-          COMPILE_OUTCOME: ${{ steps.compile.outcome }}
-          COMPILE_EXIT_CODE: ${{ steps.compile.outputs.exit_code }}
-          LOG_EXIT_CODE: ${{ steps.compile.outputs.log_exit_code }}
-          PACKAGE_OUTCOME: ${{ steps.package.outcome }}
-          PACKAGE_EXIT_CODE: ${{ steps.package.outputs.exit_code }}
-        run: |
-          python3 - <<'PY'
-          import json, os, pathlib, subprocess
-          root = pathlib.Path('audit-reports/xxksu-build')
-          run = os.environ['GITHUB_RUN_ID'] + '-' + os.environ['GITHUB_RUN_ATTEMPT']
-          directory = root / run
-          directory.mkdir(parents=True, exist_ok=True)
-          parts, warnings = [], []
-          for kind, variable in [('build', 'BUILD_LOG'), ('package', 'PACKAGE_LOG')]:
-              log = pathlib.Path(os.environ.get(variable) or '/nonexistent-xxksu-log')
-              data = log.read_bytes() if log.is_file() else b'No log: step did not run.\n'
-              for index, start in enumerate(range(0, len(data), 18000), 1):
-                  path = directory / ('%s.part-%04d.txt' % (kind, index))
-                  path.write_text(data[start:start+18000].decode('utf-8', errors='replace'))
-                  parts.append(str(path))
-              warnings.extend(line for line in data.decode('utf-8', errors='replace').splitlines() if 'warning:' in line.lower())
-          (directory / 'warnings.txt').write_text('\n'.join(warnings) + '\n')
-          patch_file = pathlib.Path(os.environ.get('OUT_DIR') or '/nonexistent-xxksu-out') / 'xxksu-kernel-patches.json'
-          patch_result = json.loads(patch_file.read_text()) if patch_file.is_file() else {'status': 'not_completed'}
-          (directory / 'kernel-patches.json').write_text(json.dumps(patch_result, indent=2) + '\n')
-          result = {'status': 'PASS' if os.environ['COMPILE_OUTCOME'] == 'success' and os.environ['PACKAGE_OUTCOME'] == 'success' else 'NOT_PASS',
-                    'compile_outcome': os.environ['COMPILE_OUTCOME'], 'exit_code': os.environ.get('COMPILE_EXIT_CODE', ''),
-                    'log_exit_code': os.environ.get('LOG_EXIT_CODE', ''),
-                    'package_outcome': os.environ['PACKAGE_OUTCOME'], 'package_exit_code': os.environ.get('PACKAGE_EXIT_CODE', ''),
-                    'kernel_patches': patch_result,
-                    'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
-                    'source_lock': json.loads(pathlib.Path('patches/xxksu/source-lock.json').read_text()),
-                    'run_id': os.environ['GITHUB_RUN_ID'], 'attempt': os.environ['GITHUB_RUN_ATTEMPT'],
-                    'run_url': os.environ['GITHUB_SERVER_URL'] + '/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID'],
-                    'scope': 'Experimental kernel ZIP. Compile/link and archive checks only. Boot, root, SUSFS runtime and LKM remain untested. No release or deployment.',
-                    'warning_line_count': len(warnings), 'log_parts': parts}
-          text = json.dumps(result, indent=2) + '\n'
-          (directory / 'result.json').write_text(text)
-          (root / 'latest.json').write_text(text)
-          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
-              summary.write('### xxKSU experimental kernel builder\n```json\n' + text + '```\n')
-          PY
-
-      - name: Upload verified experimental kernel package
-        if: success() && steps.package.outcome == 'success'
+      - name: Upload kernel ZIP
         uses: actions/upload-artifact@v7
         with:
-          name: A325X-xxKSU-experimental-${{ github.run_id }}-${{ github.run_attempt }}-tuning-${{ env.PERF_TUNING }}
+          name: ${{ steps.package.outputs.artifact }}
           path: ${{ env.PACKAGE_DIR }}/
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 30
 
-      - name: Upload diagnostics
-        if: always() && steps.checkout.outcome == 'success'
+      - name: Upload logs for troubleshooting
+        if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: xxksu-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          name: build-logs-${{ github.run_id }}-${{ github.run_attempt }}
           include-hidden-files: true
           path: |
-            audit-reports/xxksu-build/${{ github.run_id }}-${{ github.run_attempt }}/
             ${{ env.BUILD_LOG }}
             ${{ env.PACKAGE_LOG }}
             ${{ env.OUT_DIR }}/.config
-            ${{ env.OUT_DIR }}/arch/arm64/boot/Image*
             ${{ env.OUT_DIR }}/System.map
             ${{ env.OUT_DIR }}/xxksu-source.json
-            ${{ env.OUT_DIR }}/xxksu-kernel-patches.json
-            ${{ env.OUT_DIR }}/applied-patches.txt
-            ${{ env.OUT_DIR }}/selected-kernel-patches/
+            ${{ env.OUT_DIR }}/kernel-patches.json
             ${{ env.OUT_DIR }}/toolchain-source.txt
-            ${{ env.OUT_DIR }}/vmlinux-header.txt
-            ${{ env.OUT_DIR }}/xxksu-symbols.txt
-            ${{ env.OUT_DIR }}/SHA256SUMS.txt
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Commit only build reports
-        # Cancelled runs must not push: a late report from a cancelled run made
-        # the next successful run fail with a non-fast-forward rejection.
-        if: ${{ !cancelled() && steps.report.outcome == 'success' }}
-        run: |
-          set -uo pipefail
-          case "$GITHUB_REF" in
-            refs/heads/xxksu-sufs-jack|refs/heads/xxksu-manual-susfs-port|refs/heads/xxksu-manual-susfs-port-*) ;;
-            *) echo '::error::Refusing report push outside approved build branches'; exit 1 ;;
-          esac
-          report="audit-reports/xxksu-build/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-          if [[ ! -d "$report" ]]; then
-            echo "No report directory at $report; nothing to commit."
-            exit 0
-          fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          # The report is committed on top of the branch's current remote tip in
-          # a scratch worktree, so a branch that moved during the build (another
-          # run's report, or a new source commit) no longer rejects the push.
-          # The kernel ZIP is already uploaded at this point; a report that
-          # cannot be pushed is a warning, never a failed build.
-          pushed=false
-          for attempt in 1 2 3 4; do
-            scratch="$RUNNER_TEMP/xxksu-report-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-$attempt"
-            rm -rf "$scratch"
-            if git fetch --no-tags origin "$GITHUB_REF_NAME" \
-              && git worktree add --detach "$scratch" FETCH_HEAD >/dev/null \
-              && mkdir -p "$scratch/audit-reports/xxksu-build" \
-              && cp -a "$report" "$scratch/audit-reports/xxksu-build/" \
-              && git -C "$scratch" add -- audit-reports/xxksu-build; then
-              if git -C "$scratch" diff --cached --quiet; then
-                echo 'Report already present on the branch.'
-                pushed=true
-              elif git -C "$scratch" commit -q -m "audit: xxKSU build $GITHUB_RUN_ID attempt $GITHUB_RUN_ATTEMPT [skip ci]" \
-                && (cd "$scratch" && git push origin "HEAD:$GITHUB_REF"); then
-                pushed=true
-              fi
-            fi
-            git worktree remove --force "$scratch" >/dev/null 2>&1 || rm -rf "$scratch"
-            git worktree prune
-            [[ "$pushed" == true ]] && break
-            echo "Report push attempt $attempt did not succeed; retrying."
-            sleep $((attempt * 5))
-          done
-          if [[ "$pushed" != true ]]; then
-            echo '::warning::Build report could not be pushed. The kernel artifact is unaffected; the report is in the uploaded artifact.'
-          fi
-
-      - name: Clean build output (self-hosted)
+      - name: Clean build folder (own PC runner)
         if: always() && env.SELF_HOSTED == 'true'
         run: |
-          if [[ -n "${BUILD_WORK:-}" && "$BUILD_WORK" == "$RUNNER_TEMP"/xxksu-builder.* ]]; then
+          if [[ -n "${BUILD_WORK:-}" && "$BUILD_WORK" == "$RUNNER_TEMP"/a325x-build.* ]]; then
             rm -rf -- "$BUILD_WORK"
+          fi
+          rm -rf -- KernelSU
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download kernel ZIP
+        uses: actions/download-artifact@v7
+        with:
+          name: ${{ needs.build.outputs.artifact }}
+          path: release
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.build.outputs.release_tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          assets=(release/*.zip release/SHA256SUMS.txt release/build-info.txt)
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" "${assets[@]}" --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$TAG" "${assets[@]}" --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" --title "A325X $TAG" --notes-file release/build-info.txt
           fi

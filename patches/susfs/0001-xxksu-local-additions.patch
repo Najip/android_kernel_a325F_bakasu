@@ -1,0 +1,37 @@
+diff --git a/fs/susfs.c b/fs/susfs.c
+--- a/fs/susfs.c
++++ b/fs/susfs.c
+@@ -79,6 +79,8 @@ DEFINE_STATIC_KEY_TRUE(susfs_is_log_enabled);
+ #else
+ #define SUSFS_LOGI(fmt, ...)
+ #define SUSFS_LOGE(fmt, ...)
++#define SUSFS_LOGI_RL(fmt, ...)
++#define SUSFS_LOGE_RL(fmt, ...)
+ #endif
+ 
+ /* selinux hide */
+@@ -2640,3 +2642,7 @@ void susfs_init(void) {\
+ /* No module exit is needed becuase it should never be a loadable kernel module */
+ //void __init susfs_exit(void)
+ 
++/* Parent-kernel helper used by the fs/readdir.c sus_path hooks. */
++int susfs_get_data_path(struct path *path) {
++	return kern_path("/data", LOOKUP_FOLLOW, path);
++}
+diff --git a/include/linux/susfs.h b/include/linux/susfs.h
+--- a/include/linux/susfs.h
++++ b/include/linux/susfs.h
+@@ -9,6 +9,13 @@
+ #include <linux/susfs_def.h>
+ #include <linux/statfs.h>
+ 
++#ifndef getname_safe
++#define getname_safe(name) (name == NULL ? ERR_PTR(-EINVAL) : getname(name))
++#endif
++#ifndef putname_safe
++#define putname_safe(name) (IS_ERR(name) ? NULL : putname(name))
++#endif
++
+ #define SUSFS_VERSION "v2.4.0"
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)
+ #define SUSFS_VARIANT "NON-GKI"

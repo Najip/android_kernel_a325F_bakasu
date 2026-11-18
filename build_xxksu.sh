@@ -2,13 +2,14 @@
 set -eu
 ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 cd "$ROOT"
-# Mandatory xxKSU preparation runs first, while source trees are clean.
-PREPARATION=$(python3 "$ROOT/scripts/prepare_xxksu.py" --apply)
 . "$ROOT/scripts/aosp_clang14.conf"
 OUT=${OUT_DIR:-"$ROOT/out-xxksu"}
 case "$OUT" in /*) ;; *) OUT="$ROOT/$OUT" ;; esac
-# Networking is mandatory; tuning is opt-in; original GPU voltages are restored last.
-python3 "$ROOT/scripts/apply_xxksu_kernel_patches.py" "$OUT"
+# 1. Download xxKSU at the pinned commit (sources.json) and apply patches/xxksu/.
+python3 "$ROOT/scripts/setup_sources.py" "$OUT"
+# 2. Device patches: network fix always, tuning only if PERF_TUNING=true,
+#    original GPU voltages restored last.
+python3 "$ROOT/scripts/apply_kernel_patches.py" "$OUT"
 TOOLCHAIN=${TOOLCHAIN:-"$ROOT/.toolchains/$AOSP_CLANG_DIRECTORY"}
 JOBS=${JOBS:-$(nproc)}
 sh "$ROOT/scripts/fetch_aosp_clang.sh" "$TOOLCHAIN"
@@ -33,7 +34,6 @@ KBUILD_BUILD_TIMESTAMP=${KBUILD_BUILD_TIMESTAMP:-$(git show -s --format=%cD HEAD
 export KBUILD_BUILD_TIMESTAMP
 export KCFLAGS=${KCFLAGS:--Wno-error -Wno-error=incompatible-pointer-types -Wno-error=int-conversion -Wno-error=visibility -Wno-error=fortify-source -Wno-error=pointer-to-int-cast -Wno-error=typedef-redefinition -Wno-error=strict-prototypes -Wno-error=implicit-function-declaration}
 mkdir -p "$OUT"
-printf '%s\n' "$PREPARATION" > "$OUT/xxksu-source.json"
 cp "$TOOLCHAIN/aosp-source.txt" "$OUT/toolchain-source.txt"
 "$CC" --version >> "$OUT/toolchain-source.txt"
 "$LD" --version >> "$OUT/toolchain-source.txt"

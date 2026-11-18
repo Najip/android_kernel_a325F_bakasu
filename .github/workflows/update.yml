@@ -1,0 +1,80 @@
+name: Update xxKSU and SUSFS
+run-name: Check for xxKSU / SUSFS updates
+
+# Once a day (and whenever you press "Run workflow") this checks
+# backslashxx/KernelSU (xxKSU) and JackA1ltman's SUSFS for new commits.
+# If there is something new it:
+#   1. updates sources.json (and the SUSFS core files if Jack changed them),
+#   2. opens or refreshes the pull request "Update xxKSU / SUSFS",
+#   3. starts a test build of that pull request on a GitHub runner.
+# Flash the test ZIP; if it works, press "Merge" on the pull request.
+on:
+  schedule:
+    - cron: '23 1 * * *'   # 08:23 WIB every day
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: update-sources
+  cancel-in-progress: false
+
+env:
+  UPDATE_BRANCH: auto-update
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 1
+
+      - name: Look for new commits
+        id: check
+        run: |
+          set -uo pipefail
+          python3 scripts/update_sources.py --summary "$RUNNER_TEMP/update.md"
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          cat "$RUNNER_TEMP/update.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open or refresh the update pull request
+        if: steps.check.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE: ${{ github.event.repository.default_branch }}
+          NEEDS_REVIEW: ${{ steps.check.outputs.needs_review }}
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$UPDATE_BRANCH"
+          git add -A sources.json fs/susfs.c include/linux/susfs.h include/linux/susfs_def.h
+          { echo 'Update xxKSU / SUSFS'; echo; cat "$RUNNER_TEMP/update.md"; } > "$RUNNER_TEMP/message.txt"
+          git commit -q -F "$RUNNER_TEMP/message.txt"
+          git push --force origin "HEAD:refs/heads/$UPDATE_BRANCH"
+          title='Update xxKSU / SUSFS'
+          [[ "$NEEDS_REVIEW" == true ]] && title="$title (needs review)"
+          number=$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$UPDATE_BRANCH" --state open --json number -q '.[0].number')
+          if [[ -n "$number" ]]; then
+            gh pr edit "$number" --repo "$GITHUB_REPOSITORY" --title "$title" --body-file "$RUNNER_TEMP/update.md"
+          else
+            gh pr create --repo "$GITHUB_REPOSITORY" --base "$BASE" --head "$UPDATE_BRANCH" \
+              --title "$title" --body-file "$RUNNER_TEMP/update.md"
+          fi
+          gh workflow run kernel.yml --repo "$GITHUB_REPOSITORY" --ref "$UPDATE_BRANCH" -f self_hosted=false
+
+      - name: Report a blocked update
+        if: steps.check.outputs.exit_code != '0'
+        run: |
+          echo '::error::An update was blocked. Open this run and read the summary for the reason.'
+          exit 1
