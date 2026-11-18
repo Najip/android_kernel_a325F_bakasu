@@ -3,7 +3,7 @@ run-name: xxKSU experimental kernel build (${{ github.ref_name }})
 
 on:
   push:
-    branches: [xxksu-sufs-jack]
+    branches: [xxksu-sufs-jack, xxksu-manual-susfs-port, 'xxksu-manual-susfs-port-*']
     paths:
       - '.github/workflows/kernel.yml'
       - 'build_xxksu.sh'
@@ -42,7 +42,7 @@ env:
 jobs:
   build:
     name: Build and package experimental xxKSU kernel
-    if: github.ref == 'refs/heads/xxksu-sufs-jack'
+    if: github.ref == 'refs/heads/xxksu-sufs-jack' || github.ref == 'refs/heads/xxksu-manual-susfs-port' || startsWith(github.ref, 'refs/heads/xxksu-manual-susfs-port-')
     runs-on: ${{ github.event_name == 'workflow_dispatch' && inputs.self_hosted && 'self-hosted' || 'ubuntu-latest' }}
     timeout-minutes: 120
     permissions:
@@ -244,12 +244,16 @@ jobs:
         if: always() && steps.report.outcome == 'success'
         run: |
           set -euo pipefail
+          case "$GITHUB_REF" in
+            refs/heads/xxksu-sufs-jack|refs/heads/xxksu-manual-susfs-port|refs/heads/xxksu-manual-susfs-port-*) ;;
+            *) echo '::error::Refusing report push outside approved build branches'; exit 1 ;;
+          esac
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -- audit-reports/xxksu-build
           if ! git diff --cached --quiet; then
             git commit -m "audit: xxKSU build $GITHUB_RUN_ID attempt $GITHUB_RUN_ATTEMPT [skip ci]"
-            git push origin HEAD:refs/heads/xxksu-sufs-jack
+            git push origin "HEAD:$GITHUB_REF"
           fi
 
       - name: Clean build output (self-hosted)
