@@ -1,0 +1,354 @@
+                          ~~~~~~~~~~~~~~~~~~~~^
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/input/touchscreen/melfas_mip4/mip4_ts.c:1139:60: note: place parentheses around the '==' expression to silence this warning
+                                0 == (rbuf[2]) | (rbuf[3] << 8) || 0xFFFF == (rbuf[2]) | (rbuf[3] << 8) ||
+                                                                                       ^
+                                                                   (                  )
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/input/touchscreen/melfas_mip4/mip4_ts.c:1139:60: note: place parentheses around the | expression to evaluate it first
+                                0 == (rbuf[2]) | (rbuf[3] << 8) || 0xFFFF == (rbuf[2]) | (rbuf[3] << 8) ||
+                                                                                       ^
+                                                                             (                         )
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/input/touchscreen/melfas_mip4/mip4_ts.c:1272:25: warning: address of 'info->client->dev.of_node' will always evaluate to 'true' [-Wpointer-bool-conversion]
+        if (&info->client->dev.of_node) {
+        ~~   ~~~~~~~~~~~~~~~~~~^~~~~~~
+  CC      drivers/hid/hid-roccat-ryos.o
+5 warnings generated.
+  CC      drivers/input/sec_input/sec_tsp_dumpkey.o
+  CC      lib/clz_tab.o
+  AR      drivers/input/tablet/built-in.o
+  CC      drivers/input/touchscreen/melfas_mip4/mip4_ts_mod.o
+  CC      drivers/input/sec_input/sec_common_fn.o
+  CC      net/ipv4/tcp_bic.o
+  CC      fs/mbcache.o
+  CC      drivers/input/sec_input/sec_cmd.o
+  CC      lib/cmdline.o
+  CC      net/ipv4/netfilter/nf_socket_ipv4.o
+  CC      lib/cpumask.o
+  CC      net/netfilter/xt_TRACE.o
+  CC      net/netfilter/xt_IDLETIMER.o
+  CC      drivers/hid/hid-roccat-savu.o
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/input/touchscreen/melfas_mip4/mip4_ts_mod.c:387:6: warning: unused variable 'virtual_key_info' [-Wunused-variable]
+        int virtual_key_info = 0;
+            ^
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/input/touchscreen/melfas_mip4/mip4_ts_mod.c:381:6: warning: unused variable 'left_event' [-Wunused-variable]
+        int left_event = 0;
+            ^
+2 warnings generated.
+  CC      drivers/input/touchscreen/melfas_mip4/mip4_ts_dev.o
+  CC      fs/posix_acl.o
+  CC      fs/coredump.o
+  CC      lib/ctype.o
+  CC      fs/drop_caches.o
+  CC      fs/dcookies.o
+  CC      drivers/hid/hid-saitek.o
+  CC      drivers/input/sec_input/stm/stm_i2c.o
+  CC      net/netfilter/xt_bpf.o
+  CC      drivers/input/sec_input/stm/stm_core.o
+  AR      drivers/input/sec_input/built-in.o
+  CC      drivers/hid/hid-samsung.o
+  CC      lib/dec_and_lock.o
+  CC      net/netfilter/xt_comment.o
+  CC      net/ipv4/netfilter/nf_log_ipv4.o
+  CC      drivers/iommu/iommu.o
+In file included from /home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/fs/coredump.c:52:
+In file included from /home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched.h:1851:
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+                TP_PROTO(struct hmp_statisic *hmp_stats),
+                                ^
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+                int task_load, struct clb_stats *B, struct clb_stats *L),
+                                      ^
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+  CC      drivers/input/touchscreen/melfas_mip4/mip4_fw_mss100.o
+12 warnings generated.
+  CC      drivers/iommu/iommu-traces.o
+  CC      drivers/iommu/iommu-sysfs.o
+  CC      drivers/hid/hid-sjoy.o
+  CC      net/netfilter/xt_connlimit.o
+  CC      net/ipv4/netfilter/nf_reject_ipv4.o
+  CC      lib/decompress.o
+  CC      net/ipv4/netfilter/nf_nat_h323.o
+  CC      drivers/input/sec_input/stm/stm_fn.o
+  CC      net/netfilter/xt_conntrack.o
+  AR      fs/built-in.o
+  CC      lib/decompress_inflate.o
+  AR      drivers/input/touchscreen/melfas_mip4/built-in.o
+  AR      drivers/input/touchscreen/built-in.o
+  AR      drivers/input/input-core.o
+  CC      drivers/irqchip/irqchip.o
+  AR      drivers/input/built-in.o
+  CC      drivers/hid/hid-sony.o
+  CC      drivers/irqchip/irq-gic.o
+  CC      drivers/irqchip/irq-gic-common.o
+  CC      lib/decompress_unlz4.o
+  CC      drivers/iommu/dma-iommu.o
+  CC      drivers/irqchip/irq-gic-v3.o
+  CC      net/ipv4/netfilter/nf_nat_pptp.o
+-- KDIR: 
+-- MDIR: /home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/KernelSU/kernel
+-- KernelSU Manager package name: me.weishu.kernelsu
+-- KernelSU Manager signature size: 0x033b
+-- KernelSU Manager signature hash: c371061b19d8c7d7d6133c6a9bafe198fa944e50c1b31c9d8daa8d7f1fc2d2d6
+-- KernelSU/compat: iterate_dir found!
+-- KernelSU/compat: f_op->read_iter found!
+  CC      drivers/hid/hid-speedlink.o
+  CC      drivers/input/sec_input/stm/stm_fw.o
+  CC      lib/decompress_unxz.o
+  CC      drivers/hid/hid-sunplus.o
+  CC      net/netfilter/xt_ecn.o
+  CC      drivers/irqchip/irq-partition-percpu.o
+  CC      drivers/hid/hid-gaff.o
+  CC      net/ipv4/netfilter/nf_nat_masquerade_ipv4.o
+  CC      lib/dump_stack.o
+  CC      lib/earlycpio.o
+  CC      net/ipv4/netfilter/nf_nat_proto_gre.o
+  CC      drivers/input/sec_input/stm/stm_dump.o
+  CC      drivers/iommu/iova.o
+  CC      drivers/input/sec_input/stm/stm_cmd.o
+  CC      drivers/irqchip/irq-mtk-sysirq.o
+  CC      net/netfilter/xt_esp.o
+  CC      drivers/hid/hid-tmff.o
+  CC      drivers/hid/hid-tivo.o
+  CC      lib/extable.o
+  CC      net/ipv4/tcp_cubic.o
+  CC      net/netfilter/xt_hashlimit.o
+  AR      drivers/irqchip/built-in.o
+  CC      net/ipv4/netfilter/ip_tables.o
+  CC      drivers/hid/hid-topseed.o
+  CC      drivers/iommu/of_iommu.o
+  CC      lib/fdt.o
+  CC      lib/fdt_empty_tree.o
+  CC      drivers/hid/hid-twinhan.o
+  CC      net/ipv4/netfilter/iptable_filter.o
+  CC      net/netfilter/xt_helper.o
+  CC      lib/fdt_ro.o
+  CC      drivers/hid/hid-uclogic.o
+  CC      drivers/hid/hid-zpff.o
+  CC      net/ipv4/xfrm4_policy.o
+  AR      drivers/macintosh/built-in.o
+  CC      drivers/leds/led-core.o
+  CC      lib/fdt_rw.o
+  CC      net/ipv4/xfrm4_state.o
+  CC      net/ipv4/xfrm4_input.o
+  AR      drivers/iommu/built-in.o
+  CC      lib/fdt_strerror.o
+  CC      drivers/hid/hid-zydacron.o
+  CC      net/netfilter/xt_hl.o
+  CC      net/netfilter/xt_iprange.o
+  CC      net/netfilter/xt_l2tp.o
+  CC      lib/fdt_sw.o
+  CC      drivers/leds/led-class.o
+  CC      net/ipv4/netfilter/iptable_mangle.o
+  CC      drivers/hid/wacom_wac.o
+  CC      drivers/leds/led-triggers.o
+  CC      drivers/hid/wacom_sys.o
+  CC      lib/fdt_wip.o
+  CC      net/ipv4/netfilter/iptable_nat.o
+  CC      net/ipv4/netfilter/iptable_raw.o
+  CC      lib/flex_proportions.o
+  CC      net/netfilter/xt_length.o
+  AR      drivers/input/sec_input/stm/stm_ts.o
+  AR      drivers/input/sec_input/stm/built-in.o
+  CC      drivers/leds/leds-sm5714-fled.o
+  CC      lib/idr.o
+  CC      drivers/leds/trigger/ledtrig-timer.o
+  CC      net/netfilter/xt_limit.o
+  CC      lib/int_sqrt.o
+  CC      lib/ioremap.o
+  CC      lib/irq_regs.o
+  CC      net/ipv4/netfilter/iptable_security.o
+  CC      lib/is_single_threaded.o
+  AR      drivers/leds/trigger/built-in.o
+  CC      lib/klist.o
+  CC      net/netfilter/xt_mac.o
+  CC      net/netfilter/xt_owner.o
+  CC      drivers/hid/hid-waltop.o
+  CC      net/ipv4/xfrm4_output.o
+  CC      drivers/mailbox/mailbox.o
+  CC      drivers/md/dm-uevent.o
+  CC      drivers/md/dm.o
+  AR      drivers/leds/built-in.o
+  CC      net/ipv4/netfilter/ipt_ah.o
+  CC      net/ipv4/netfilter/ipt_rpfilter.o
+  CC      drivers/hid/hid-wiimote-core.o
+  CC      drivers/md/dm-table.o
+  CC      drivers/md/dm-target.o
+  CC      net/netfilter/xt_pkttype.o
+  CC      lib/kobject.o
+  CC      drivers/mailbox/mtk-cmdq-mailbox.o
+  AR      drivers/media/common/b2c2/built-in.o
+  AR      drivers/media/common/saa7146/built-in.o
+  AR      drivers/media/common/siano/built-in.o
+  AR      drivers/media/common/v4l2-tpg/built-in.o
+  CC      net/ipv4/netfilter/ipt_MASQUERADE.o
+  AR      drivers/media/common/built-in.o
+  CC      drivers/hid/hid-wiimote-modules.o
+  AR      drivers/media/firewire/built-in.o
+  AR      drivers/media/i2c/soc_camera/built-in.o
+  CC      drivers/media/i2c/ir-kbd-i2c.o
+  CC      net/netfilter/xt_policy.o
+  CC      net/netfilter/xt_quota.o
+  CC      net/ipv4/netfilter/ipt_REJECT.o
+  CC      lib/kobject_uevent.o
+  CC      net/ipv4/netfilter/arp_tables.o
+  CC      drivers/memory/mtk-smi.o
+  AR      drivers/media/i2c/built-in.o
+  AR      drivers/media/mmc/siano/built-in.o
+  AR      drivers/media/mmc/built-in.o
+  CC      drivers/memory/mtk-smi-debug.o
+  CC      drivers/hid/usbhid/hid-core.o
+  AR      drivers/media/pci/b2c2/built-in.o
+  CC      drivers/md/dm-linear.o
+  AR      drivers/media/pci/ddbridge/built-in.o
+  CC      drivers/md/dm-stripe.o
+  AR      drivers/media/pci/dm1105/built-in.o
+  AR      drivers/media/pci/mantis/built-in.o
+  CC      net/netfilter/xt_quota2.o
+  AR      drivers/media/pci/netup_unidvb/built-in.o
+  AR      drivers/media/pci/ngene/built-in.o
+  AR      drivers/media/pci/pluto2/built-in.o
+  CC      net/netfilter/xt_socket.o
+  AR      drivers/media/pci/pt1/built-in.o
+  AR      drivers/media/pci/pt3/built-in.o
+  AR      drivers/media/pci/saa7146/built-in.o
+  AR      drivers/media/pci/smipcie/built-in.o
+  AR      drivers/media/pci/ttpci/built-in.o
+  AR      drivers/media/pci/built-in.o
+  AR      drivers/mailbox/built-in.o
+  CC      drivers/md/dm-ioctl.o
+  CC      drivers/md/dm-io.o
+  AR      drivers/media/platform/blackfin/built-in.o
+  AR      drivers/media/platform/davinci/built-in.o
+  AR      drivers/media/platform/meson/built-in.o
+  AR      drivers/memory/built-in.o
+  CC      drivers/md/dm-kcopyd.o
+  CC      drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_drv.o
+  AR      drivers/media/radio/built-in.o
+  CC      net/ipv4/xfrm4_protocol.o
+  CC      net/ipv4/netfilter/arpt_mangle.o
+  CC      lib/nmi_backtrace.o
+  CC      lib/nodemask.o
+  CC      net/netfilter/xt_state.o
+  CC      drivers/hid/usbhid/hid-quirks.o
+  CC      drivers/hid/usbhid/hiddev.o
+  CC      net/netfilter/xt_statistic.o
+  CC      net/netfilter/xt_string.o
+  CC      drivers/media/platform/mtk-vcodec/vdec_drv_if.o
+  CC      net/ipv4/netfilter/arptable_filter.o
+  CC      drivers/media/platform/mtk-vcu/mtk_vcu.o
+  CC      drivers/md/dm-sysfs.o
+  CC      drivers/media/platform/mtk-vcu/mtk_vcodec_mem.o
+  CC      lib/plist.o
+  CC      lib/radix-tree.o
+  CC      net/netfilter/xt_time.o
+  CC      drivers/md/dm-stats.o
+  CC      net/netfilter/xt_u32.o
+  AR      net/ipv4/netfilter/nf_conntrack_ipv4.o
+  AR      net/ipv4/netfilter/nf_nat_ipv4.o
+  AR      net/ipv4/netfilter/built-in.o
+  CC      net/ipv4/bpf_tcp_ca.o
+  CC      drivers/media/platform/mtk-vcodec/mtk_vcodec_dec.o
+  CC      lib/ratelimit.o
+  CC      lib/rbtree.o
+  AR      drivers/hid/usbhid/usbhid.o
+  AR      drivers/hid/usbhid/built-in.o
+  AR      drivers/hid/hid.o
+  CC      net/netfilter/xt_domainfilter.o
+  AR      drivers/hid/hid-logitech.o
+  AR      drivers/hid/hid-picolcd.o
+  AR      drivers/hid/wacom.o
+  AR      drivers/hid/hid-wiimote.o
+  AR      drivers/hid/built-in.o
+  CC [M]  net/ipv4/tcp_westwood.o
+  CC      drivers/media/rc/rc-main.o
+  CC      drivers/media/rc/keymaps/rc-adstech-dvb-t-pci.o
+  CC      drivers/md/dm-rq.o
+  CC      drivers/media/rc/keymaps/rc-alink-dtu-m.o
+  CC      drivers/media/platform/mtk-vcodec/mt6768/mtk_vcodec_dec_pm.o
+  CC      drivers/media/platform/mtk-vcodec/vdec/vdec_common_if.o
+  AR      drivers/media/platform/mtk-vcu/built-in.o
+  CC      lib/seq_buf.o
+  CC      drivers/media/platform/mtk-videobuf/mtk-dma-contig.o
+  AR      net/netfilter/netfilter.o
+  CC      drivers/media/rc/keymaps/rc-anysee.o
+  AR      net/netfilter/nf_conntrack.o
+  AR      net/netfilter/nf_conntrack_h323.o
+  AR      net/netfilter/nf_nat.o
+  AR      net/netfilter/built-in.o
+  CC      drivers/media/rc/keymaps/rc-apac-viewcomp.o
+  AR      drivers/media/platform/omap/built-in.o
+  AR      drivers/media/platform/stm32/built-in.o
+  CC [M]  net/ipv4/tcp_htcp.o
+  AR      drivers/media/spi/built-in.o
+  CC      drivers/media/rc/rc-ir-raw.o
+  CC      drivers/mfd/mfd-core.o
+  CC      drivers/media/rc/ir-nec-decoder.o
+  CC      lib/sha1.o
+  CC      drivers/media/platform/mtk-vcodec/vdec/vdec_log_if.o
+  CC      drivers/media/rc/keymaps/rc-astrometa-t2hybrid.o
+  CC      drivers/media/rc/keymaps/rc-asus-pc39.o
+  CC      drivers/media/rc/keymaps/rc-asus-ps3-100.o
+  CC      drivers/md/dm-builtin.o
+  CC      drivers/media/rc/ir-rc5-decoder.o
+  CC      drivers/media/rc/ir-rc6-decoder.o
+  AR      drivers/media/platform/mtk-videobuf/built-in.o
+  CC      drivers/media/rc/ir-jvc-decoder.o
+  CC      drivers/md/dm-bufio.o
+  AR      net/ipv4/gre.o
+  CC      drivers/media/platform/mtk-vcodec/vdec_vcu_if.o
+  AR      net/ipv4/udp_tunnel.o
+  CC      lib/show_mem.o
+  AR      net/ipv4/built-in.o
+  AR      net/built-in.o
+  CC      drivers/media/rc/keymaps/rc-ati-tv-wonder-hd-600.o
+  CC      drivers/mfd/syscon.o
+  CC      drivers/media/rc/ir-sony-decoder.o
+  CC      drivers/mfd/sm/sm5714/sm5714_core.o
+  CC      drivers/md/dm-crypt.o
+  CC      drivers/md/dm-default-key.o
+  CC      drivers/md/dm-snap.o
+  CC      lib/siphash.o
+  CC      drivers/media/rc/keymaps/rc-ati-x10.o
+  CC      drivers/media/platform/mtk-vcodec/mtk_vcodec_enc.o
+  CC      drivers/md/dm-exception-store.o
+  AR      drivers/misc/cb710/built-in.o
+  AR      drivers/misc/eeprom/built-in.o
+  AR      drivers/misc/lis3lv02d/built-in.o
+  CC      drivers/mfd/mt6358-core.o
+  CC      drivers/media/rc/keymaps/rc-avermedia-a16d.o
+  CC      drivers/misc/mediatek/accdet/accdet_drv.o
+  CC      drivers/misc/mediatek/aee/aed/aed-main.o
+  CC      drivers/misc/mediatek/aee/aed/monitor_hang.o
+  CC      drivers/mfd/sm/sm5714/sm5714-irq.o
+  CC      lib/string.o
+  CC      drivers/media/rc/keymaps/rc-avermedia.o
+  CC      drivers/misc/mediatek/accdet/mt6358/accdet.o
+  CC      drivers/media/rc/keymaps/rc-avermedia-cardbus.o
+  CC      drivers/media/rc/keymaps/rc-avermedia-dvbt.o
+  CC      drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.o
+  AR      drivers/mfd/sm/sm5714/mfd_sm5714.o
+  AR      drivers/mfd/sm/sm5714/built-in.o
+  CC      drivers/md/dm-snap-transient.o
+  AR      drivers/misc/ti-st/built-in.o
+  CC      drivers/md/dm-snap-persistent.o
+  AR      drivers/misc/mic/bus/built-in.o
+  AR      drivers/misc/mic/built-in.o
+  CC      drivers/mfd/mt635x-ot-debug.o
+  CC      drivers/md/dm-verity-fec.o
+  CC      lib/timerqueue.o
+  CC      lib/vsprintf.o
+  CC      drivers/media/rc/keymaps/rc-avermedia-m135a.o
+  CC      drivers/misc/mediatek/atf/atf_logger.o
+  CC      drivers/misc/mediatek/atf/mt_secure_call.o
+  AR      drivers/misc/mediatek/aee/aed/aed.o
+  AR      drivers/misc/mediatek/aee/aed/built-in.o
+  CC      drivers/media/platform/mtk-vcodec/mt6768/mtk_vcodec_enc_pm.o
+  CC      drivers/misc/mediatek/aee/common/dummy.o

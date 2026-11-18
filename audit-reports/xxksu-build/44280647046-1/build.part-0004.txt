@@ -1,0 +1,334 @@
+visibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+                int task_load, struct clb_stats *B, struct clb_stats *L),
+                                      ^
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+  CC      security/keys/request_key_auth.o
+  CC      kernel/profile.o
+  CC      mm/gup.o
+  AR      kernel/time/built-in.o
+  CC      mm/highmem.o
+  CC      mm/memory.o
+12 warnings generated.
+  CC      security/keys/user_defined.o
+  CC      mm/mincore.o
+  CC      security/selinux/selinuxfs.o
+  CC      security/selinux/netlink.o
+  CC      fs/attr.o
+  CC      kernel/trace/trace_export.o
+  CC      security/commoncap.o
+  CC      security/keys/compat.o
+  CC      kernel/sched/completion.o
+  CC      kernel/sched/idle.o
+  CC      kernel/sched/cpupri.o
+  CC      kernel/trace/trace_event_perf.o
+  CC      crypto/api.o
+  CC      security/keys/proc.o
+  CC      fs/bad_inode.o
+  CC      fs/file.o
+  CC      mm/mlock.o
+4 warnings generated.
+  CC      security/selinux/nlmsgtab.o
+  CC      kernel/trace/trace_events_filter.o
+  CC      security/keys/sysctl.o
+  CC      kernel/stacktrace.o
+  CC      fs/filesystems.o
+  CC      crypto/cipher.o
+  CC      kernel/sched/cpudeadline.o
+  CC      kernel/trace/trace_events_trigger.o
+  CC      kernel/sched/topology.o
+  CC      security/selinux/netif.o
+  AR      security/keys/built-in.o
+  CC      security/selinux/netnode.o
+  CC      crypto/compress.o
+  CC      mm/mmap.o
+  CC      fs/namespace.o
+  CC      security/min_addr.o
+  CC      kernel/trace/bpf_trace.o
+  CC      fs/seq_file.o
+  CC      security/selinux/netport.o
+  CC      security/selinux/ibpkey.o
+  CC      kernel/sched/stop_task.o
+  CC      security/selinux/ss/ebitmap.o
+  CC      crypto/memneq.o
+  CC      mm/mprotect.o
+  CC      kernel/futex.o
+  CC      kernel/sched/energy.o
+  CC      kernel/sched/stats.o
+  CC      kernel/sched/debug.o
+  CC      security/selinux/ss/hashtab.o
+  CC      crypto/crypto_wq.o
+  CC      crypto/algapi.o
+  CC      block/bio.o
+  CC      block/elevator.o
+  CC      crypto/scatterwalk.o
+  CC      mm/mremap.o
+  CC      security/security.o
+  CC      fs/xattr.o
+  CC      security/selinux/ss/symtab.o
+  CC      kernel/trace/trace_kprobe.o
+  CC      security/selinux/ss/sidtab.o
+  CC      mm/msync.o
+  CC      security/lsm_audit.o
+  CC      kernel/sched/tune.o
+  CC      kernel/sched/cpuacct.o
+  CC      kernel/sched/cpufreq.o
+  CC      mm/page_vma_mapped.o
+  CC      kernel/trace/power-traces.o
+  CC      kernel/trace/rpm-traces.o
+In file included from /home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/kernel/sched/tune.c:9:
+In file included from /home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched.h:1851:
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+                TP_PROTO(struct hmp_statisic *hmp_stats),
+                                ^
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+                int task_load, struct clb_stats *B, struct clb_stats *L),
+                                      ^
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+  CC      crypto/proc.o
+  CC      security/selinux/ss/avtab.o
+  CC      block/blk-core.o
+  CC      security/selinux/ss/policydb.o
+  CC      fs/libfs.o
+  CC      block/blk-tag.o
+12 warnings generated.
+  CC      mm/pagewalk.o
+  CC      mm/pgtable-generic.o
+  CC      crypto/aead.o
+  CC      mm/rmap.o
+  CC      kernel/sched/cpufreq_schedutil.o
+  CC      kernel/trace/trace_probe.o
+  CC      fs/fs-writeback.o
+  CC      kernel/sched/membarrier.o
+  CC      fs/pnode.o
+  CC      fs/splice.o
+  CC      fs/sync.o
+  CC      kernel/smp.o
+In file included from /home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/kernel/sched/cpufreq_schedutil.c:19:
+In file included from /home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched.h:1851:
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+                TP_PROTO(struct hmp_statisic *hmp_stats),
+                                ^
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+                int task_load, struct clb_stats *B, struct clb_stats *L),
+                                      ^
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+  CC      security/selinux/ss/services.o
+  CC      kernel/trace/trace_uprobe.o
+12 warnings generated.
+  CC      security/device_cgroup.o
+  CC      security/selinux/ss/conditional.o
+  CC      crypto/ablkcipher.o
+  CC      kernel/sched/psi.o
+  CC      mm/vmalloc.o
+  CC      mm/process_vm_access.o
+  CC      block/blk-sysfs.o
+  CC      mm/mm_debug.o
+  CC      security/selinux/ss/mls.o
+  CC      fs/utimes.o
+  CC      kernel/trace/mtk_trace.o
+  CC      mm/init-mm.o
+  CC      block/blk-flush.o
+  CC      crypto/blkcipher.o
+  AR      kernel/sched/built-in.o
+  CC      mm/sec_mm/sec_mm_init.o
+  CC      fs/stack.o
+  CC      fs/fs_struct.o
+  CC      fs/statfs.o
+  CC      block/blk-settings.o
+  CC      security/selinux/ss/status.o
+  CC      block/blk-ioc.o
+  AR      kernel/trace/built-in.o
+  CC      kernel/uid16.o
+  CC      mm/sec_mm/lowfile_detect.o
+  CC      mm/sec_mm/panic_handler.o
+  CC      mm/sec_mm/show_mem.o
+  CC      fs/fs_pin.o
+  CC      mm/nobootmem.o
+  CC      fs/nsfs.o
+  CC      kernel/module.o
+  AR      security/selinux/selinux.o
+  AR      security/selinux/built-in.o
+  AR      security/built-in.o
+  CC      crypto/skcipher.o
+  CC      crypto/seqiv.o
+  CC      mm/fadvise.o
+  CC      mm/madvise.o
+  CC      mm/memblock.o
+  CC      block/blk-map.o
+  CC      block/blk-exec.o
+  AR      mm/sec_mm/sec_mm.o
+  AR      mm/sec_mm/built-in.o
+  CC      kernel/kallsyms.o
+  CC      fs/buffer.o
+  CC      kernel/compat.o
+  CC      crypto/echainiv.o
+  CC      block/blk-merge.o
+  CC      kernel/utsname.o
+  CC      mm/page_io.o
+  CC      kernel/pid_namespace.o
+  CC      crypto/ahash.o
+  GZIP    kernel/config_data.gz
+  CC      crypto/shash.o
+  CHK     kernel/kheaders_data.tar.xz
+  CC      fs/block_dev.o
+  GEN     kernel/kheaders_data.tar.xz
+  CC      mm/swap_state.o
+  CC      kernel/stop_machine.o
+  CC      drivers/amba/bus.o
+  CC      fs/direct-io.o
+  CC      mm/swapfile.o
+  CC      block/blk-softirq.o
+  CC      mm/dmapool.o
+  CC      mm/sparse.o
+  CC      block/blk-timeout.o
+  CC      crypto/akcipher.o
+  CC      fs/mpage.o
+  CC      crypto/kpp.o
+  AR      drivers/amba/built-in.o
+  CC      drivers/android/binderfs.o
+  AR      drivers/auxdisplay/built-in.o
+  ASN.1   crypto/rsapubkey-asn1.c
+  CC      kernel/audit.o
+  ASN.1   crypto/rsaprivkey-asn1.c
+  CC      kernel/auditfilter.o
+  CC      kernel/auditsc.o
+  CC      block/blk-lib.o
+  CC      fs/susfs.o
+  CC      drivers/android/binder.o
+  CC      fs/susfs_priority.o
+  CC      crypto/rsa.o
+  CC      crypto/rsa_helper.o
+  CC      mm/sparse-vmemmap.o
+  CC      drivers/android/binder_alloc.o
+  CC      kernel/audit_watch.o
+  CC      block/blk-mq.o
+  CC      mm/slub.o
+  CC      crypto/rsa-pkcs1pad.o
+  CC      block/blk-mq-tag.o
+  CC      block/blk-stat.o
+  CC      drivers/base/component.o
+  CC      fs/susfs_ksu_glue.o
+  CC      drivers/base/core.o
+  CC      crypto/acompress.o
+  CC      mm/migrate.o
+  CC      fs/xxksu_susfs_lifecycle.o
+  CC      kernel/audit_fsnotify.o
+  CC      kernel/audit_tree.o
+  CC      kernel/kprobes.o
+  CC      fs/ksun_compat.o
+  AR      drivers/android/built-in.o
+  CC      mm/page_counter.o
+  CC      block/blk-mq-sysfs.o
+  CC      crypto/scompress.o
+  CC      sound/sound_core.o
+  CC      fs/proc_namespace.o
+  CC      fs/dlog_hook.o
+  CC      fs/configfs/inode.o
+  CC      mm/memcontrol.o
+  AR      drivers/battery/charger/pca9468_charger/built-in.o
+  CC      drivers/base/bus.o
+  CC      drivers/base/dd.o
+  CC      drivers/base/syscore.o
+  CC      drivers/battery/charger/sm5714_charger/sm5714_charger.o
+  CC      drivers/battery/charger/sm5714_charger/sm5714_charger_oper.o
+  AR      sound/arm/built-in.o
+  AR      sound/atmel/built-in.o
+  CC      sound/core/sound.o
+  CC      fs/configfs/file.o
+  CC      block/blk-mq-cpumap.o
+  CC      crypto/algboss.o
+  CC      crypto/testmgr.o
+  CC      mm/vmpressure.o
+  CC      mm/swap_cgroup.o
+  CC      fs/configfs/dir.o
+  AR      drivers/battery/charger/sm5714_charger/built-in.o
+  CC      fs/configfs/symlink.o
+  CC      drivers/base/driver.o
+  CC      sound/core/init.o
+  CC      fs/configfs/mount.o
+  CC      block/blk-mq-sched.o
+  CC      fs/configfs/item.o
+  AR      sound/drivers/mpu401/built-in.o
+  AR      sound/drivers/opl3/built-in.o
+  CC      crypto/cmac.o
+  AR      sound/drivers/opl4/built-in.o
+  CC      fs/crypto/crypto.o
+  AR      sound/drivers/pcsp/built-in.o
+  AR      sound/drivers/vx/built-in.o
+  AR      sound/drivers/built-in.o
+  CC      drivers/battery/common/sec_battery.o
+  CC      drivers/base/class.o
+  CC      mm/cleancache.o
+  CC      mm/rbinregion.o
+  CC      crypto/hmac.o
+  CC      sound/core/memory.o
+  AR      fs/configfs/configfs.o
+  AR      fs/configfs/built-in.o
+  AR      sound/firewire/built-in.o
+  CC      fs/crypto/fname.o
+  AR      sound/hda/built-in.o
+  CC      crypto/xcbc.o
+  CC      drivers/battery/common/sec_battery_vote.o
+  CC      drivers/battery/fuelgauge/sm5714_fuelgauge/sm5714_fuelgauge.o
+  CC      block/ioctl.o
+  CC      drivers/base/platform.o
+  CC      block/genhd.o
+  CC      mm/rbincache.o
+  CC      crypto/crypto_null.o
+  CC      sound/core/control.o
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/firmware/Makefile:95: target 'firmware/melfas/melfas_mip4_ts.fw.gen.S' given more than once in the same rule
+  CC      fs/crypto/hkdf.o
+  MK_FW   firmware/melfas/melfas_mip4_ts.fw.gen.S
+  MK_FW   firmware/tsp_stm/fts5cu56a_a32.bin.gen.S
+  MK_FW   firmware/tsp_stm/fts5cu56a_a22.bin.gen.S
+  AS      firmware/melfas/melfas_mip4_ts.fw.gen.o
+  CC      mm/page_isolation.o
+  CC      fs/devpts/inode.o
+  AS      firmware/tsp_stm/fts5cu56a_a32.bin.gen.o
+  AR      drivers/battery/fuelgauge/sm5714_fuelgauge/built-in.o
+  CC      fs/erofs/super.o
+  CC      drivers/battery/common/sec_battery_thermal.o
+  CC      fs/exfat/inode.o
+  CC      fs/crypto/hooks.o
+  CC      crypto/md5.o
+  AS      firmware/tsp_stm/fts5cu56a_a22.bin.gen.o
+  CC      drivers/base/cpu.o
+  AR      fs/devpts/devpts.o
+  AR      fs/devpts/built-in.o
+  CC      fs/crypto/keyring.o
+  CC      mm/zsmalloc.o
+  CC      block/partition-generic.o
+  AR      firmware/built-in.o
+  CC      block/ioprio.o
+  CC      drivers/battery/common/sec_battery_dt.o
+  CC      fs/exfat/namei.o
+  CC      fs/erofs/inode.o
+  CC      sound/core/misc.o
+  CC      crypto/sha1_generic.o
+  AR      sound/i2c/other/built-in.o
+  AR      sound/i2c/built-in
