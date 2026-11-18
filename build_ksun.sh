@@ -2,7 +2,7 @@
 # KernelSU-Next (legacy) + SUSFS build of the A325X 4.14 kernel.
 #  1. downloads KernelSU-Next at the commit pinned in sources.json into KernelSU/
 #     and applies patches/kernelsu/ (scripts/setup_sources.py);
-#  2. applies every patches/kernel/*.patch in file-name order;
+#  2. applies patches/kernel/ (network fix always, tuning only with PERF_TUNING=true);
 #  3. compiles with the pinned AOSP Clang 14.
 # The names of applied kernel patches go to $OUT/applied-patches.txt.
 #
@@ -87,34 +87,9 @@ VENDOR_WARN_FLAGS="-Wno-error \
 export KCFLAGS=${KCFLAGS:-$VENDOR_WARN_FLAGS}
 
 mkdir -p "$OUT"
-: > "$OUT/applied-patches.txt"
-
-apply_one() {
-  name=$(basename "$1")
-  if git -C "$ROOT" apply --check --reverse "$1" >/dev/null 2>&1; then
-    echo "Kernel patch already applied: $name"
-  else
-    git -C "$ROOT" apply --check "$1" || {
-      echo "::error::Kernel patch does not apply: $name" >&2
-      exit 1
-    }
-    git -C "$ROOT" apply "$1"
-    echo "Applied kernel patch: $name"
-  fi
-  printf '%s\n' "$name" >> "$OUT/applied-patches.txt"
-}
-
-apply_kernel_patches() {
-  for p in $(find "$ROOT/patches/kernel" -maxdepth 1 -type f -name '*.patch' | sort); do
-    apply_one "$p"
-  done
-}
-
-if [ "${NO_KERNEL_PATCHES:-0}" = 1 ]; then
-  echo "Kernel patches skipped (NO_KERNEL_PATCHES=1)"
-else
-  apply_kernel_patches
-fi
+# Device patches: network fix and patches/kernel/0004 always, tuning only if
+# PERF_TUNING=true, original GPU voltages restored last.
+python3 "$ROOT/scripts/apply_kernel_patches.py" "$OUT"
 
 cp "$TOOLCHAIN/aosp-source.txt" "$OUT/toolchain-source.txt"
 "$CC" --version > "$OUT/clang-version.txt"

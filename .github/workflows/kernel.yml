@@ -31,6 +31,10 @@ on:
         description: 'Run on your own PC runner (untick to use a GitHub runner)'
         type: boolean
         default: true
+      perf_tuning:
+        description: 'Apply the optional performance tuning patch'
+        type: boolean
+        default: false
       publish_release:
         description: 'Publish a GitHub Release with the ZIP'
         type: boolean
@@ -45,6 +49,7 @@ concurrency:
 
 env:
   SELF_HOSTED: ${{ github.event_name == 'workflow_dispatch' && inputs.self_hosted }}
+  PERF_TUNING: ${{ github.event_name == 'workflow_dispatch' && inputs.perf_tuning }}
 
 jobs:
   build:
@@ -131,9 +136,12 @@ jobs:
         run: |
           set -euo pipefail
           sh package_ksun.sh 2>&1 | tee "$PACKAGE_LOG"
+          cp "$OUT_DIR/kernel-patches.json" "$PACKAGE_DIR/"
+          echo "Optional tuning: $PERF_TUNING" >> "$PACKAGE_DIR/build-info.txt"
           echo "Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> "$PACKAGE_DIR/build-info.txt"
           zip=$(basename "$(ls "$PACKAGE_DIR"/*.zip)")
           name="${zip%.zip}"
+          [[ "$PERF_TUNING" == true ]] && name="$name-tuning"
           echo "artifact=$name" >> "$GITHUB_OUTPUT"
           echo "release_tag=${name#A325X-}" >> "$GITHUB_OUTPUT"
           {
@@ -163,7 +171,7 @@ jobs:
             ${{ env.OUT_DIR }}/.config
             ${{ env.OUT_DIR }}/System.map
             ${{ env.OUT_DIR }}/kernelsu-source.json
-            ${{ env.OUT_DIR }}/applied-patches.txt
+            ${{ env.OUT_DIR }}/kernel-patches.json
             ${{ env.OUT_DIR }}/toolchain-source.txt
           if-no-files-found: warn
           retention-days: 14

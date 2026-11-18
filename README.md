@@ -15,7 +15,7 @@ Keep a backup of your original `boot` image before flashing.
 - SUSFS v2.4.0 core from [JackA1ltman/NonGKI_Kernel_Build_2nd](https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd),
   including the priority UID filter. App lists are refreshed when apps are installed or removed.
   SUSFS logging is off.
-- Wi-Fi/network fix and performance tuning patch (`patches/kernel/0001-wifi-fix-perf-1100mhz-...`), always applied.
+- Network fix (UDP GSO / qdisc), always applied. Optional performance tuning. Original GPU voltages.
 - AnyKernel3 flashable ZIP.
 
 The exact upstream commits used are in [`sources.json`](sources.json).
@@ -35,6 +35,7 @@ Builds run on GitHub; you do not need a PC.
 - **Automatic:** every change on the `ksun` branch builds a ZIP on a GitHub runner.
 - **By hand:** Actions -> **A325X Kernel** -> **Run workflow** -> branch `ksun`.
   - `self_hosted`: on = your own PC runner (faster, cached compiler); off = GitHub runner.
+  - `perf_tuning`: applies the optional tuning patch.
   - `publish_release`: also puts the ZIP on the Releases page.
 
 What the build does (`build_ksun.sh`, then `package_ksun.sh`):
@@ -43,6 +44,13 @@ What the build does (`build_ksun.sh`, then `package_ksun.sh`):
 2. Applies the device patches in `patches/kernel/`.
 3. Downloads the pinned AOSP Clang 14.0.6 (`clang-r450784d`) and compiles.
 4. Checks that KernelSU-Next and SUSFS are linked, then packages the AnyKernel3 ZIP.
+
+## NoMount LKM
+
+This kernel has no built-in NoMount. To use NoMount, build the module for this branch:
+Actions -> **NoMount LKM** -> **Run workflow** -> branch `ksun`. Leave `self_hosted` unticked
+to use a GitHub runner; `nomount_ref` picks the upstream NoMount version (default `dev`).
+Download the `nomount-lkm-...` artifact, unzip it once and flash the `NoMount-...zip` in your root manager.
 
 ## Updating KernelSU-Next and SUSFS
 
@@ -71,12 +79,13 @@ The updater never applies risky changes silently:
 | `sources.json` | Pinned KernelSU-Next and SUSFS upstream commits |
 | `patches/kernelsu/` | Small patches applied to KernelSU-Next at build time |
 | `patches/susfs/` | Local additions on top of Jack's SUSFS core |
-| `patches/kernel/` | Device patches: network fix and tuning, link fix |
+| `patches/kernel/` | Device patches: network fix, optional tuning, original GPU voltages, KSUN link fix |
 | `fs/susfs*.c`, `include/linux/susfs*.h` | SUSFS v2.4.0 core and KernelSU-Next glue |
 | `arch/arm64/configs/` | Kernel config fragments |
 | `build_ksun.sh`, `package_ksun.sh` | Build and package scripts |
 | `.github/workflows/kernel.yml` | Build workflow |
 | `.github/workflows/update.yml` | Updater workflow |
+| `.github/workflows/nomount-lkm.yml` | NoMount module (LKM) workflow |
 
 The kernel config is `mt6768_slm_defconfig` + `a32.config` + `battery.config` +
 `ksu-a325n-common.config` + `a325n-release.config`.

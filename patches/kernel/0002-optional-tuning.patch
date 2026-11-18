@@ -260,20 +260,20 @@ index e7449fb2c..c66d41cbf 100644
 -#define SEG_GPU_DVFS_VOLT15		(85000)		/* mV x 100 */
 -#define SEG_GPU_DVFS_VOLT16		(82500)		/* mV x 100 */
 -#define SEG_GPU_DVFS_VOLT17		(80000)		/* mV x 100 */
--#define SEG_GPU_DVFS_VOLT18		(79375)		/* mV x 100 */
--#define SEG_GPU_DVFS_VOLT19		(78125)		/* mV x 100 */
--#define SEG_GPU_DVFS_VOLT20		(76875)		/* mV x 100 */
--#define SEG_GPU_DVFS_VOLT21		(75625)		/* mV x 100 */
--#define SEG_GPU_DVFS_VOLT22		(75000)		/* mV x 100 */
--#define SEG_GPU_DVFS_VOLT23		(73750)		/* mV x 100 */
--#define SEG_GPU_DVFS_VOLT24		(72500)		/* mV x 100 */
--#define SEG_GPU_DVFS_VOLT25		(71250)		/* mV x 100 */
--#define SEG_GPU_DVFS_VOLT26		(70625)		/* mV x 100 */
--#define SEG_GPU_DVFS_VOLT27		(70000)		/* mV x 100 */
--#define SEG_GPU_DVFS_VOLT28		(69375)		/* mV x 100 */
--#define SEG_GPU_DVFS_VOLT29		(68750)		/* mV x 100 */
--#define SEG_GPU_DVFS_VOLT30		(68125)		/* mV x 100 */
--#define SEG_GPU_DVFS_VOLT31		(67500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT18		(77500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT19		(75000)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT20		(72500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT21		(70000)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT22		(67500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT23		(65000)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT24		(62500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT25		(60000)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT26		(57500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT27		(55000)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT28		(52500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT29		(50000)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT30		(47500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT31		(45000)		/* mV x 100 */
 +#define SEG_GPU_DVFS_VOLT0		(103500)		/* mV x 100 */
 +#define SEG_GPU_DVFS_VOLT1		(103500)		/* mV x 100 */
 +#define SEG_GPU_DVFS_VOLT2		(103500)		/* mV x 100 */
@@ -287,25 +287,25 @@ index e7449fb2c..c66d41cbf 100644
 +#define SEG_GPU_DVFS_VOLT10		(85000)		/* mV x 100 */
 +#define SEG_GPU_DVFS_VOLT11		(82500)		/* mV x 100 */
 +#define SEG_GPU_DVFS_VOLT12		(80000)		/* mV x 100 */
-+#define SEG_GPU_DVFS_VOLT13		(79375)		/* mV x 100 */
-+#define SEG_GPU_DVFS_VOLT14		(78125)		/* mV x 100 */
-+#define SEG_GPU_DVFS_VOLT15		(76875)		/* mV x 100 */
-+#define SEG_GPU_DVFS_VOLT16		(75625)		/* mV x 100 */
-+#define SEG_GPU_DVFS_VOLT17		(75000)		/* mV x 100 */
-+#define SEG_GPU_DVFS_VOLT18		(73750)		/* mV x 100 */
-+#define SEG_GPU_DVFS_VOLT19		(72500)		/* mV x 100 */
-+#define SEG_GPU_DVFS_VOLT20		(71250)		/* mV x 100 */
-+#define SEG_GPU_DVFS_VOLT21		(70625)		/* mV x 100 */
-+#define SEG_GPU_DVFS_VOLT22		(70000)		/* mV x 100 */
-+#define SEG_GPU_DVFS_VOLT23		(69375)		/* mV x 100 */
-+#define SEG_GPU_DVFS_VOLT24		(68750)		/* mV x 100 */
-+#define SEG_GPU_DVFS_VOLT25		(68125)		/* mV x 100 */
-+#define SEG_GPU_DVFS_VOLT26		(66875)		/* mV x 100 */
-+#define SEG_GPU_DVFS_VOLT27		(66875)		/* mV x 100 */
-+#define SEG_GPU_DVFS_VOLT28		(66250)		/* mV x 100 */
-+#define SEG_GPU_DVFS_VOLT29		(65625)		/* mV x 100 */
-+#define SEG_GPU_DVFS_VOLT30		(65000)		/* mV x 100 */
-+#define SEG_GPU_DVFS_VOLT31		(64375)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT13		(77500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT14		(75000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT15		(72500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT16		(70000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT17		(67500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT18		(65000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT19		(62500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT20		(60000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT21		(57500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT22		(55000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT23		(52500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT24		(50000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT25		(47500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT26		(45000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT27		(42500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT28		(40000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT29		(37500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT30		(35000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT31		(32500)		/* mV x 100 */
  
  #define SEG_GPU_DVFS_VSRAM0		(112500)	/* mV x 100 */
  #define SEG_GPU_DVFS_VSRAM1		(110000)	/* mV x 100 */
@@ -411,44 +411,3 @@ index 90c89411e..c4f0f3b4f 100644
  						 * in seconds */
  module_param_named(autosuspend, usb_autosuspend_delay, int, 0644);
  MODULE_PARM_DESC(autosuspend, "default autosuspend delay");
-diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
-index d66f56d66..c16efed8a 100755
---- a/net/ipv4/ip_output.c
-+++ b/net/ipv4/ip_output.c
-@@ -1154,7 +1154,7 @@ static int ip_setup_cork(struct sock *sk, struct inet_cork *cork,
- 		cork->addr = ipc->addr;
- 	}
- 
--	cork->gso_size = sk->sk_type == SOCK_DGRAM ? ipc->gso_size : 0;
-+	cork->gso_size = (sk->sk_type == SOCK_DGRAM && sk->sk_protocol == IPPROTO_UDP) ? ipc->gso_size : 0;
- 
- 	cork->dst = &rt->dst;
- 	/* We stole this route, caller should not release it. */
-diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
-index 6290adf05..7c03a8c7a 100644
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -1283,7 +1283,7 @@ static int ip6_setup_cork(struct sock *sk, struct inet_cork_full *cork,
- 	cork->base.fragsize = mtu;
- 	if (dst_allfrag(xfrm_dst_path(&rt->dst)))
- 		cork->base.flags |= IPCORK_ALLFRAG;
--	cork->base.gso_size = sk->sk_type == SOCK_DGRAM ? ipc6->gso_size : 0;
-+	cork->base.gso_size = (sk->sk_type == SOCK_DGRAM && sk->sk_protocol == IPPROTO_UDP) ? ipc6->gso_size : 0;
- 	cork->base.length = 0;
- 
- 	return 0;
-diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
-index 5574cf435..71895dcf1 100644
---- a/net/sched/sch_generic.c
-+++ b/net/sched/sch_generic.c
-@@ -710,10 +710,6 @@ static void qdisc_destroy(struct Qdisc *qdisc)
- 		return;
- 	ops = qdisc->ops;
- 
--	if (qdisc->flags & TCQ_F_BUILTIN ||
--	    !refcount_dec_and_test(&qdisc->refcnt))
--		return;
--
- #ifdef CONFIG_NET_SCHED
- 	qdisc_hash_del(qdisc);
- 
