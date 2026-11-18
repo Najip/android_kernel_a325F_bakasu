@@ -95,7 +95,7 @@ write('security/security.c', security)
 
 execution = Path('fs/exec.c').read_text()
 execution = '#include <linux/xxksu_manual_hooks.h>\n' + execution
-pattern = re.compile(r'(?m)^(?:COMPAT_)?SYSCALL_DEFINE[34]\((execve(?:at)?),([^{};]*)\)\s*\{')
+pattern = re.compile(r'(?m)^(?:COMPAT_)?SYSCALL_DEFINE[35]\((execve(?:at)?),([^{};]*)\)\s*\{')
 counts = {'execve': 0, 'execveat': 0}
 def exec_hook(match):
     name, signature = match[1], match[2]
@@ -107,7 +107,7 @@ def exec_hook(match):
         call = '(void)ksu_handle_sys_execveat(&fd, &filename, &argv, &envp, &flags);'
     return match[0] + '\n#ifdef CONFIG_XXKSU_MANUAL_HOOKS\n\t' + call + '\n#endif\n'
 execution = pattern.sub(exec_hook, execution)
-require(counts['execve'] >= 1 and counts['execveat'] >= 1, 'Native exec syscall definitions not found')
+require(counts['execve'] >= 1 and counts['execveat'] >= 1, 'Native exec syscall definitions not found: ' + json.dumps(counts))
 write('fs/exec.c', execution)
 
 # Existing source-level access/stat adapters and SUSFS reboot dispatch remain.
