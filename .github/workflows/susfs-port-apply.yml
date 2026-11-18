@@ -29,7 +29,7 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
-      - name: Validate new isolated target and locked sources
+      - name: Validate new target, pinned sources and inherited builder
         env:
           TARGET_BRANCH: ${{ inputs.target_branch }}
         run: |
@@ -40,9 +40,11 @@ jobs:
           esac
           git check-ref-format --branch "$TARGET_BRANCH"
           refs=$(git ls-remote --heads origin "refs/heads/$TARGET_BRANCH")
-          test -z "$refs" || { echo '::error::Target already exists; no overwrite allowed'; exit 1; }
+          test -z "$refs" || { echo '::error::Target already exists; choose a new suffixed target'; exit 1; }
           test "$(git -C KernelSU rev-parse HEAD)" = 1b8ce9e15a9402aa2192aed5d381366cf2150f0f
           test "$(git -C NonGKI_Kernel_Build_2nd rev-parse HEAD)" = bbe032eb06c50d24a9207bf2ece5e25cf2460bd0
+          grep -Fq "startsWith(github.ref, 'refs/heads/xxksu-manual-susfs-port-')" .github/workflows/kernel.yml
+          grep -Fq 'git push origin "HEAD:$GITHUB_REF"' .github/workflows/kernel.yml
           python3 -c "import ast; ast.parse(open('scripts/port_xxksu_manual.py').read())"
       - name: Generate direct manual-hook review port
         env:
@@ -50,20 +52,18 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/port_xxksu_manual.py 2>&1 | tee "$RUNNER_TEMP/xxksu-manual-port.log"
-      - name: Save builder workflow patch without committing workflow files
+      - name: Preserve inherited branch-aware workflows unchanged
         run: |
           set -euo pipefail
-          git diff --binary HEAD -- .github/workflows/ > "$RUNNER_TEMP/xxksu-manual-builder-workflow.patch"
-          test -s "$RUNNER_TEMP/xxksu-manual-builder-workflow.patch"
-          cp .github/workflows/kernel.yml "$RUNNER_TEMP/xxksu-manual-kernel.yml"
           git restore --source=HEAD --staged --worktree -- .github/workflows/
           git diff --exit-code HEAD -- .github/workflows/
+          grep -Fq "startsWith(github.ref, 'refs/heads/xxksu-manual-susfs-port-')" .github/workflows/kernel.yml
+          grep -Fq 'git push origin "HEAD:$GITHUB_REF"' .github/workflows/kernel.yml
           {
-            echo '### Separate builder workflow update required'
-            echo 'The source-only branch push deliberately excludes workflow edits.'
-            echo 'The artifact contains the target-specific kernel.yml and its patch.'
-            echo 'Apply that workflow change separately with an authorized GitHub connector before running the target builder.'
-            echo 'No compile or device validation has been performed by this port job.'
+            echo '### Inherited builder is ready for isolated port branches'
+            echo 'Workflow files are inherited unchanged, avoiding Actions workflow-write permission requirements.'
+            echo 'Run kernel.yml from the new target branch; reports push only to the branch being built.'
+            echo 'Port generation alone does not establish compile or device success.'
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Commit only source changes to a NEW review branch
         env:
@@ -80,20 +80,18 @@ jobs:
             echo "Isolated manual-hook review target: $TARGET_BRANCH"
             git diff --cached --stat
             cat .susfs-port/PORT_NOTES.md
-            echo 'Builder workflow routing remains unchanged; apply the separately retained workflow patch before building this target.'
+            echo 'Builder workflow is inherited unchanged and accepts this isolated target namespace.'
           } | tee -a "$GITHUB_STEP_SUMMARY"
           git commit -m 'xxKSU: stage direct manual hooks on isolated review branch'
           git diff --exit-code HEAD^ HEAD -- .github/workflows/
           git push --force-with-lease="refs/heads/$TARGET_BRANCH:" origin "HEAD:refs/heads/$TARGET_BRANCH"
-      - name: Retain generation diagnostics and separate workflow update
+      - name: Retain generation diagnostics
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: xxksu-manual-port-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             ${{ runner.temp }}/xxksu-manual-port.log
-            ${{ runner.temp }}/xxksu-manual-builder-workflow.patch
-            ${{ runner.temp }}/xxksu-manual-kernel.yml
             .susfs-port/PORT_NOTES.md
           if-no-files-found: warn
           retention-days: 14
