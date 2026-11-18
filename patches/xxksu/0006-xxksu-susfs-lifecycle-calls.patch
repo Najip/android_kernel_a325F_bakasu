@@ -1,0 +1,63 @@
+diff --git a/kernel/ksu.c b/kernel/ksu.c
+--- a/kernel/ksu.c
++++ b/kernel/ksu.c
+@@ -24,4 +24,7 @@
+ #include "kernel_includes.h"
++#ifdef CONFIG_KSU_SUSFS
++#include <linux/xxksu_parent_bridge.h>
++#endif
+ 
+ // selinux includes
+ #include "avc_ss.h"
+diff --git a/kernel/hook/setuid_hook.c b/kernel/hook/setuid_hook.c
+--- a/kernel/hook/setuid_hook.c
++++ b/kernel/hook/setuid_hook.c
+@@ -10,4 +10,8 @@
+ 	if (unlikely(!!old_uid))
+ 		return;
+ 
++#ifdef CONFIG_KSU_SUSFS
++	xxksu_parent_reset_task();
++#endif
++
+ 	if (IS_ENABLED(CONFIG_KSU_DEBUG))
+@@ -25,3 +25,6 @@
++#ifdef CONFIG_KSU_SUSFS
++	xxksu_parent_deny_task();
++#endif
+ 	// Handle kernel umount
+ 	ksu_handle_umount(new, old);
+ 	return;
+diff --git a/kernel/feature/kernel_umount.c b/kernel/feature/kernel_umount.c
+--- a/kernel/feature/kernel_umount.c
++++ b/kernel/feature/kernel_umount.c
+@@ -125,4 +125,7 @@
+ 	revert_creds(saved);
++#ifdef CONFIG_KSU_SUSFS
++	xxksu_parent_finish_umount();
++#endif
+ 
+ 	return 0;
+ }
+diff --git a/kernel/policy/app_profile.c b/kernel/policy/app_profile.c
+--- a/kernel/policy/app_profile.c
++++ b/kernel/policy/app_profile.c
+@@ -154,4 +154,7 @@
+ 	commit_creds(cred);
++#ifdef CONFIG_KSU_SUSFS
++	xxksu_parent_reset_task();
++#endif
+ 
+ 	if (ksu_is_seccomp_enabled())
+ 		disable_seccomp();
+diff --git a/kernel/runtime/boot_event.c b/kernel/runtime/boot_event.c
+--- a/kernel/runtime/boot_event.c
++++ b/kernel/runtime/boot_event.c
+@@ -14,4 +14,7 @@
+ 	ksu_load_allow_list();
++#ifdef CONFIG_KSU_SUSFS
++	xxksu_parent_post_fs_data();
++#endif
+ 
+ 	// Sanity check for safe mode only needs early-boot input samples.
+ 	ksu_stop_input_hook_runtime();
