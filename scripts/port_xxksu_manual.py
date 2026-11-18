@@ -65,6 +65,8 @@ struct inode;
 struct dentry;
 struct file;
 struct linux_binprm;
+struct stat;
+struct stat64;
 #ifdef CONFIG_XXKSU_MANUAL_HOOKS
 int ksu_handle_sys_execve(const char __user **filename, void *argv, void *envp);
 int ksu_handle_sys_execveat(int *fd, const char __user **filename, void *argv, void *envp, int *flags);
@@ -74,6 +76,8 @@ int ksu_bprm_check(struct linux_binprm *bprm);
 int ksu_file_permission(struct file *file, int mask);
 int ksu_hide_setprocattr(const char *name, void *value, size_t size);
 int ksu_hide_inode_setxattr(struct dentry *dentry, const char *name, void *value, size_t *size, int *flags);
+void ksu_handle_newfstat_ret(unsigned int *fd, struct stat __user **statbuf_ptr);
+void ksu_handle_fstat64_ret(unsigned long *fd, struct stat64 __user **statbuf_ptr);
 #endif
 #endif
 '''
@@ -109,6 +113,23 @@ def exec_hook(match):
 execution = pattern.sub(exec_hook, execution)
 require(counts['execve'] >= 1 and counts['execveat'] >= 1, 'Native exec syscall definitions not found: ' + json.dumps(counts))
 write('fs/exec.c', execution)
+
+# xxKSU appends its init.rc lines from a read proxy. Android 16+ init reads only
+# the size reported by fstat(), so the reported size must grow too. Automated
+# hook modes did this from the syscall table; manual mode needs a source hook.
+stat = Path('fs/stat.c').read_text()
+for syscall, copier, handler in (('newfstat', 'cp_new_stat', 'ksu_handle_newfstat_ret'),
+                                 ('fstat64', 'cp_new_stat64', 'ksu_handle_fstat64_ret')):
+    old = ('SYSCALL_DEFINE2(' + syscall + ', ' + ('unsigned int' if syscall == 'newfstat' else 'unsigned long')
+           + ', fd, struct ' + ('stat' if syscall == 'newfstat' else 'stat64') + ' __user *, statbuf)\n{\n'
+           + '\tstruct kstat stat;\n\tint error = vfs_fstat(fd, &stat);\n\n\tif (!error)\n'
+           + '\t\terror = ' + copier + '(&stat, statbuf);\n\treturn error;\n}\n')
+    new = old.replace('\treturn error;\n}\n', '#ifdef CONFIG_XXKSU_MANUAL_HOOKS\n\t' + handler
+                      + '(&fd, &statbuf);\n#endif\n\treturn error;\n}\n')
+    stat = replace_once(stat, old, new)
+stat = replace_once(stat, '#ifdef CONFIG_KSU_SUSFS\n#include <linux/susfs_def.h>\n',
+                    '#include <linux/xxksu_manual_hooks.h>\n#ifdef CONFIG_KSU_SUSFS\n#include <linux/susfs_def.h>\n')
+write('fs/stat.c', stat)
 
 # Existing source-level access/stat adapters and SUSFS reboot dispatch remain.
 require('xxksu_parent_uid_allowed' in Path('fs/susfs_ksu_glue.c').read_text(), 'Access/stat bridge missing')
@@ -150,6 +171,7 @@ Path('.susfs-port').mkdir(exist_ok=True)
 write('.susfs-port/PORT_NOTES.md', '# xxKSU manual-hook review port\n\n'
       + '- Base: ' + base + '\n'
       + '- Native direct exec and security entry points; automated LSM and branch-link modes disabled.\n'
+      + '- Native newfstat/fstat64 return hooks report the init.rc size including injected KernelSU lines.\n'
       + '- Existing access/stat bridge, SUSFS reboot dispatch and native input handler retained.\n'
       + '- Existing parent integration materialized; locked KernelSU patches applied during builds.\n'
       + '- Builder/package configuration checks and workflow routing updated for this isolated branch.\n'

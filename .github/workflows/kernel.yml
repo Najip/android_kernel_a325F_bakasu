@@ -241,19 +241,52 @@ jobs:
           retention-days: 14
 
       - name: Commit only build reports
-        if: always() && steps.report.outcome == 'success'
+        # Cancelled runs must not push: a late report from a cancelled run made
+        # the next successful run fail with a non-fast-forward rejection.
+        if: ${{ !cancelled() && steps.report.outcome == 'success' }}
         run: |
-          set -euo pipefail
+          set -uo pipefail
           case "$GITHUB_REF" in
             refs/heads/xxksu-sufs-jack|refs/heads/xxksu-manual-susfs-port|refs/heads/xxksu-manual-susfs-port-*) ;;
             *) echo '::error::Refusing report push outside approved build branches'; exit 1 ;;
           esac
+          report="audit-reports/xxksu-build/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          if [[ ! -d "$report" ]]; then
+            echo "No report directory at $report; nothing to commit."
+            exit 0
+          fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- audit-reports/xxksu-build
-          if ! git diff --cached --quiet; then
-            git commit -m "audit: xxKSU build $GITHUB_RUN_ID attempt $GITHUB_RUN_ATTEMPT [skip ci]"
-            git push origin "HEAD:$GITHUB_REF"
+          # The report is committed on top of the branch's current remote tip in
+          # a scratch worktree, so a branch that moved during the build (another
+          # run's report, or a new source commit) no longer rejects the push.
+          # The kernel ZIP is already uploaded at this point; a report that
+          # cannot be pushed is a warning, never a failed build.
+          pushed=false
+          for attempt in 1 2 3 4; do
+            scratch="$RUNNER_TEMP/xxksu-report-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-$attempt"
+            rm -rf "$scratch"
+            if git fetch --no-tags origin "$GITHUB_REF_NAME" \
+              && git worktree add --detach "$scratch" FETCH_HEAD >/dev/null \
+              && mkdir -p "$scratch/audit-reports/xxksu-build" \
+              && cp -a "$report" "$scratch/audit-reports/xxksu-build/" \
+              && git -C "$scratch" add -- audit-reports/xxksu-build; then
+              if git -C "$scratch" diff --cached --quiet; then
+                echo 'Report already present on the branch.'
+                pushed=true
+              elif git -C "$scratch" commit -q -m "audit: xxKSU build $GITHUB_RUN_ID attempt $GITHUB_RUN_ATTEMPT [skip ci]" \
+                && (cd "$scratch" && git push origin "HEAD:$GITHUB_REF"); then
+                pushed=true
+              fi
+            fi
+            git worktree remove --force "$scratch" >/dev/null 2>&1 || rm -rf "$scratch"
+            git worktree prune
+            [[ "$pushed" == true ]] && break
+            echo "Report push attempt $attempt did not succeed; retrying."
+            sleep $((attempt * 5))
+          done
+          if [[ "$pushed" != true ]]; then
+            echo '::warning::Build report could not be pushed. The kernel artifact is unaffected; the report is in the uploaded artifact.'
           fi
 
       - name: Clean build output (self-hosted)
