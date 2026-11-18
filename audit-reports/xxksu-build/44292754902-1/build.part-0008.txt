@@ -1,0 +1,368 @@
+b/xz/xz_dec.o
+  AR      lib/xz/built-in.o
+  CC      lib/zlib_deflate/deflate.o
+  CC      fs/locks.o
+  CC      drivers/hid/hid-plantronics.o
+  CC      lib/zlib_deflate/deftree.o
+  CC      drivers/hid/hid-primax.o
+  CC      net/core/gen_estimator.o
+  CC      lib/zlib_deflate/deflate_syms.o
+  CC      drivers/hid/hid-roccat.o
+  AR      lib/zlib_deflate/zlib_deflate.o
+  AR      lib/zlib_deflate/built-in.o
+  CC      lib/zlib_inflate/inffast.o
+  CC      lib/zlib_inflate/inflate.o
+  CC      drivers/hid/hid-roccat-common.o
+  CC      fs/compat.o
+  CC      lib/zlib_inflate/infutil.o
+  CC      net/core/net_namespace.o
+  CC      lib/zlib_inflate/inftrees.o
+  CC      drivers/hid/hid-roccat-arvo.o
+  CC      lib/zlib_inflate/inflate_syms.o
+  CC      fs/compat_ioctl.o
+  AR      lib/zlib_inflate/zlib_inflate.o
+  AR      lib/zlib_inflate/built-in.o
+  CC      drivers/hid/hid-roccat-isku.o
+  CC      lib/zstd/fse_compress.o
+  CC      lib/zstd/huf_compress.o
+  CC      drivers/hid/hid-roccat-kone.o
+  CC      lib/zstd/compress.o
+  CC      net/core/secure_seq.o
+  CC      drivers/hid/hid-roccat-koneplus.o
+  CC      drivers/hid/hid-roccat-konepure.o
+  CC      fs/binfmt_script.o
+  CC      fs/binfmt_elf.o
+  CC      net/core/flow_dissector.o
+  CC      drivers/hid/hid-roccat-kovaplus.o
+  CC      drivers/hid/hid-roccat-lua.o
+  CC      fs/compat_binfmt_elf.o
+  CC      drivers/hid/hid-roccat-pyra.o
+  CC      drivers/hid/hid-roccat-ryos.o
+  CC      net/core/sysctl_net_core.o
+  CC      drivers/hid/hid-roccat-savu.o
+  CC      fs/mbcache.o
+  CC      drivers/hid/hid-saitek.o
+  CC      net/core/dev.o
+  CC      fs/posix_acl.o
+  CC      drivers/hid/hid-samsung.o
+  CC      drivers/hid/hid-sjoy.o
+  CC      fs/coredump.o
+  CC      drivers/hid/hid-sony.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/fs/coredump.c:52:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched.h:1851:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+                TP_PROTO(struct hmp_statisic *hmp_stats),
+                                ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+                int task_load, struct clb_stats *B, struct clb_stats *L),
+                                      ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+12 warnings generated.
+  CC      drivers/hid/hid-speedlink.o
+  CC      fs/drop_caches.o
+  CC      drivers/hid/hid-sunplus.o
+  CC      lib/zstd/entropy_common.o
+  CC      lib/zstd/fse_decompress.o
+  CC      drivers/hid/hid-gaff.o
+  CC      fs/dcookies.o
+  CC      lib/zstd/zstd_common.o
+  CC      lib/zstd/huf_decompress.o
+  CC      drivers/hid/hid-tmff.o
+  CC      drivers/hid/hid-tivo.o
+  CC      lib/zstd/decompress.o
+  AR      fs/built-in.o
+  CC      drivers/hid/hid-topseed.o
+  CC      net/ethernet/eth.o
+  CC      drivers/hid/hid-twinhan.o
+  CC      drivers/hid/hid-uclogic.o
+  CC      net/core/ethtool.o
+  AR      lib/zstd/zstd_compress.o
+  AR      lib/zstd/zstd_decompress.o
+  AR      lib/zstd/built-in.o
+  CC      lib/textsearch.o
+  CC      drivers/hid/hid-zpff.o
+  AR      net/ethernet/built-in.o
+  CC      net/ipv4/route.o
+  CC      drivers/hid/hid-zydacron.o
+  CC      lib/ts_kmp.o
+  CC      lib/ts_bm.o
+  CC      drivers/hid/wacom_wac.o
+  CC      lib/ts_fsm.o
+  CC      lib/percpu_counter.o
+  CC      net/core/dev_addr_lists.o
+  CC      lib/audit.o
+  CC      drivers/hid/wacom_sys.o
+  CC      lib/compat_audit.o
+  CC      lib/swiotlb.o
+  CC      net/ipv4/inetpeer.o
+  CC      net/core/dst.o
+  CC      drivers/hid/hid-waltop.o
+  CC      lib/iommu-helper.o
+  CC      net/ipv4/protocol.o
+  CC      drivers/hid/hid-wiimote-core.o
+  CC      lib/iommu-common.o
+  CC      net/core/netevent.o
+  CC      lib/fault-inject.o
+  CC      drivers/hid/hid-wiimote-modules.o
+  CC      net/ipv4/ip_input.o
+  CC      lib/syscall.o
+  CC      drivers/hid/usbhid/hid-core.o
+  CC      net/core/neighbour.o
+  CC      lib/dynamic_debug.o
+  CC      net/ipv4/ip_fragment.o
+  CC      drivers/hid/usbhid/hid-quirks.o
+  CC      lib/nlattr.o
+  CC      drivers/hid/usbhid/hiddev.o
+  CC      net/ipv4/ip_forward.o
+  CC      lib/checksum.o
+  CC      net/core/rtnetlink.o
+  AR      drivers/hid/usbhid/usbhid.o
+  AR      drivers/hid/usbhid/built-in.o
+  AR      drivers/hid/hid.o
+  AR      drivers/hid/hid-logitech.o
+  AR      drivers/hid/hid-picolcd.o
+  AR      drivers/hid/wacom.o
+  AR      drivers/hid/hid-wiimote.o
+  AR      drivers/hid/built-in.o
+  CC      drivers/hwmon/hwmon.o
+  CC      lib/cpu_rmap.o
+  CC      net/ipv4/ip_options.o
+  CC      lib/dynamic_queue_limits.o
+  CC      lib/glob.o
+  AR      drivers/hwmon/built-in.o
+  CC      drivers/hwmon/sec_thermistor/sec_thermistor.o
+  CC      lib/strncpy_from_user.o
+  AR      drivers/hwmon/sec_thermistor/built-in.o
+  AR      drivers/hwtracing/intel_th/built-in.o
+  CC      drivers/i2c/i2c-boardinfo.o
+  CC      net/ipv4/ip_output.o
+  CC      lib/strnlen_user.o
+  CC      drivers/i2c/i2c-core-base.o
+  CC      net/core/utils.o
+  CC      lib/net_utils.o
+  CC      lib/sg_pool.o
+  CC      net/core/link_watch.o
+  CC      net/ipv4/ip_sockglue.o
+  CC      drivers/i2c/i2c-core-smbus.o
+  CC      lib/asn1_decoder.o
+  GEN     lib/oid_registry_data.c
+  CC      lib/sbitmap.o
+  CC      net/core/filter.o
+  CC      drivers/i2c/i2c-core-of.o
+  CC      lib/argv_split.o
+  CC      drivers/i2c/i2c-dev.o
+  CC      lib/bug.o
+  CC      net/ipv4/inet_hashtables.o
+  CC      lib/chacha.o
+  CC      drivers/i2c/i2c-mux.o
+  CC      lib/clz_tab.o
+  CC      lib/cmdline.o
+  CC      lib/cpumask.o
+  CC      drivers/i2c/algos/i2c-algo-bit.o
+  CC      lib/ctype.o
+  CC      lib/dec_and_lock.o
+  CC      net/ipv4/inet_timewait_sock.o
+  CC      lib/decompress.o
+  CC      lib/decompress_inflate.o
+  AR      drivers/i2c/algos/built-in.o
+  CC      drivers/i2c/busses/i2c-gpio.o
+  CC      lib/decompress_unlz4.o
+  CC      drivers/i2c/busses/i2c-mtk.o
+  CC      lib/decompress_unxz.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/i2c/busses/i2c-mtk.c:821:3: warning: add explicit braces to avoid dangling else [-Wdangling-else]
+                else {
+                ^
+  CC      lib/dump_stack.o
+  CC      net/ipv4/inet_connection_sock.o
+  CC      lib/earlycpio.o
+  CC      lib/extable.o
+1 warning generated.
+  CC      lib/fdt.o
+  CC      lib/fdt_empty_tree.o
+  CC      net/core/sock_diag.o
+  CC      drivers/i2c/busses/i2c-mtk_debug.o
+  CC      lib/fdt_ro.o
+  CC      lib/fdt_rw.o
+  CC      lib/fdt_strerror.o
+  CC      lib/fdt_sw.o
+  CC      lib/fdt_wip.o
+  AR      drivers/i2c/busses/built-in.o
+  AR      drivers/i2c/muxes/built-in.o
+  AR      drivers/i2c/i2c-core.o
+  CC      net/ipv4/tcp.o
+  AR      drivers/i2c/built-in.o
+  CC      lib/flex_proportions.o
+  AR      drivers/idle/built-in.o
+  CC      drivers/iio/industrialio-core.o
+  CC      net/core/dev_ioctl.o
+  CC      lib/idr.o
+  CC      lib/int_sqrt.o
+  CC      lib/ioremap.o
+  CC      drivers/iio/industrialio-event.o
+  CC      lib/irq_regs.o
+  CC      net/core/tso.o
+  CC      lib/is_single_threaded.o
+  CC      lib/klist.o
+  CC      drivers/iio/inkern.o
+  CC      lib/kobject.o
+  CC      net/core/sock_reuseport.o
+  CC      net/ipv4/tcp_input.o
+  CC      drivers/iio/industrialio-buffer.o
+  CC      lib/kobject_uevent.o
+  CC      net/core/fib_notifier.o
+  AR      drivers/iio/accel/built-in.o
+  CC      drivers/iio/adc/mt6577_auxadc.o
+  CC      lib/nmi_backtrace.o
+  CC      drivers/iio/adc/mt635x-auxadc.o
+  CC      lib/nodemask.o
+  CC      lib/plist.o
+  AR      drivers/iio/adc/built-in.o
+  CC      net/core/xdp.o
+  AR      drivers/iio/amplifiers/built-in.o
+  CC      drivers/iio/buffer/kfifo_buf.o
+  CC      lib/radix-tree.o
+  AR      drivers/iio/buffer/built-in.o
+  AR      drivers/iio/chemical/built-in.o
+  AR      drivers/iio/common/cros_ec_sensors/built-in.o
+  AR      drivers/iio/common/hid-sensors/built-in.o
+  AR      drivers/iio/common/ms_sensors/built-in.o
+  AR      drivers/iio/common/ssp_sensors/built-in.o
+  CC      lib/ratelimit.o
+  AR      drivers/iio/common/st_sensors/built-in.o
+  AR      drivers/iio/common/built-in.o
+  CC      net/ipv4/tcp_output.o
+  AR      drivers/iio/counter/built-in.o
+  AR      drivers/iio/dac/built-in.o
+  CC      net/core/net-sysfs.o
+  AR      drivers/iio/dummy/built-in.o
+  AR      drivers/iio/frequency/built-in.o
+  AR      drivers/iio/gyro/built-in.o
+  AR      drivers/iio/health/built-in.o
+  CC      lib/rbtree.o
+  AR      drivers/iio/humidity/built-in.o
+  AR      drivers/iio/imu/bmi160/built-in.o
+  AR      drivers/iio/imu/inv_mpu6050/built-in.o
+  AR      drivers/iio/imu/st_lsm6dsx/built-in.o
+  AR      drivers/iio/imu/built-in.o
+  AR      drivers/iio/light/built-in.o
+  AR      drivers/iio/magnetometer/built-in.o
+  AR      drivers/iio/multiplexer/built-in.o
+  AR      drivers/iio/orientation/built-in.o
+  CC      lib/seq_buf.o
+  AR      drivers/iio/potentiometer/built-in.o
+  AR      drivers/iio/potentiostat/built-in.o
+  AR      drivers/iio/pressure/built-in.o
+  AR      drivers/iio/proximity/built-in.o
+  AR      drivers/iio/temperature/built-in.o
+  AR      drivers/iio/trigger/built-in.o
+  AR      drivers/iio/industrialio.o
+  AR      drivers/iio/built-in.o
+  CC      lib/sha1.o
+  CC      drivers/input/input.o
+  CC      lib/show_mem.o
+  CC      lib/siphash.o
+  CC      net/core/net-procfs.o
+  CC      lib/string.o
+  CC      drivers/input/input-compat.o
+  CC      net/ipv4/tcp_timer.o
+  CC      net/core/fib_rules.o
+  CC      lib/timerqueue.o
+  CC      drivers/input/input-mt.o
+  CC      lib/vsprintf.o
+  CC      drivers/input/ff-core.o
+  CC      net/ipv4/tcp_ipv4.o
+  CC      net/core/net-traces.o
+  CC      drivers/input/ff-memless.o
+  CC      lib/win_minmax.o
+  CC      drivers/input/input-leds.o
+  CC      drivers/input/evdev.o
+  GEN     lib/crc32table.h
+  CC      lib/oid_registry.o
+  AR      lib/lib.a
+  CC      lib/crc32.o
+  CC      net/ipv4/tcp_minisocks.o
+  CC      net/core/dst_cache.o
+  EXPORTS lib/lib-ksyms.o
+  CC      drivers/input/joystick/xpad.o
+  AR      lib/built-in.o
+  CC      drivers/input/input_boost/evdev_booster.o
+  AR      drivers/input/joystick/built-in.o
+  CC      drivers/input/input_boost/input_booster.o
+  CC      drivers/input/keyboard/mediatek/kpd.o
+  CC      net/core/gro_cells.o
+  CC      net/ipv4/tcp_cong.o
+  CC      drivers/input/keyboard/mediatek/mt6768/hal_kpd.o
+  CC      drivers/input/input_boost/input_booster_mtk.o
+  CC      net/core/bpf_sk_storage.o
+  AR      drivers/input/keyboard/mediatek/mt6768/built-in.o
+  AR      drivers/input/keyboard/mediatek/built-in.o
+  AR      drivers/input/keyboard/built-in.o
+  CC      drivers/input/misc/uinput.o
+  AR      drivers/input/input_boost/input_booster_lkm.o
+  AR      drivers/input/input_boost/built-in.o
+  AR      virt/lib/built-in.o
+  AR      virt/built-in.o
+  CC      net/ipv4/tcp_metrics.o
+  AR      drivers/input/misc/built-in.o
+  CC      net/ipv6/af_inet6.o
+  CC      drivers/input/tablet/acecad.o
+  CC      drivers/input/tablet/aiptek.o
+  AR      net/core/built-in.o
+  CC      drivers/input/misc/hall/hall_ic.o
+  CC      net/ipv4/tcp_fastopen.o
+  CC      drivers/input/tablet/gtco.o
+  AR      drivers/input/misc/hall/built-in.o
+  CC      drivers/input/sec_input/sec_tsp_log.o
+  CC      net/ipv6/anycast.o
+  CC      drivers/input/tablet/hanwang.o
+  CC      drivers/input/tablet/kbtab.o
+  CC      net/ipv4/tcp_rate.o
+  CC      drivers/input/sec_input/sec_tclm_v2.o
+  CC      net/ipv6/ip6_output.o
+  AR      drivers/input/tablet/built-in.o
+  CC      drivers/input/touchscreen/of_touchscreen.o
+  CC      drivers/input/touchscreen/melfas_mip4/mip4_ts.o
+  CC      drivers/input/sec_input/sec_tsp_dumpkey.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/input/touchscreen/melfas_mip4/mip4_ts.c:1138:23: warning: | has lower precedence than ==; == will be evaluated first [-Wparentheses]
+                        if (0 == (rbuf[0]) | (rbuf[1] << 8) || 0xFFFF == (rbuf[0]) | (rbuf[1] << 8) ||
+                            ~~~~~~~~~~~~~~~^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/input/touchscreen/melfas_mip4/mip4_ts.c:1138:23: note: place parentheses around the '==' expression to silence this warning
+                        if (0 == (rbuf[0]) | (rbuf[1] << 8) || 0xFFFF == (rbuf[0]) | (rbuf[1] << 8) ||
+                                           ^
+                            (             )
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/input/touchscreen/melfas_mip4/mip4_ts.c:1138:23: note: place parentheses around the | expression to evaluate it first
+                        if (0 == (rbuf[0]) | (rbuf[1] << 8) || 0xFFFF == (rbuf[0]) | (rbuf[1] << 8) ||
+                                           ^
+                                 (                         )
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/input/touchscreen/melfas_mip4/mip4_ts.c:1138:63: warning: | has lower precedence than ==; == will be evaluated first [-Wparentheses]
+                        if (0 == (rbuf[0]) | (rbuf[1] << 8) || 0xFFFF == (rbuf[0]) | (rbuf[1] << 8) ||
+                                                               ~~~~~~~~~~~~~~~~~~~~^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/input/touchscreen/melfas_mip4/mip4_ts.c:1138:63: note: place parentheses around the '==' expression to silence this warning
+                        if (0 == (rbuf[0]) | (rbuf[1] << 8) || 0xFFFF == (rbuf[0]) | (rbuf[1] << 8) ||
+                                                                                   ^
+                                                               (                  )
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/input/touchscreen/melfas_mip4/mip4_ts.c:1138:63: note: place parentheses around the | expression to evaluate it first
+                        if (0 == (rbuf[0]) | (rbuf[1] << 8) || 0xFFFF == (rbuf[0]) | (rbuf[1] << 8) ||
+                                                                                   ^
+                                                                         (                         )
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/input/touchscreen/melfas_mip4/mip4_ts.c:1139:20: warning: | has lower precedence than ==; == will be evaluated first [-Wparentheses]
+                                0 == (rbuf[2]) | (rbuf[3] << 8) || 0xFFFF == (rbuf[2]) | (rbuf[3] << 8) ||
+                                ~~~~~~~~~~~~~~~^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/input/touchscreen/melfas_mip4/mip4_ts.c:1139:20: note: place parentheses around the '==' expression to silence this warning
+                                0 == (rbuf[2]) | (rbuf[3] << 8) || 0xFFFF == (rbuf[2]) | (rbuf[3] << 8) ||
+                                               ^
+                                (             )
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/input/touchscreen/melfas_mip4/mip4_ts.c:1139:20: note: place parentheses around the | expression to evaluate it first
+                                0 == (rbuf[2]) | (rbuf[3] << 8) || 0xFFFF == (rbuf[2]) | (rbuf[3] << 8) ||
+                                               ^
+                                     (                         )
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/input/touchscreen/melfas_mip4/mip4_ts.c:1139:60: w

@@ -1,0 +1,119 @@
+  AR      drivers/misc/mediatek/video/common/corr10/built-in.o
+  CC      drivers/misc/mediatek/zone_movable_cma/zmc_notify.o
+  CC      drivers/misc/mediatek/video/common/layering_rule_base/v1.1/layering_rule_base.o
+  AR      drivers/misc/mediatek/zone_movable_cma/built-in.o
+  CC      drivers/misc/mediatek/video/mt6768/dispsys/ddp_ovl.o
+  CC      drivers/misc/mediatek/thermal/common/thermal_zones/mtk_ts_pa.o
+  CC      drivers/misc/mediatek/usb20/musbhsdma.o
+  CC      drivers/misc/mediatek/thermal/common/thermal_zones/mtk_ts_pa_thput.o
+  AR      drivers/misc/mediatek/video/common/layering_rule_base/v1.1/built-in.o
+  AR      drivers/misc/mediatek/video/common/layering_rule_base/built-in.o
+  CC      drivers/misc/mediatek/video/common/pwm10/ddp_pwm.o
+  CC      drivers/misc/mediatek/usb20/musb_debugfs.o
+  AR      drivers/misc/mediatek/video/common/pwm10/built-in.o
+  AR      drivers/misc/mediatek/video/common/built-in.o
+  CC      drivers/misc/mediatek/thermal/common/thermal_zones/mtk_ts_wmt.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/mtkfb_console.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/disp_assert_layer.o
+  CC      drivers/misc/mediatek/usb20/mtk_qmu.o
+  CC      drivers/misc/mediatek/video/mt6768/dispsys/ddp_rdma_ex.o
+  CC      drivers/misc/mediatek/thermal/common/thermal_zones/mtk_tsAll.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/mtkfb.o
+  CC      drivers/misc/mediatek/usb20/musb_qmu.o
+  CC      drivers/misc/mediatek/thermal/common/thermal_zones/mtk_ts_imgsensor.o
+  CC      drivers/misc/mediatek/video/mt6768/dispsys/ddp_wdma_ex.o
+  AR      drivers/misc/mediatek/usb20/musb_hdrc.o
+  AR      drivers/misc/mediatek/usb20/built-in.o
+  CC      drivers/misc/mediatek/thermal/common/mtk_thermal_timer.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/mtkfb_fence.o
+  CC      drivers/misc/mediatek/thermal/common/thermal_zones/mtk_ts_dctm.o
+  CC      drivers/misc/mediatek/video/mt6768/dispsys/ddp_dsi.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/fbconfig_kdebug.o
+  CC      drivers/misc/mediatek/thermal/common/thermal_zones/mtk_ts_pmic.o
+  CC      drivers/misc/mediatek/video/mt6768/dispsys/ddp_clkmgr.o
+  AR      drivers/misc/mediatek/thermal/common/thermal_zones/built-in.o
+  AR      drivers/misc/mediatek/thermal/common/built-in.o
+  AR      drivers/misc/mediatek/thermal/built-in.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/mtkfb_vsync.o
+  CC      drivers/misc/mediatek/video/mt6768/dispsys/ddp_rsz.o
+  CC      drivers/misc/mediatek/video/mt6768/dispsys/ddp_drv.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/disp_cust.o
+  CC      drivers/misc/mediatek/video/mt6768/dispsys/ddp_path.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/debug.o
+  CC      drivers/misc/mediatek/video/mt6768/dispsys/ddp_mutex.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/primary_display.o
+  CC      drivers/misc/mediatek/video/mt6768/dispsys/ddp_m4u.o
+  CC      drivers/misc/mediatek/video/mt6768/dispsys/ddp_debug.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/disp_lowpower.o
+  CC      drivers/misc/mediatek/video/mt6768/dispsys/ddp_dump.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/disp_recovery.o
+  CC      drivers/misc/mediatek/video/mt6768/dispsys/ddp_manager.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/disp_lcm.o
+  CC      drivers/misc/mediatek/video/mt6768/dispsys/ddp_irq.o
+  CC      drivers/misc/mediatek/video/mt6768/dispsys/ddp_info.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/disp_utils.o
+  CC      drivers/misc/mediatek/video/mt6768/dispsys/ddp_color_format.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/mtk_disp_mgr.o
+  CC      drivers/misc/mediatek/video/mt6768/dispsys/ddp_pwm_mux.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/compat_mtk_disp_mgr.o
+  CC      drivers/misc/mediatek/video/mt6768/dispsys/ddp_disp_bdg.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/disp_helper.o
+  CC      drivers/misc/mediatek/video/mt6768/dispsys/ddp_mmp.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/disp_dts_gpio.o
+  CC      drivers/misc/mediatek/video/mt6768/dispsys/ddp_met.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/disp_rect.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/disp_arr.o
+  CC      drivers/misc/mediatek/video/mt6768/dispsys/display_recorder.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/disp_partial.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/mtk_ovl.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/layering_rule.o
+  AR      drivers/misc/mediatek/video/mt6768/dispsys/built-in.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/frame_queue.o
+  CC      drivers/misc/mediatek/video/mt6768/videox/mtk_notify.o
+  AR      drivers/misc/mediatek/video/mt6768/videox/built-in.o
+  AR      drivers/misc/mediatek/video/mt6768/built-in.o
+  AR      drivers/misc/mediatek/video/built-in.o
+  AR      drivers/misc/mediatek/built-in.o
+  AR      drivers/misc/built-in.o
+  AR      drivers/built-in.o
+  GEN     .version
+  CHK     include/generated/compile.h
+  AR      built-in.o
+  LD      vmlinux.o
+  MODPOST vmlinux.o
+  BTF     .btf.vmlinux.bin.o
+  KSYM    .tmp_kallsyms1.o
+  KSYM    .tmp_kallsyms2.o
+  LD      vmlinux
+  BTFIDS  vmlinux
+WARN: multiple IDs found for 'seq_file': 204, 8660 - using 204
+WARN: multiple IDs found for 'file': 220, 8674 - using 220
+WARN: multiple IDs found for 'path': 223, 8675 - using 223
+WARN: multiple IDs found for 'bpf_prog': 2473, 8793 - using 2473
+WARN: multiple IDs found for 'bpf_map': 2501, 8804 - using 2501
+WARN: multiple IDs found for 'task_struct': 360, 8855 - using 360
+WARN: multiple IDs found for 'sk_buff': 2091, 8898 - using 2091
+WARN: multiple IDs found for 'seq_file': 204, 18170 - using 204
+WARN: multiple IDs found for 'file': 220, 18182 - using 220
+WARN: multiple IDs found for 'path': 223, 18183 - using 223
+WARN: multiple IDs found for 'task_struct': 360, 18326 - using 360
+WARN: multiple IDs found for 'file': 220, 26422 - using 220
+WARN: multiple IDs found for 'path': 223, 26423 - using 223
+WARN: multiple IDs found for 'task_struct': 360, 26539 - using 360
+WARN: multiple IDs found for 'file': 220, 26880 - using 220
+WARN: multiple IDs found for 'path': 223, 26881 - using 223
+WARN: multiple IDs found for 'task_struct': 360, 26998 - using 360
+  SORTEX  vmlinux
+  SYSMAP  System.map
+  OBJCOPY arch/arm64/boot/Image
+  Building modules, stage 2.
+  MODPOST 3 modules
+  CC      net/bridge/br_netfilter.mod.o
+  CC      net/ipv4/tcp_htcp.mod.o
+  CC      net/ipv4/tcp_westwood.mod.o
+  LD [M]  net/ipv4/tcp_westwood.ko
+  LD [M]  net/bridge/br_netfilter.ko
+  LD [M]  net/ipv4/tcp_htcp.ko
+  GZIP    arch/arm64/boot/Image.gz
+make: Leaving directory '/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu'
+Compile/link checks passed. Boot, root, SUSFS runtime and LKM remain untested.
