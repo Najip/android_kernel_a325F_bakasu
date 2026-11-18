@@ -50,7 +50,22 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/port_xxksu_manual.py 2>&1 | tee "$RUNNER_TEMP/xxksu-manual-port.log"
-      - name: Commit only to a NEW review branch
+      - name: Save builder workflow patch without committing workflow files
+        run: |
+          set -euo pipefail
+          git diff --binary HEAD -- .github/workflows/ > "$RUNNER_TEMP/xxksu-manual-builder-workflow.patch"
+          test -s "$RUNNER_TEMP/xxksu-manual-builder-workflow.patch"
+          cp .github/workflows/kernel.yml "$RUNNER_TEMP/xxksu-manual-kernel.yml"
+          git restore --source=HEAD --staged --worktree -- .github/workflows/
+          git diff --exit-code HEAD -- .github/workflows/
+          {
+            echo '### Separate builder workflow update required'
+            echo 'The source-only branch push deliberately excludes workflow edits.'
+            echo 'The artifact contains the target-specific kernel.yml and its patch.'
+            echo 'Apply that workflow change separately with an authorized GitHub connector before running the target builder.'
+            echo 'No compile or device validation has been performed by this port job.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Commit only source changes to a NEW review branch
         env:
           TARGET_BRANCH: ${{ inputs.target_branch }}
         run: |
@@ -58,22 +73,27 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git checkout -b "$TARGET_BRANCH"
-          git add -A -- fs drivers/input/input.c security/security.c include/linux/xxksu_parent_bridge.h include/linux/xxksu_manual_hooks.h Kconfig arch/arm64/configs/ksu-a325n-common.config patches/xxksu/source-lock.json scripts/prepare_xxksu.py build_xxksu.sh package_xxksu.sh .github/workflows/kernel.yml .susfs-port/PORT_NOTES.md
+          git add -A -- fs drivers/input/input.c security/security.c include/linux/xxksu_parent_bridge.h include/linux/xxksu_manual_hooks.h Kconfig arch/arm64/configs/ksu-a325n-common.config patches/xxksu/source-lock.json scripts/prepare_xxksu.py build_xxksu.sh package_xxksu.sh .susfs-port/PORT_NOTES.md
           git diff --cached --check
+          git diff --cached --exit-code -- .github/workflows/
           {
             echo "Isolated manual-hook review target: $TARGET_BRANCH"
             git diff --cached --stat
             cat .susfs-port/PORT_NOTES.md
+            echo 'Builder workflow routing remains unchanged; apply the separately retained workflow patch before building this target.'
           } | tee -a "$GITHUB_STEP_SUMMARY"
           git commit -m 'xxKSU: stage direct manual hooks on isolated review branch'
+          git diff --exit-code HEAD^ HEAD -- .github/workflows/
           git push --force-with-lease="refs/heads/$TARGET_BRANCH:" origin "HEAD:refs/heads/$TARGET_BRANCH"
-      - name: Retain generation diagnostics
+      - name: Retain generation diagnostics and separate workflow update
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: xxksu-manual-port-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             ${{ runner.temp }}/xxksu-manual-port.log
+            ${{ runner.temp }}/xxksu-manual-builder-workflow.patch
+            ${{ runner.temp }}/xxksu-manual-kernel.yml
             .susfs-port/PORT_NOTES.md
           if-no-files-found: warn
           retention-days: 14
