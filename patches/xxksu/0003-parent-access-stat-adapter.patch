@@ -1,0 +1,23 @@
+diff --git a/fs/susfs_ksu_glue.c b/fs/susfs_ksu_glue.c
+--- a/fs/susfs_ksu_glue.c
++++ b/fs/susfs_ksu_glue.c
+@@ -21,7 +21,6 @@
+ #ifdef CONFIG_KSU_SUSFS
+ struct user_arg_ptr;
+-extern bool ksu_su_compat_enabled;
+-extern bool ksu_is_allow_uid_for_current(uid_t uid);
++#include <linux/xxksu_parent_bridge.h>
+ extern int ksu_handle_execveat_ksud(int *fd, struct filename **filename_ptr, void *argv, void *envp, int *flags);
+ extern int ksu_handle_execveat_sucompat(int *fd, struct filename **filename_ptr, void *argv, void *envp, int *flags);
+ extern const size_t ksu_rc_len __weak;
+@@ -97,8 +96,8 @@
+ {
+     static const char su[] = "/system/bin/su";
+     struct filename *fn;
+-    if (!filename || IS_ERR_OR_NULL(*filename) || !READ_ONCE(ksu_su_compat_enabled) ||
+-        !ksu_is_allow_uid_for_current(current_uid().val) || likely(memcmp((*filename)->name, su, sizeof(su))))
++    if (!filename || IS_ERR_OR_NULL(*filename) || !xxksu_parent_sucompat_enabled() ||
++        !xxksu_parent_uid_allowed(current_uid().val) || likely(strcmp((*filename)->name, su)))
+         return;
+     fn = getname_kernel("/system/bin/sh");
+     if (IS_ERR(fn))
