@@ -1,0 +1,105 @@
+$ git -C /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu rev-parse HEAD
+20859120a326b462397cc2e96d9cb9e77bb9399d
+
+$ git -C /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/KernelSU rev-parse HEAD
+1b8ce9e15a9402aa2192aed5d381366cf2150f0f
+
+$ git -C /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu ls-tree HEAD -- KernelSU
+160000 commit 1b8ce9e15a9402aa2192aed5d381366cf2150f0f	KernelSU
+
+$ git -C /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/NonGKI_Kernel_Build_2nd rev-parse HEAD
+bbe032eb06c50d24a9207bf2ece5e25cf2460bd0
+
+$ git -C /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu ls-tree HEAD -- NonGKI_Kernel_Build_2nd
+160000 commit bbe032eb06c50d24a9207bf2ece5e25cf2460bd0	NonGKI_Kernel_Build_2nd
+
+$ git -C /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu clone --shared --no-checkout -- /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu /tmp/xxksu-validate-h43wp61i/parent
+Cloning into '/tmp/xxksu-validate-h43wp61i/parent'...
+done.
+
+$ git -C /tmp/xxksu-validate-h43wp61i/parent checkout --detach 20859120a326b462397cc2e96d9cb9e77bb9399d
+HEAD is now at 20859120a audit: xxKSU patch validation 44254756866 attempt 1 [skip ci]
+
+$ git -C /tmp/xxksu-validate-h43wp61i/parent status --porcelain --untracked-files=all --ignore-submodules=all
+
+$ git -C /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu clone --shared --no-checkout -- /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/KernelSU /tmp/xxksu-validate-h43wp61i/KernelSU
+Cloning into '/tmp/xxksu-validate-h43wp61i/KernelSU'...
+done.
+
+$ git -C /tmp/xxksu-validate-h43wp61i/KernelSU checkout --detach 1b8ce9e15a9402aa2192aed5d381366cf2150f0f
+HEAD is now at 1b8ce9e15 KernelSU v3.3.1+
+
+$ git -C /tmp/xxksu-validate-h43wp61i/KernelSU status --porcelain --untracked-files=all --ignore-submodules=all
+
+$ git -C /tmp/xxksu-validate-h43wp61i/parent apply --check /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0001-parent-bridge-api.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/parent apply /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0001-parent-bridge-api.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/KernelSU apply --check /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0002-xxksu-native-wrappers.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/KernelSU apply /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0002-xxksu-native-wrappers.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/parent apply --check /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0003-parent-access-stat-adapter.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/parent apply /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0003-parent-access-stat-adapter.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/parent apply --check /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0004-parent-native-hook-transition.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/parent apply /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0004-parent-native-hook-transition.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/parent apply --check /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0005-parent-susfs-lifecycle.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/parent apply /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0005-parent-susfs-lifecycle.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/KernelSU apply --check /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0006-xxksu-susfs-lifecycle-calls.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/KernelSU apply /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0006-xxksu-susfs-lifecycle-calls.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/parent diff --check
+
+$ git -C /tmp/xxksu-validate-h43wp61i/parent diff --stat
+ drivers/input/input.c |  2 +-
+ fs/Makefile           |  1 +
+ fs/exec.c             | 16 ++++++++--------
+ fs/read_write.c       |  4 ++--
+ fs/susfs_ksu_glue.c   | 11 +++++++----
+ 5 files changed, 19 insertions(+), 15 deletions(-)
+
+$ git -C /tmp/xxksu-validate-h43wp61i/KernelSU diff --check
+
+$ git -C /tmp/xxksu-validate-h43wp61i/KernelSU diff --stat
+ kernel/feature/kernel_umount.c |  3 +++
+ kernel/hook/setuid_hook.c      |  7 +++++++
+ kernel/ksu.c                   | 22 ++++++++++++++++++++++
+ kernel/policy/app_profile.c    |  3 +++
+ kernel/runtime/boot_event.c    |  3 +++
+ 5 files changed, 38 insertions(+)
+
+$ git -C /tmp/xxksu-validate-h43wp61i/KernelSU apply --reverse --check /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0006-xxksu-susfs-lifecycle-calls.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/KernelSU apply --reverse /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0006-xxksu-susfs-lifecycle-calls.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/parent apply --reverse --check /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0005-parent-susfs-lifecycle.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/parent apply --reverse /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0005-parent-susfs-lifecycle.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/parent apply --reverse --check /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0004-parent-native-hook-transition.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/parent apply --reverse /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0004-parent-native-hook-transition.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/parent apply --reverse --check /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0003-parent-access-stat-adapter.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/parent apply --reverse /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0003-parent-access-stat-adapter.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/KernelSU apply --reverse --check /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0002-xxksu-native-wrappers.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/KernelSU apply --reverse /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0002-xxksu-native-wrappers.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/parent apply --reverse --check /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0001-parent-bridge-api.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/parent apply --reverse /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0001-parent-bridge-api.patch
+
+$ git -C /tmp/xxksu-validate-h43wp61i/parent status --porcelain --untracked-files=all --ignore-submodules=all
+
+$ git -C /tmp/xxksu-validate-h43wp61i/KernelSU status --porcelain --untracked-files=all --ignore-submodules=all
+

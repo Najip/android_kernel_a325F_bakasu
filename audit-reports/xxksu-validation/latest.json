@@ -1,11 +1,11 @@
 {
   "status": "PASS",
   "scope": "Complete-series forward/reverse application only; no compile, boot, root, SUSFS-runtime, or LKM validation.",
-  "source_commit": "6cc9219a095dd68f00a156dd1ad0910e35c01854",
-  "run_id": "44254756866",
+  "source_commit": "20859120a326b462397cc2e96d9cb9e77bb9399d",
+  "run_id": "44254995433",
   "attempt": "1",
-  "run_url": "https://github.com/Najip/android_kernel_a325F_bakasu/actions/runs/44254756866",
-  "report_directory": "audit-reports/xxksu-validation/44254756866-1",
+  "run_url": "https://github.com/Najip/android_kernel_a325F_bakasu/actions/runs/44254995433",
+  "report_directory": "audit-reports/xxksu-validation/44254995433-1",
   "sources": {
     "KernelSU": "1b8ce9e15a9402aa2192aed5d381366cf2150f0f",
     "NonGKI_Kernel_Build_2nd": "bbe032eb06c50d24a9207bf2ece5e25cf2460bd0"
@@ -107,7 +107,7 @@
         "--no-checkout",
         "--",
         "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu",
-        "/tmp/xxksu-validate-yqfu1cli/parent"
+        "/tmp/xxksu-validate-h43wp61i/parent"
       ],
       "exit_code": 0
     },
@@ -115,10 +115,10 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/parent",
+        "/tmp/xxksu-validate-h43wp61i/parent",
         "checkout",
         "--detach",
-        "6cc9219a095dd68f00a156dd1ad0910e35c01854"
+        "20859120a326b462397cc2e96d9cb9e77bb9399d"
       ],
       "exit_code": 0
     },
@@ -126,7 +126,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/parent",
+        "/tmp/xxksu-validate-h43wp61i/parent",
         "status",
         "--porcelain",
         "--untracked-files=all",
@@ -144,7 +144,7 @@
         "--no-checkout",
         "--",
         "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/KernelSU",
-        "/tmp/xxksu-validate-yqfu1cli/KernelSU"
+        "/tmp/xxksu-validate-h43wp61i/KernelSU"
       ],
       "exit_code": 0
     },
@@ -152,7 +152,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/KernelSU",
+        "/tmp/xxksu-validate-h43wp61i/KernelSU",
         "checkout",
         "--detach",
         "1b8ce9e15a9402aa2192aed5d381366cf2150f0f"
@@ -163,7 +163,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/KernelSU",
+        "/tmp/xxksu-validate-h43wp61i/KernelSU",
         "status",
         "--porcelain",
         "--untracked-files=all",
@@ -175,7 +175,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/parent",
+        "/tmp/xxksu-validate-h43wp61i/parent",
         "apply",
         "--check",
         "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0001-parent-bridge-api.patch"
@@ -186,7 +186,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/parent",
+        "/tmp/xxksu-validate-h43wp61i/parent",
         "apply",
         "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0001-parent-bridge-api.patch"
       ],
@@ -196,7 +196,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/KernelSU",
+        "/tmp/xxksu-validate-h43wp61i/KernelSU",
         "apply",
         "--check",
         "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0002-xxksu-native-wrappers.patch"
@@ -207,7 +207,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/KernelSU",
+        "/tmp/xxksu-validate-h43wp61i/KernelSU",
         "apply",
         "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0002-xxksu-native-wrappers.patch"
       ],
@@ -217,7 +217,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/parent",
+        "/tmp/xxksu-validate-h43wp61i/parent",
         "apply",
         "--check",
         "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0003-parent-access-stat-adapter.patch"
@@ -228,7 +228,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/parent",
+        "/tmp/xxksu-validate-h43wp61i/parent",
         "apply",
         "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0003-parent-access-stat-adapter.patch"
       ],
@@ -238,7 +238,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/parent",
+        "/tmp/xxksu-validate-h43wp61i/parent",
         "apply",
         "--check",
         "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0004-parent-native-hook-transition.patch"
@@ -249,7 +249,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/parent",
+        "/tmp/xxksu-validate-h43wp61i/parent",
         "apply",
         "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0004-parent-native-hook-transition.patch"
       ],
@@ -259,7 +259,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/parent",
+        "/tmp/xxksu-validate-h43wp61i/parent",
         "apply",
         "--check",
         "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0005-parent-susfs-lifecycle.patch"
@@ -270,7 +270,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/parent",
+        "/tmp/xxksu-validate-h43wp61i/parent",
         "apply",
         "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0005-parent-susfs-lifecycle.patch"
       ],
@@ -280,7 +280,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/KernelSU",
+        "/tmp/xxksu-validate-h43wp61i/KernelSU",
         "apply",
         "--check",
         "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0006-xxksu-susfs-lifecycle-calls.patch"
@@ -291,7 +291,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/KernelSU",
+        "/tmp/xxksu-validate-h43wp61i/KernelSU",
         "apply",
         "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0006-xxksu-susfs-lifecycle-calls.patch"
       ],
@@ -301,7 +301,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/parent",
+        "/tmp/xxksu-validate-h43wp61i/parent",
         "diff",
         "--check"
       ],
@@ -311,7 +311,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/parent",
+        "/tmp/xxksu-validate-h43wp61i/parent",
         "diff",
         "--stat"
       ],
@@ -321,7 +321,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/KernelSU",
+        "/tmp/xxksu-validate-h43wp61i/KernelSU",
         "diff",
         "--check"
       ],
@@ -331,7 +331,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/KernelSU",
+        "/tmp/xxksu-validate-h43wp61i/KernelSU",
         "diff",
         "--stat"
       ],
@@ -341,7 +341,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/KernelSU",
+        "/tmp/xxksu-validate-h43wp61i/KernelSU",
         "apply",
         "--reverse",
         "--check",
@@ -353,7 +353,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/KernelSU",
+        "/tmp/xxksu-validate-h43wp61i/KernelSU",
         "apply",
         "--reverse",
         "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0006-xxksu-susfs-lifecycle-calls.patch"
@@ -364,7 +364,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/parent",
+        "/tmp/xxksu-validate-h43wp61i/parent",
         "apply",
         "--reverse",
         "--check",
@@ -376,7 +376,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/parent",
+        "/tmp/xxksu-validate-h43wp61i/parent",
         "apply",
         "--reverse",
         "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0005-parent-susfs-lifecycle.patch"
@@ -387,7 +387,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/parent",
+        "/tmp/xxksu-validate-h43wp61i/parent",
         "apply",
         "--reverse",
         "--check",
@@ -399,7 +399,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/parent",
+        "/tmp/xxksu-validate-h43wp61i/parent",
         "apply",
         "--reverse",
         "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0004-parent-native-hook-transition.patch"
@@ -410,7 +410,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/parent",
+        "/tmp/xxksu-validate-h43wp61i/parent",
         "apply",
         "--reverse",
         "--check",
@@ -422,7 +422,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/parent",
+        "/tmp/xxksu-validate-h43wp61i/parent",
         "apply",
         "--reverse",
         "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0003-parent-access-stat-adapter.patch"
@@ -433,7 +433,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/KernelSU",
+        "/tmp/xxksu-validate-h43wp61i/KernelSU",
         "apply",
         "--reverse",
         "--check",
@@ -445,7 +445,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/KernelSU",
+        "/tmp/xxksu-validate-h43wp61i/KernelSU",
         "apply",
         "--reverse",
         "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0002-xxksu-native-wrappers.patch"
@@ -456,7 +456,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/parent",
+        "/tmp/xxksu-validate-h43wp61i/parent",
         "apply",
         "--reverse",
         "--check",
@@ -468,7 +468,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/parent",
+        "/tmp/xxksu-validate-h43wp61i/parent",
         "apply",
         "--reverse",
         "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0001-parent-bridge-api.patch"
@@ -479,7 +479,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/parent",
+        "/tmp/xxksu-validate-h43wp61i/parent",
         "status",
         "--porcelain",
         "--untracked-files=all",
@@ -491,7 +491,7 @@
       "command": [
         "git",
         "-C",
-        "/tmp/xxksu-validate-yqfu1cli/KernelSU",
+        "/tmp/xxksu-validate-h43wp61i/KernelSU",
         "status",
         "--porcelain",
         "--untracked-files=all",
@@ -501,7 +501,7 @@
     }
   ],
   "log_parts": [
-    "audit-reports/xxksu-validation/44254756866-1/commands.part-0001.txt"
+    "audit-reports/xxksu-validation/44254995433-1/commands.part-0001.txt"
   ],
   "forward_application": "PASS",
   "reverse_application": "PASS",
