@@ -1,42 +1,18 @@
 {
   "status": "NOT_PASS",
-  "compile_outcome": "cancelled",
+  "compile_outcome": "skipped",
   "exit_code": "",
   "log_exit_code": "",
   "package_outcome": "skipped",
   "package_exit_code": "",
   "kernel_patches": {
-    "source_branch": "nomount-lkm-sync-up-patch",
-    "source_commit": "53fe38b470a927e590b89eace39b7a71e4b90ea1",
-    "network_fixes": true,
-    "perf_tuning": false,
-    "original_gpu_voltages_restored_last": true,
-    "sequential_preflight": "PASS",
-    "reverse_restoration": "PASS",
-    "patches": [
-      {
-        "name": "0003-net-udp-gso-qdisc-juan.patch",
-        "kind": "network",
-        "source_git_blob": "7caa413200b57fdd865ef663e1095caa1241b494",
-        "source_sha256": "fd7eda4e97f635a670cf49ea9b17fc81c6fd58d2715aeb6c383101f82e629254",
-        "applied_sha256": "fd7eda4e97f635a670cf49ea9b17fc81c6fd58d2715aeb6c383101f82e629254",
-        "gpu_preimage_adapted": false
-      },
-      {
-        "name": "0006-restore-original-gpu-voltages.patch",
-        "kind": "restore",
-        "source_git_blob": "486a70ed37093833a0d533cc46bf69a672964015",
-        "source_sha256": "486c8aca9a27f7fa746c378463bdca4585ece599da5470c30289de2ec077936f",
-        "applied_sha256": "486c8aca9a27f7fa746c378463bdca4585ece599da5470c30289de2ec077936f",
-        "gpu_preimage_adapted": false
-      }
-    ]
+    "status": "not_completed"
   },
-  "source_commit": "330ffeffd292e94f32c8d5b848684b3c7330cd35",
+  "source_commit": "d31dc9c6c91b4051dfd9a1b04a8803c94ad78f9b",
   "source_lock": {
     "sources": {
       "KernelSU": "1b8ce9e15a9402aa2192aed5d381366cf2150f0f",
-      "NonGKI_Kernel_Build_2nd": "bbe032eb06c50d24a9207bf2ece5e25cf2460bd0"
+      "NonGKI_Kernel_Build_2nd": "26f2313be61f7a8603a50b2dcd12171495a79d27"
     },
     "patches": [
       {
@@ -70,15 +46,25 @@
         "sha256": "384a36300febf1aab5aec4c4544e4ee1a0a731ef5513f26061ef4cc7e6e4058a"
       }
     ],
-    "status": "Sequential application and reversal validated in Actions run 44254995433 (attempt 1); prebuild helper and compile/link not yet validated."
+    "status": "Jack 2.4.0 pin reviewed against existing xxKSU adaptations. Core, priority filter and hook files were not replaced. Compile and runtime pending.",
+    "parent_patches_materialized": true,
+    "materialized_from": "56b3615c93b416c8f96813b2cea2e13215e1734f",
+    "jack_susfs": {
+      "commit": "26f2313be61f7a8603a50b2dcd12171495a79d27",
+      "baseline": "bbe032eb06c50d24a9207bf2ece5e25cf2460bd0",
+      "patch": "Patches/Patch/susfs_patch_to_4.14.patch",
+      "sha256": "453875308fbb6dcfb1058fe7ac2bdde3d8280b266a0a6386b9ab8ed42749d1f0",
+      "decision": "retain existing core; istate delta not reapplied",
+      "audit": ".susfs-port/jack-source.json"
+    }
   },
-  "run_id": "44302393789",
+  "run_id": "44307745624",
   "attempt": "1",
-  "run_url": "https://github.com/Najip/android_kernel_a325F_bakasu/actions/runs/44302393789",
+  "run_url": "https://github.com/Najip/android_kernel_a325F_bakasu/actions/runs/44307745624",
   "scope": "Experimental kernel ZIP. Compile/link and archive checks only. Boot, root, SUSFS runtime and LKM remain untested. No release or deployment.",
   "warning_line_count": 0,
   "log_parts": [
-    "audit-reports/xxksu-build/44302393789-1/build.part-0001.txt",
-    "audit-reports/xxksu-build/44302393789-1/package.part-0001.txt"
+    "audit-reports/xxksu-build/44307745624-1/build.part-0001.txt",
+    "audit-reports/xxksu-build/44307745624-1/package.part-0001.txt"
   ]
 }
