@@ -1,0 +1,67 @@
+name: Audit xxKSU SUSFS integration
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    if: github.ref == 'refs/heads/xxksu-sufs-jack'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout existing kernel and pinned KernelSU
+        uses: actions/checkout@v7
+        with:
+          submodules: true
+          persist-credentials: false
+      - name: Checkout pinned xxKSU separately
+        uses: actions/checkout@v7
+        with:
+          repository: backslashxx/KernelSU
+          ref: 1b8ce9e15a9402aa2192aed5d381366cf2150f0f
+          path: .audit-xxksu
+          persist-credentials: false
+      - name: Collect integration evidence without modifying sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          report="$RUNNER_TEMP/xxksu-susfs-audit"
+          mkdir -p "$report"
+          {
+            printf 'Kernel: '; git rev-parse HEAD
+            printf 'Current KernelSU: '; git -C KernelSU rev-parse HEAD
+            printf 'Target xxKSU: '; git -C .audit-xxksu rev-parse HEAD
+            cat .gitmodules
+          } > "$report/revisions.txt"
+          pattern='ksu_|KSU_|susfs|SUSFS'
+          set +e
+          git grep -n -I -C 5 -E "$pattern" -- fs security kernel drivers/input include/linux include/uapi arch/arm64/configs > "$report/kernel-hook-map.txt"
+          status=$?
+          set -e
+          ((status <= 1)) || exit "$status"
+          for entry in 'KernelSU:current-kernelsu' '.audit-xxksu:target-xxksu'; do
+            source=${entry%%:*}
+            label=${entry#*:}
+            set +e
+            git -C "$source" grep -n -I -C 5 -E 'susfs|SUSFS|ksu_handle_|ksu_cred|setup_selinux|is_ksu_domain|on_post_fs_data|on_boot_completed|on_module_mounted|ioctl|prctl' -- kernel > "$report/$label-interfaces.txt"
+            status=$?
+            set -e
+            ((status <= 1)) || exit "$status"
+            git -C "$source" archive --format=tar HEAD kernel | gzip > "$report/$label-kernel-source.tar.gz"
+          done
+          git archive --format=tar HEAD fs/exec.c fs/open.c fs/stat.c fs/read_write.c fs/readdir.c fs/susfs.c security/security.c include/linux/susfs.h include/linux/susfs_def.h arch/arm64/configs/ksu-a325n-common.config | gzip > "$report/kernel-integration-source.tar.gz"
+          {
+            echo '### xxKSU/SUSFS source audit'
+            echo 'Evidence collection only: no compatibility or build success is implied.'
+            echo 'No submodule pins, source files, or branch contents were changed by this run.'
+            echo 'Review the artifact for hook signatures, command routing, initialization, credentials, and Kconfig requirements.'
+            echo
+            cat "$report/revisions.txt"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload source audit
+        uses: actions/upload-artifact@v7
+        with:
+          name: xxksu-susfs-audit-${{ github.sha }}
+          path: ${{ runner.temp }}/xxksu-susfs-audit/
+          if-no-files-found: error
+          retention-days: 14
