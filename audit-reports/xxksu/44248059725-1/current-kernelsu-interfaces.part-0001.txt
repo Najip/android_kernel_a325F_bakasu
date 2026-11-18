@@ -1,0 +1,164 @@
+kernel/INTERNAL.md-59-- no kallsyms reliance, we hunt file operations instead, we try to keep this if possible.
+kernel/INTERNAL.md-60-
+kernel/INTERNAL.md-61-### safe mode
+kernel/INTERNAL.md-62-- the implementation accepts 3x VOLUME_UP or 3x VOLUME_DOWN to trigger safemode
+kernel/INTERNAL.md-63-- we have a dedicated input handler for this
+kernel/INTERNAL.md:64:- this will be disabled once ksud runs on_post_fs_data / ksu_is_safe_mode
+kernel/INTERNAL.md-65-- if theres no ksud to call it, it will disable itself 30s after init.rc load
+kernel/INTERNAL.md-66-- this should be enough allowance time from init.rc to post-fs-data
+kernel/INTERNAL.md-67-
+kernel/INTERNAL.md-68-### kthreads
+kernel/INTERNAL.md-69-- theres a lot of these on the codebase even for mundane tasks
+--
+kernel/downstream/deprecated/kp_ksud.c-30-{
+kernel/downstream/deprecated/kp_ksud.c-31-	uintptr_t *arg = (uintptr_t *)p->data;
+kernel/downstream/deprecated/kp_ksud.c-32-	unsigned int fd = (unsigned int)arg[0];
+kernel/downstream/deprecated/kp_ksud.c-33-	struct stat __user *statbuf = (struct stat __user *)arg[1];
+kernel/downstream/deprecated/kp_ksud.c-34-
+kernel/downstream/deprecated/kp_ksud.c:35:	ksu_handle_newfstat_ret(&fd, &statbuf);
+kernel/downstream/deprecated/kp_ksud.c-36-
+kernel/downstream/deprecated/kp_ksud.c-37-	return 0;
+kernel/downstream/deprecated/kp_ksud.c-38-}
+kernel/downstream/deprecated/kp_ksud.c-39-
+kernel/downstream/deprecated/kp_ksud.c-40-static struct kretprobe sys_newfstat_rp = {
+--
+kernel/downstream/deprecated/kp_ksud.c-61-{
+kernel/downstream/deprecated/kp_ksud.c-62-	uintptr_t *arg = (uintptr_t *)p->data;
+kernel/downstream/deprecated/kp_ksud.c-63-	unsigned long fd = (unsigned long)arg[0];
+kernel/downstream/deprecated/kp_ksud.c-64-	struct stat64 __user *statbuf = (struct stat64 __user *)arg[1];
+kernel/downstream/deprecated/kp_ksud.c-65-
+kernel/downstream/deprecated/kp_ksud.c:66:	ksu_handle_fstat64_ret(&fd, &statbuf);
+kernel/downstream/deprecated/kp_ksud.c-67-
+kernel/downstream/deprecated/kp_ksud.c-68-	return 0;
+kernel/downstream/deprecated/kp_ksud.c-69-}
+kernel/downstream/deprecated/kp_ksud.c-70-
+kernel/downstream/deprecated/kp_ksud.c-71-static struct kretprobe sys_fstat64_rp = {
+--
+kernel/downstream/deprecated/kp_ksud.c-94-	if (likely(!preemptible())) {
+kernel/downstream/deprecated/kp_ksud.c-95-		preempt_enable();
+kernel/downstream/deprecated/kp_ksud.c-96-		got_flipped = true;
+kernel/downstream/deprecated/kp_ksud.c-97-	}
+kernel/downstream/deprecated/kp_ksud.c-98-
+kernel/downstream/deprecated/kp_ksud.c:99:	ksu_handle_sys_reboot(*magic1, magic2, cmd, arg);
+kernel/downstream/deprecated/kp_ksud.c-100-
+kernel/downstream/deprecated/kp_ksud.c-101-	if (got_flipped)
+kernel/downstream/deprecated/kp_ksud.c-102-		preempt_disable();
+kernel/downstream/deprecated/kp_ksud.c-103-
+kernel/downstream/deprecated/kp_ksud.c-104-	// to prevent double hooking
+--
+kernel/downstream/ksu_hostsredirect.h-62-	if (!!memcmp_inline(cbuf, hf, 16))
+kernel/downstream/ksu_hostsredirect.h-63-		return;
+kernel/downstream/ksu_hostsredirect.h-64-#endif
+kernel/downstream/ksu_hostsredirect.h-65-	//pr_info("%s: intercepting %s for comm: %s pid: %d\n", __func__, hf, current->comm, current->pid);
+kernel/downstream/ksu_hostsredirect.h-66-
+kernel/downstream/ksu_hostsredirect.h:67:	const struct cred *saved = override_creds(ksu_cred);
+kernel/downstream/ksu_hostsredirect.h-68-	struct file *filp = filp_open("/data/adb/hosts", O_RDONLY, 0);
+kernel/downstream/ksu_hostsredirect.h-69-	revert_creds(saved);
+kernel/downstream/ksu_hostsredirect.h-70-
+kernel/downstream/ksu_hostsredirect.h-71-	if (IS_ERR(filp))
+kernel/downstream/ksu_hostsredirect.h-72-		return;
+--
+kernel/feature/kernel_umount.c-68-	}
+kernel/feature/kernel_umount.c-69-
+kernel/feature/kernel_umount.c-70-	ksu_umount_mnt(mnt, &path, flags);
+kernel/feature/kernel_umount.c-71-}
+kernel/feature/kernel_umount.c-72-
+kernel/feature/kernel_umount.c:73:static inline int ksu_handle_umount(struct cred *new, const struct cred *old)
+kernel/feature/kernel_umount.c-74-{
+kernel/feature/kernel_umount.c-75-	uid_t new_uid = ksu_get_uid_t(new->uid);
+kernel/feature/kernel_umount.c-76-	uid_t old_uid = ksu_get_uid_t(old->uid);
+kernel/feature/kernel_umount.c-77-
+kernel/feature/kernel_umount.c-78-	if (!ksu_kernel_umount_enabled)
+--
+kernel/feature/kernel_umount.c-108-	pr_info("handle umount for uid: %d, pid: %d\n", new_uid, current->pid);
+kernel/feature/kernel_umount.c-109-
+kernel/feature/kernel_umount.c-110-	// hostsredirect and getpriority filter tracks this flag
+kernel/feature/kernel_umount.c-111-	set_thread_flag(TIF_KSU_UNMOUNTABLE);
+kernel/feature/kernel_umount.c-112-
+kernel/feature/kernel_umount.c:113:	const struct cred *saved = override_creds(ksu_cred);
+kernel/feature/kernel_umount.c-114-
+kernel/feature/kernel_umount.c-115-	struct mount_entry *entry;
+kernel/feature/kernel_umount.c-116-	down_read(&mount_list_lock);
+kernel/feature/kernel_umount.c-117-	list_for_each_entry (entry, &mount_list, list) {
+kernel/feature/kernel_umount.c-118-		pr_info("%s: unmounting: %s flags: 0x%x\n", __func__, entry->umountable, entry->flags);
+--
+kernel/feature/sucompat.c-80-	// so if its root but not ksu domain, deny, see __ksu_is_allow_uid_for_current
+kernel/feature/sucompat.c-81-	uid_t uid = current_uid().val;
+kernel/feature/sucompat.c-82-	if (!!uid)
+kernel/feature/sucompat.c-83-		goto uid_check;
+kernel/feature/sucompat.c-84-
+kernel/feature/sucompat.c:85:	if (!is_ksu_domain())
+kernel/feature/sucompat.c-86-		return false;
+kernel/feature/sucompat.c-87-	goto check_ptr;
+kernel/feature/sucompat.c-88-
+kernel/feature/sucompat.c-89-uid_check:
+kernel/feature/sucompat.c-90-#ifdef CONFIG_KSU_SHELL_HAS_SU_ALWAYS
+--
+kernel/feature/sucompat.c-344-	*filename_user = sh_user_path();
+kernel/feature/sucompat.c-345-	return;
+kernel/feature/sucompat.c-346-}
+kernel/feature/sucompat.c-347-
+kernel/feature/sucompat.c-348-// sys_faccessat
+kernel/feature/sucompat.c:349:SUCOMPAT_HOOK_TYPE ksu_handle_faccessat(int *dfd, const char __user **filename_user, int *mode, int *__unused_flags)
+kernel/feature/sucompat.c-350-{
+kernel/feature/sucompat.c-351-	ksu_sucompat_user_common(filename_user, "sys_faccessat");
+kernel/feature/sucompat.c-352-	return 0;
+kernel/feature/sucompat.c-353-}
+kernel/feature/sucompat.c-354-
+kernel/feature/sucompat.c-355-// sys_newfstatat, sys_fstat64
+kernel/feature/sucompat.c:356:SUCOMPAT_HOOK_TYPE ksu_handle_stat(int *dfd, const char __user **filename_user, int *flags)
+kernel/feature/sucompat.c-357-{
+kernel/feature/sucompat.c-358-	ksu_sucompat_user_common(filename_user, "sys_newfstatat");
+kernel/feature/sucompat.c-359-	return 0;
+kernel/feature/sucompat.c-360-}
+kernel/feature/sucompat.c-361-
+kernel/feature/sucompat.c-362-// sys_execve, compat_sys_execve
+kernel/feature/sucompat.c:363:SUCOMPAT_HOOK_TYPE ksu_handle_sys_execve(const char __user **filename_user, void *argv, void *envp)
+kernel/feature/sucompat.c-364-{
+kernel/feature/sucompat.c-365-	ksu_sucompat_user_execve(filename_user, argv, envp, "sys_execve");
+kernel/feature/sucompat.c-366-	return 0;
+kernel/feature/sucompat.c-367-}
+kernel/feature/sucompat.c-368-
+kernel/feature/sucompat.c-369-// sys_execveat, compat_sys_execveat
+kernel/feature/sucompat.c:370:SUCOMPAT_HOOK_TYPE ksu_handle_sys_execveat(int *fd, const char __user **filename_user, void *argv, void *envp, int *flags)
+kernel/feature/sucompat.c-371-{
+kernel/feature/sucompat.c-372-	ksu_sucompat_user_execve(filename_user, argv, envp, "sys_execveat");
+kernel/feature/sucompat.c-373-	return 0;
+kernel/feature/sucompat.c-374-}
+kernel/feature/sucompat.c-375-
+--
+kernel/feature/sucompat.c-433-	memcpy_inline(*filename_ptr, sh, sizeof(sh));
+kernel/feature/sucompat.c-434-	return;
+kernel/feature/sucompat.c-435-}
+kernel/feature/sucompat.c-436-
+kernel/feature/sucompat.c-437-struct filename; // take note: struct filename *filename, for do_execveat_common / do_execve_common on >= 3.14
+kernel/feature/sucompat.c:438:SUCOMPAT_HOOK_TYPE ksu_handle_execveat(int *fd, struct filename **filename_ptr, void *argv, void *envp, int *flags)
+kernel/feature/sucompat.c-439-{
+kernel/feature/sucompat.c-440-	void *struct_filename = *(void **)filename_ptr;
+kernel/feature/sucompat.c-441-	if (IS_ERR(struct_filename)) // see getname_flags
+kernel/feature/sucompat.c-442-		return 0;
+kernel/feature/sucompat.c-443-
+--
+kernel/hook/branch_link_hook_arm64.c-59-#pragma GCC diagnostic ignored "-Winfinite-recursion"
+kernel/hook/branch_link_hook_arm64.c-60-
+kernel/hook/branch_link_hook_arm64.c-61-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 7, 0) || defined(KSU_HAS_FACCESSAT2)
+kernel/hook/branch_link_hook_arm64.c-62-KEEP_SYMBOL_NO_TAIL long ksu_do_faccessat(int dfd, const char __user *filename, int mode, int flags)
+kernel/hook/branch_link_hook_arm64.c-63-{
+kernel/hook/branch_link_hook_arm64.c:64:	ksu_handle_faccessat(&dfd, &filename, &mode, NULL);
+kernel/hook/branch_link_hook_arm64.c-65-	return ksu_do_faccessat(dfd, filename, mode, flags);
+kernel/hook/branch_link_hook_arm64.c-66-}
+kernel/hook/branch_link_hook_arm64.c-67-#else
+kernel/hook/branch_link_hook_arm64.c-68-KEEP_SYMBOL_NO_TAIL long ksu_do_faccessat(int dfd, const char __user *filename, int mode)
+kernel/hook/branch_link_hook_arm64.c-69-{
+kernel/hook/branch_link_hook_arm64.c:70:	ksu_handle_faccessat(&dfd, &filename, &mode, NULL);
+kernel/hook/branch_link_hook_arm64.c-71-	return ksu_do_faccessat(dfd, filename, mode);
+kernel/hook/branch_link_hook_arm64.c-72-}
+kernel/hook/branch_link_hook_arm64.c-73-#endif // 5.7+ || faccessat2
+kernel/hook/branch_link_hook_arm64.c-74-
+kernel/hook/branch_link_hook_arm64.c-75-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 14, 0) && LINUX_VERSION_CODE < KERNEL_VERSION(4, 17, 0)
+--
+kernel/hook/branch_link_hook_arm64.c-125-	return ksu_vfs_statx(dfd, filename, flags, stat, request_mask);
+kernel/hook/branch_link_hook_arm64.c-126-}
+kernel/hook/branch_link_hook_arm64.c-127-#else
+kernel/hook/branch_link_hook_arm64.c-128-KEEP_SYMBOL_NO_TAIL int ksu_vfs_statx(int dfd, const char __user *filename, int flags, struct kstat *stat, u32 request_mask)
+kernel/hook/branc

@@ -1,0 +1,193 @@
+ogging to kernel");
+fs/susfs.c-785-	}
+fs/susfs.c-786-
+fs/susfs.c-787-	info.err = 0;
+fs/susfs.c-788-out_copy_to_user:
+fs/susfs.c:789:	if (copy_to_user(&((struct st_susfs_log __user*)*user_info)->err, &info.err, sizeof(info.err))) {
+fs/susfs.c-790-		info.err = -EFAULT;
+fs/susfs.c-791-	}
+fs/susfs.c:792:	SUSFS_LOGI("CMD_SUSFS_ENABLE_LOG -> ret: %d\n", info.err);
+fs/susfs.c-793-}
+fs/susfs.c:794:#endif // #ifdef CONFIG_KSU_SUSFS_ENABLE_LOG
+fs/susfs.c-795-
+fs/susfs.c-796-/* spoof_cmdline_or_bootconfig */
+fs/susfs.c:797:#ifdef CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
+fs/susfs.c-798-static char *fake_cmdline_or_bootconfig = NULL;
+fs/susfs.c:799:DEFINE_STATIC_KEY_FALSE(susfs_is_fake_cmdline_or_bootconfig_buffer_set);
+fs/susfs.c:800:static DEFINE_SEQLOCK(susfs_fake_cmdline_or_bootconfig_seqlock);
+fs/susfs.c-801-
+fs/susfs.c:802:void susfs_set_cmdline_or_bootconfig(void __user **user_info) {
+fs/susfs.c:803:	struct st_susfs_spoof_cmdline_or_bootconfig *info = (struct st_susfs_spoof_cmdline_or_bootconfig *)kzalloc(sizeof(struct st_susfs_spoof_cmdline_or_bootconfig), GFP_KERNEL);
+fs/susfs.c-804-	int err = 0;
+fs/susfs.c-805-
+fs/susfs.c-806-	if (!info) {
+fs/susfs.c-807-		err = -ENOMEM;
+fs/susfs.c:808:		if (copy_to_user(&((struct st_susfs_spoof_cmdline_or_bootconfig __user*)*user_info)->err, &err, sizeof(err)))
+fs/susfs.c-809-			err = -EFAULT;
+fs/susfs.c:810:		SUSFS_LOGI("CMD_SUSFS_SET_CMDLINE_OR_BOOTCONFIG -> ret: %d\n", err);
+fs/susfs.c-811-		return;
+fs/susfs.c-812-	}
+fs/susfs.c-813-
+fs/susfs.c:814:	if (copy_from_user(info, (struct st_susfs_spoof_cmdline_or_bootconfig __user*)*user_info, sizeof(struct st_susfs_spoof_cmdline_or_bootconfig))) {
+fs/susfs.c-815-		info->err = -EFAULT;
+fs/susfs.c-816-		goto out_copy_to_user;
+fs/susfs.c-817-	}
+fs/susfs.c-818-
+fs/susfs.c-819-	if (*info->fake_cmdline_or_bootconfig == '\0') {
+fs/susfs.c-820-		info->err = -EINVAL;
+fs/susfs.c-821-		goto out_copy_to_user;
+fs/susfs.c-822-	}
+fs/susfs.c-823-
+fs/susfs.c-824-	if (!fake_cmdline_or_bootconfig) {
+fs/susfs.c:825:		fake_cmdline_or_bootconfig = (char *)kzalloc(SUSFS_FAKE_CMDLINE_OR_BOOTCONFIG_SIZE, GFP_KERNEL);
+fs/susfs.c-826-		if (!fake_cmdline_or_bootconfig) {
+fs/susfs.c-827-			info->err = -ENOMEM;
+fs/susfs.c-828-			goto out_copy_to_user;
+fs/susfs.c-829-		}
+fs/susfs.c-830-	}
+fs/susfs.c-831-
+fs/susfs.c:832:	write_seqlock(&susfs_fake_cmdline_or_bootconfig_seqlock);
+fs/susfs.c-833-	strscpy(fake_cmdline_or_bootconfig,
+fs/susfs.c-834-			info->fake_cmdline_or_bootconfig,
+fs/susfs.c:835:			SUSFS_FAKE_CMDLINE_OR_BOOTCONFIG_SIZE - 1);
+fs/susfs.c:836:	write_sequnlock(&susfs_fake_cmdline_or_bootconfig_seqlock);
+fs/susfs.c-837-
+fs/susfs.c:838:	if (!static_key_enabled(&susfs_is_fake_cmdline_or_bootconfig_buffer_set))
+fs/susfs.c:839:		static_branch_enable(&susfs_is_fake_cmdline_or_bootconfig_buffer_set);
+fs/susfs.c:840:	SUSFS_LOGI("fake_cmdline_or_bootconfig is set\n");
+fs/susfs.c-841-
+fs/susfs.c-842-	info->err = 0;
+fs/susfs.c-843-
+fs/susfs.c-844-out_copy_to_user:
+fs/susfs.c-845-
+fs/susfs.c:846:	if (copy_to_user(&((struct st_susfs_spoof_cmdline_or_bootconfig __user*)*user_info)->err, &info->err, sizeof(info->err))) {
+fs/susfs.c-847-		info->err = -EFAULT;
+fs/susfs.c-848-	}
+fs/susfs.c:849:	SUSFS_LOGI("CMD_SUSFS_SET_CMDLINE_OR_BOOTCONFIG -> ret: %d\n", info->err);
+fs/susfs.c-850-	if (info) {
+fs/susfs.c-851-		kfree(info);
+fs/susfs.c-852-	}
+fs/susfs.c-853-}
+fs/susfs.c-854-
+fs/susfs.c:855:void susfs_spoof_cmdline_or_bootconfig(struct seq_file *m) {
+fs/susfs.c-856-	unsigned seq;
+fs/susfs.c:857:	char *buf = (char *)kmalloc(SUSFS_FAKE_CMDLINE_OR_BOOTCONFIG_SIZE, GFP_KERNEL);
+fs/susfs.c-858-
+fs/susfs.c-859-	if (!buf) {
+fs/susfs.c-860-		return;
+fs/susfs.c-861-	}
+fs/susfs.c-862-	do {
+fs/susfs.c:863:		seq = read_seqbegin(&susfs_fake_cmdline_or_bootconfig_seqlock);
+fs/susfs.c:864:		strscpy(buf, fake_cmdline_or_bootconfig, SUSFS_FAKE_CMDLINE_OR_BOOTCONFIG_SIZE);
+fs/susfs.c:865:	} while (read_seqretry(&susfs_fake_cmdline_or_bootconfig_seqlock, seq));
+fs/susfs.c-866-	seq_puts(m, buf);
+fs/susfs.c-867-	kfree(buf);
+fs/susfs.c-868-}
+fs/susfs.c-869-#endif
+fs/susfs.c-870-
+fs/susfs.c-871-/* open_redirect */
+fs/susfs.c:872:#ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
+fs/susfs.c:873:static DEFINE_MUTEX(susfs_mutex_lock_open_redirect);
+fs/susfs.c-874-static DEFINE_HASHTABLE(OPEN_REDIRECT_HLIST, 14);
+fs/susfs.c:875:DEFINE_SRCU(susfs_srcu_open_redirect);
+fs/susfs.c-876-
+fs/susfs.c:877:void susfs_add_open_redirect(void __user **user_info) {
+fs/susfs.c:878:	struct st_susfs_open_redirect info = {0};
+fs/susfs.c:879:	struct st_susfs_open_redirect_hlist *new_entry_target, *new_entry_redirected, *tmp_entry_target, *tmp_entry_redirected;
+fs/susfs.c-880-	struct hlist_node *tmp_hlist_node;
+fs/susfs.c-881-	struct path target_path, redirected_path;
+fs/susfs.c-882-	struct inode *target_inode, *redirected_inode;
+fs/susfs.c-883-	bool is_first_dup_found = false;
+fs/susfs.c-884-	bool is_second_dup_found = false;
+fs/susfs.c-885-
+fs/susfs.c:886:	if (copy_from_user(&info, (struct st_susfs_open_redirect __user*)*user_info, sizeof(info))) {
+fs/susfs.c-887-		info.err = -EFAULT;
+fs/susfs.c-888-		goto out_copy_to_user;
+fs/susfs.c-889-	}
+fs/susfs.c-890-
+fs/susfs.c-891-        if (*info.target_pathname == '\0') {
+fs/susfs.c-892-                info.err = -EINVAL;
+fs/susfs.c:893:		SUSFS_LOGE("empty target_pathname\n");
+fs/susfs.c-894-                goto out_copy_to_user;
+fs/susfs.c-895-        }
+fs/susfs.c-896-
+fs/susfs.c-897-	if (info.uid_scheme < UID_NON_APP_PROC || info.uid_scheme > UID_UMOUNTED_PROC) {
+fs/susfs.c-898-		info.err = -EINVAL;
+fs/susfs.c:899:		SUSFS_LOGE("invalid uid scheme: %d\n", info.uid_scheme);
+fs/susfs.c-900-                goto out_copy_to_user;
+fs/susfs.c-901-	}
+fs/susfs.c-902-
+fs/susfs.c-903-	info.err = kern_path(info.redirected_pathname, 0, &redirected_path);
+fs/susfs.c-904-	if (info.err) {
+fs/susfs.c:905:		SUSFS_LOGE("failed opening redirected file '%s'\n", info.redirected_pathname);
+fs/susfs.c-906-		goto out_copy_to_user;
+fs/susfs.c-907-	}
+fs/susfs.c-908-
+fs/susfs.c-909-	info.err = kern_path(info.target_pathname, 0, &target_path);
+fs/susfs.c-910-	if (info.err) {
+fs/susfs.c:911:		SUSFS_LOGE("failed opening target file '%s'\n", info.target_pathname);
+fs/susfs.c-912-		goto out_path_put_redirected_path;
+fs/susfs.c-913-	}
+fs/susfs.c-914-
+fs/susfs.c-915-	redirected_inode = d_backing_inode(redirected_path.dentry);
+fs/susfs.c-916-	if (!redirected_inode || !redirected_inode->i_mapping) {
+fs/susfs.c:917:		SUSFS_LOGE("redirected_inode || redirected_inode->i_mapping is NULL\n");
+fs/susfs.c-918-		info.err = -ENOENT;
+fs/susfs.c-919-		goto out_path_put_target_path;
+fs/susfs.c-920-	}
+fs/susfs.c-921-
+fs/susfs.c-922-	target_inode = d_backing_inode(target_path.dentry);
+fs/susfs.c-923-	if (!target_inode || !target_inode->i_mapping) {
+fs/susfs.c:924:		SUSFS_LOGE("target_inode || target_inode->i_mapping is NULL\n");
+fs/susfs.c-925-		info.err = -ENOENT;
+fs/susfs.c-926-		goto out_path_put_target_path;
+fs/susfs.c-927-	}
+fs/susfs.c-928-
+fs/susfs.c-929-	if (redirected_inode->i_sb->s_magic == FUSE_SUPER_MAGIC ||
+fs/susfs.c-930-	    target_inode->i_sb->s_magic == FUSE_SUPER_MAGIC) {
+fs/susfs.c:931:		SUSFS_LOGE("FUSE fs is not supported for open_redirect feature\n");
+fs/susfs.c-932-		info.err = -EINVAL;
+fs/susfs.c-933-		goto out_path_put_target_path;
+fs/susfs.c-934-	}
+fs/susfs.c-935-
+fs/susfs.c:936:	new_entry_target = kzalloc(sizeof(struct st_susfs_open_redirect_hlist), GFP_KERNEL);
+fs/susfs.c-937-	if (!new_entry_target) {
+fs/susfs.c-938-		info.err = -ENOMEM;
+fs/susfs.c-939-		goto out_path_put_target_path;
+fs/susfs.c-940-	}
+fs/susfs.c-941-
+fs/susfs.c:942:	new_entry_redirected = kzalloc(sizeof(struct st_susfs_open_redirect_hlist), GFP_KERNEL);
+fs/susfs.c-943-	if (!new_entry_redirected) {
+fs/susfs.c-944-		info.err = -ENOMEM;
+fs/susfs.c-945-		kfree(new_entry_target);
+fs/susfs.c-946-		goto out_path_put_target_path;
+fs/susfs.c-947-	}
+--
+fs/susfs.c-962-	new_entry_redirected->redirected_dev = target_inode->i_sb->s_dev;
+fs/susfs.c-963-	new_entry_redirected->info.uid_scheme = info.uid_scheme;
+fs/susfs.c-964-	new_entry_redirected->reversed_lookup_only = true;
+fs/susfs.c-965-	new_entry_redirected->spoofed_mnt_id = new_entry_target->spoofed_mnt_id;
+fs/susfs.c-966-	memcpy(&new_entry_redirected->spoofed_kstatfs, &new_entry_target->spoofed_kstatfs, sizeof(struct kstatfs));
+fs/susfs.c:967:	strscpy(new_entry_redirected->info.target_pathname, info.redirected_pathname, SUSFS_MAX_LEN_PATHNAME - 1);
+fs/susfs.c:968:	strscpy(new_entry_redirected->info.redirected_pathname, info.target_pathname, SUSFS_MAX_LEN_PATHNAME - 1);
+fs/susfs.c-969-
+fs/susfs.c-970-	// check for existing entries, delete it first if so
+fs/susfs.c:971:	mutex_lock(&susfs_mutex_lock_open_redirect);
+fs/susfs.c-972-	hash_for_each_possible_safe(OPEN_REDIRECT_HLIST, tmp_entry_target, tmp_hlist_node, node, target_inode->i_ino) {
+fs/susfs.c-973-		if (!strcmp(tmp_entry_target->info.target_pathname, info.target_pathname)) {
+fs/susfs.c-974-			if (tmp_entry_target->reversed_lookup_only) {
+fs/susfs.c:975:				SUSFS_LOGE("duplicated '%s' cannot be removed/added because it is used for reversed lookup only\n", info.target_pathname);
+fs/susfs.c:976:				mutex_unlock(&susfs_mutex_lock_open_redirect);
+fs/susfs.c-977-				info.err = -EINVAL;
+fs/susfs.c-978-				kfree(new_entry_redirected);
+fs/susfs.c-979-				kfree(new_entry_target);
+fs/susfs.c-980-				goto out_path_put_target_path;
+fs/susfs.c-981-			}
+--
+fs/susfs.c-993-				is_second_dup_found = true;
+fs/susfs.c-994-				hash_del_rcu(&tmp_entry_redirected->node);
+fs/susfs.c-995-				break;
+fs/susfs.c-996-			}
+fs/susfs.c-997-		}
+fs/susfs.c:998:		SUSFS_LOGI("target_pathname: '%s', redirected_pathname: '%s', target_i_ino: '%lu', redirected_i_ino: '%lu', target_s_dev: '%lu', redirected_s_dev: '%lu', uid_scheme: '%d', reversed_lookup_only: %d, spoofed_mnt_id: %d, is successfully added to OPEN_REDIRECT_HLIST\n",
+fs/susfs.c-999-			new_entry_target->info.target_pathname, new_entry_target->info.redirected_pathname, new_entry_target->target_ino, new_entry_targe

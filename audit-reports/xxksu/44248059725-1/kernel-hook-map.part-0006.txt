@@ -1,0 +1,218 @@
+_KSTAT)
+fs/notify/fdinfo.c-53-		if (seq_has_overflowed(m))
+fs/notify/fdinfo.c-54-			break;
+fs/notify/fdinfo.c-55-	}
+fs/notify/fdinfo.c-56-	mutex_unlock(&group->mark_mutex);
+fs/notify/fdinfo.c-57-}
+--
+fs/notify/fdinfo.c-89-}
+fs/notify/fdinfo.c-90-#endif
+fs/notify/fdinfo.c-91-
+fs/notify/fdinfo.c-92-#ifdef CONFIG_INOTIFY_USER
+fs/notify/fdinfo.c-93-
+fs/notify/fdinfo.c:94:#if defined(CONFIG_KSU_SUSFS_SUS_MOUNT) || defined(CONFIG_KSU_SUSFS_SUS_KSTAT)
+fs/notify/fdinfo.c-95-static void inotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark, struct file *file)
+fs/notify/fdinfo.c-96-#else
+fs/notify/fdinfo.c-97-static void inotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark)
+fs/notify/fdinfo.c:98:#endif // #if defined(CONFIG_KSU_SUSFS_SUS_MOUNT) || defined(CONFIG_KSU_SUSFS_SUS_KSTAT)
+fs/notify/fdinfo.c-99-{
+fs/notify/fdinfo.c-100-	struct inotify_inode_mark *inode_mark;
+fs/notify/fdinfo.c-101-	struct inode *inode;
+fs/notify/fdinfo.c-102-
+fs/notify/fdinfo.c-103-	if (!(mark->connector->flags & FSNOTIFY_OBJ_TYPE_INODE))
+fs/notify/fdinfo.c-104-		return;
+fs/notify/fdinfo.c-105-
+fs/notify/fdinfo.c-106-	inode_mark = container_of(mark, struct inotify_inode_mark, fsn_mark);
+fs/notify/fdinfo.c-107-	inode = igrab(mark->connector->inode);
+fs/notify/fdinfo.c-108-	if (inode) {
+fs/notify/fdinfo.c:109:#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/notify/fdinfo.c:110:		if (susfs_is_current_app_uid()) {
+fs/notify/fdinfo.c-111-			bool is_fuse = false;
+fs/notify/fdinfo.c:112:			if (susfs_is_inode_sus_kstat(inode, &is_fuse)) {
+fs/notify/fdinfo.c-113-				unsigned long ino = inode->i_ino;
+fs/notify/fdinfo.c-114-				dev_t dev = inode->i_sb->s_dev;
+fs/notify/fdinfo.c:115:				susfs_sus_kstat_spoof_inotify_fdinfo(&ino, &dev);
+fs/notify/fdinfo.c-116-				seq_printf(m, "inotify wd:%x ino:%lx sdev:%x mask:%x ignored_mask:0 ",
+fs/notify/fdinfo.c-117-						inode_mark->wd, ino, dev,
+fs/notify/fdinfo.c-118-						inotify_mark_user_mask(mark));
+fs/notify/fdinfo.c-119-				show_mark_fhandle(m, inode);
+fs/notify/fdinfo.c-120-				seq_putc(m, '\n');
+fs/notify/fdinfo.c-121-				iput(inode);
+fs/notify/fdinfo.c-122-				return;
+fs/notify/fdinfo.c-123-			}
+fs/notify/fdinfo.c-124-		}
+fs/notify/fdinfo.c:125:#endif // #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/notify/fdinfo.c:126:#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+fs/notify/fdinfo.c:127:		if (likely(susfs_is_current_proc_umounted())) {
+fs/notify/fdinfo.c-128-			struct mount *mnt = real_mount(file->f_path.mnt);
+fs/notify/fdinfo.c:129:			if (mnt->mnt_id >= DEFAULT_KSU_MNT_ID) {
+fs/notify/fdinfo.c-130-				struct path path;
+fs/notify/fdinfo.c-131-				char *pathname = kmalloc(PAGE_SIZE, GFP_KERNEL);
+fs/notify/fdinfo.c-132-				char *dpath;
+fs/notify/fdinfo.c-133-				if (!pathname) {
+fs/notify/fdinfo.c-134-					goto orig_flow;
+--
+fs/notify/fdinfo.c-157-out_kfree:
+fs/notify/fdinfo.c-158-				kfree(pathname);
+fs/notify/fdinfo.c-159-			}
+fs/notify/fdinfo.c-160-		}
+fs/notify/fdinfo.c-161-orig_flow:
+fs/notify/fdinfo.c:162:#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+fs/notify/fdinfo.c-163-		seq_printf(m, "inotify wd:%x ino:%lx sdev:%x mask:%x ignored_mask:0 ",
+fs/notify/fdinfo.c-164-			   inode_mark->wd, inode->i_ino, inode->i_sb->s_dev,
+fs/notify/fdinfo.c-165-			   inotify_mark_user_mask(mark));
+fs/notify/fdinfo.c-166-		show_mark_fhandle(m, inode);
+fs/notify/fdinfo.c-167-		seq_putc(m, '\n');
+--
+fs/open.c-29-#include <linux/falloc.h>
+fs/open.c-30-#include <linux/fs_struct.h>
+fs/open.c-31-#include <linux/ima.h>
+fs/open.c-32-#include <linux/dnotify.h>
+fs/open.c-33-#include <linux/compat.h>
+fs/open.c:34:#ifdef CONFIG_KSU_SUSFS
+fs/open.c:35:#include <linux/susfs_def.h>
+fs/open.c-36-#endif
+fs/open.c-37-
+fs/open.c-38-#include "internal.h"
+fs/open.c-39-
+fs/open.c-40-int do_truncate2(struct vfsmount *mnt, struct dentry *dentry, loff_t length,
+--
+fs/open.c-359-/*
+fs/open.c-360- * access() needs to use the real uid/gid, not the effective uid/gid.
+fs/open.c-361- * We do this by temporarily clearing all FS-related capabilities and
+fs/open.c-362- * switching the fsuid/fsgid around to the real ones.
+fs/open.c-363- */
+fs/open.c:364:#ifdef CONFIG_KSU_SUSFS
+fs/open.c:365:extern struct static_key_true ksu_su_compat_enabled;
+fs/open.c:366:extern bool __ksu_is_allow_uid_for_current(uid_t uid);
+fs/open.c:367:extern int ksu_handle_faccessat(int *dfd, struct filename **filename, int *mode,
+fs/open.c-368-             int *flags);
+fs/open.c-369-extern int filename_lookup(int dfd, struct filename *name, unsigned flags,
+fs/open.c-370-				struct path *path, struct path *root);
+fs/open.c-371-#endif
+fs/open.c-372-SYSCALL_DEFINE3(faccessat, int, dfd, const char __user *, filename, int, mode)
+--
+fs/open.c-376-	struct path path;
+fs/open.c-377-	struct inode *inode;
+fs/open.c-378-	struct vfsmount *mnt;
+fs/open.c-379-	int res;
+fs/open.c-380-	unsigned int lookup_flags = LOOKUP_FOLLOW;
+fs/open.c:381:#ifdef CONFIG_KSU_SUSFS
+fs/open.c-382-	struct filename *fname = NULL;
+fs/open.c-383-#endif
+fs/open.c-384-
+fs/open.c-385-	if (mode & ~S_IRWXO)	/* where's F_OK, X_OK, W_OK, R_OK? */
+fs/open.c-386-		return -EINVAL;
+--
+fs/open.c-421-	 */
+fs/open.c-422-	override_cred->non_rcu = 1;
+fs/open.c-423-
+fs/open.c-424-	old_cred = override_creds(override_cred);
+fs/open.c-425-retry:
+fs/open.c:426:#ifdef CONFIG_KSU_SUSFS
+fs/open.c-427-	fname = getname_flags(filename, lookup_flags, NULL);
+fs/open.c-428-
+fs/open.c:429:	if (likely(susfs_is_current_proc_no_su()))
+fs/open.c-430-		goto orig_flow;
+fs/open.c-431-
+fs/open.c:432:	if (static_branch_likely(&ksu_su_compat_enabled)) {
+fs/open.c:433:		if (unlikely(__ksu_is_allow_uid_for_current(current_uid().val)))
+fs/open.c:434:			ksu_handle_faccessat(&dfd, &fname, &mode, NULL);
+fs/open.c-435-	}
+fs/open.c-436-
+fs/open.c-437-orig_flow:
+fs/open.c-438-	res = filename_lookup(dfd, fname, lookup_flags, &path, NULL);
+fs/open.c-439-	// no putname(fname) here as filename_lookup() has it done for us already;
+--
+fs/proc/base.c-92-#include <linux/sched/debug.h>
+fs/proc/base.c-93-#include <linux/sched/stat.h>
+fs/proc/base.c-94-#include <linux/flex_array.h>
+fs/proc/base.c-95-#include <linux/posix-timers.h>
+fs/proc/base.c-96-#include <linux/cpufreq_times.h>
+fs/proc/base.c:97:#if defined(CONFIG_KSU_SUSFS_SUS_MAP) || defined(CONFIG_KSU_SUSFS_OPEN_REDIRECT)
+fs/proc/base.c:98:#include <linux/susfs_def.h>
+fs/proc/base.c:99:#endif // #if defined(CONFIG_KSU_SUSFS_SUS_MAP) || defined(CONFIG_KSU_SUSFS_OPEN_REDIRECT)
+fs/proc/base.c-100-#include <linux/task_integrity.h>
+fs/proc/base.c-101-#ifdef CONFIG_HARDWALL
+fs/proc/base.c-102-#include <asm/hardwall.h>
+fs/proc/base.c-103-#endif
+fs/proc/base.c-104-#include <linux/cn_proc.h>
+--
+fs/proc/base.c-1730-	return NULL;
+fs/proc/base.c-1731-out:
+fs/proc/base.c-1732-	return ERR_PTR(error);
+fs/proc/base.c-1733-}
+fs/proc/base.c-1734-
+fs/proc/base.c:1735:#ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
+fs/proc/base.c:1736:extern int susfs_open_redirect_spoof_do_proc_readlink(struct inode *inode, char *tmp_buf, int buflen);
+fs/proc/base.c-1737-#endif
+fs/proc/base.c-1738-
+fs/proc/base.c-1739-static int do_proc_readlink(struct path *path, char __user *buffer, int buflen)
+fs/proc/base.c-1740-{
+fs/proc/base.c-1741-	char *tmp = (char *)__get_free_page(GFP_KERNEL);
+--
+fs/proc/base.c-1743-	int len;
+fs/proc/base.c-1744-
+fs/proc/base.c-1745-	if (!tmp)
+fs/proc/base.c-1746-		return -ENOMEM;
+fs/proc/base.c-1747-
+fs/proc/base.c:1748:#ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
+fs/proc/base.c:1749:	if (SUSFS_IS_INODE_OPEN_REDIRECT(path->dentry->d_inode)) {
+fs/proc/base.c:1750:		if (!susfs_open_redirect_spoof_do_proc_readlink(path->dentry->d_inode, tmp, buflen)) {
+fs/proc/base.c-1751-			len = strlen(tmp);
+fs/proc/base.c-1752-			if (copy_to_user(buffer, tmp, len))
+fs/proc/base.c-1753-				len = -EFAULT;
+fs/proc/base.c-1754-			goto out;
+fs/proc/base.c-1755-		}
+--
+fs/proc/base.c-2317-		}
+fs/proc/base.c-2318-		for (i = 0, vma = mm->mmap, pos = 2; vma;
+fs/proc/base.c-2319-				vma = vma->vm_next) {
+fs/proc/base.c-2320-			if (!vma->vm_file)
+fs/proc/base.c-2321-				continue;
+fs/proc/base.c:2322:#ifdef CONFIG_KSU_SUSFS_SUS_MAP
+fs/proc/base.c:2323:		if (SUSFS_IS_INODE_SUS_MAP(file_inode(vma->vm_file)))
+fs/proc/base.c-2324-			continue;
+fs/proc/base.c:2325:#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MAP
+fs/proc/base.c-2326-			if (++pos <= ctx->pos)
+fs/proc/base.c-2327-				continue;
+fs/proc/base.c-2328-
+fs/proc/base.c-2329-			info.mode = vma->vm_file->f_mode;
+fs/proc/base.c-2330-			info.len = snprintf(info.name,
+--
+fs/proc/cmdline.c-2-#include <linux/fs.h>
+fs/proc/cmdline.c-3-#include <linux/init.h>
+fs/proc/cmdline.c-4-#include <linux/proc_fs.h>
+fs/proc/cmdline.c-5-#include <linux/seq_file.h>
+fs/proc/cmdline.c-6-
+fs/proc/cmdline.c:7:#ifdef CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
+fs/proc/cmdline.c:8:extern struct static_key_false susfs_is_fake_cmdline_or_bootconfig_buffer_set;
+fs/proc/cmdline.c:9:extern void susfs_spoof_cmdline_or_bootconfig(struct seq_file *m);
+fs/proc/cmdline.c-10-#endif
+fs/proc/cmdline.c-11-
+fs/proc/cmdline.c-12-static int cmdline_proc_show(struct seq_file *m, void *v)
+fs/proc/cmdline.c-13-{
+fs/proc/cmdline.c:14:#ifdef CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
+fs/proc/cmdline.c:15:	if (static_branch_likely(&susfs_is_fake_cmdline_or_bootconfig_buffer_set)) {
+fs/proc/cmdline.c:16:		susfs_spoof_cmdline_or_bootconfig(m);
+fs/proc/cmdline.c-17-		seq_putc(m, '\n');
+fs/proc/cmdline.c-18-		return 0;
+fs/proc/cmdline.c-19-	}
+fs/proc/cmdline.c-20-#endif
+fs/proc/cmdline.c-21-	seq_printf(m, "%s\n", saved_command_line);
+--
+fs/proc/fd.c-10-#include <linux/file.h>
+fs/proc/fd.c-11-#include <linux/seq_file.h>
+fs/proc/fd.c-12-#include <linux/fs.h>
+fs/proc/fd.c-13-
+fs/proc/fd.c-14-#include <linux/proc_fs.h>
+fs/proc/fd.c:15:#ifdef CONFIG_KSU_SUSFS
+fs/proc/fd.c:16:#include <linux/susfs_def.h>
+fs/proc/fd.c:17:#endif // #ifdef CONFIG_KSU_SUSFS
+fs/proc/fd.c-18-
+fs/proc/fd.c-19-#include "../mount.h"
+fs/proc/fd.c-20-#include "internal.h"
+fs/proc/fd.c-21-#include "fd.h"
+fs/proc/fd.c-22-
+fs/proc/fd.c:23:#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+fs/proc/fd.c:24:extern int susfs_get_non_sus_mnt_id_from_mnt(str

@@ -1,0 +1,168 @@
+kernel/sys.c:1209:#ifdef CONFIG_KSU_SUSFS_SPOOF_UNAME
+kernel/sys.c:1210:extern struct static_key_false susfs_is_uname_spoof_buffer_set;
+kernel/sys.c:1211:extern void susfs_spoof_uname(struct new_utsname *tmp);
+kernel/sys.c-1212-#endif
+kernel/sys.c-1213-SYSCALL_DEFINE1(newuname, struct new_utsname __user *, name)
+kernel/sys.c-1214-{
+kernel/sys.c-1215-	struct new_utsname tmp;
+kernel/sys.c-1216-
+kernel/sys.c-1217-	down_read(&uts_sem);
+kernel/sys.c-1218-	memcpy(&tmp, utsname(), sizeof(tmp));
+kernel/sys.c:1219:#ifdef CONFIG_KSU_SUSFS_SPOOF_UNAME
+kernel/sys.c:1220:	if (static_branch_likely(&susfs_is_uname_spoof_buffer_set))
+kernel/sys.c:1221:		susfs_spoof_uname(&tmp);
+kernel/sys.c-1222-#endif
+kernel/sys.c-1223-	if (!strncmp(current->comm, "bpfloader", 9) ||
+kernel/sys.c-1224-	    !strncmp(current->comm, "netbpfload", 10) ||
+kernel/sys.c-1225-	    !strncmp(current->comm, "netd", 4)) {
+kernel/sys.c-1226-		if (current_uid().val == 0) {
+--
+security/selinux/avc.c-167-	if (av)
+security/selinux/avc.c-168-		audit_log_format(ab, " 0x%x", av);
+security/selinux/avc.c-169-
+security/selinux/avc.c-170-	audit_log_format(ab, " }");
+security/selinux/avc.c-171-}
+security/selinux/avc.c:172:#ifdef CONFIG_KSU_SUSFS
+security/selinux/avc.c:173:extern u32 susfs_ksu_sid;
+security/selinux/avc.c:174:extern u32 susfs_priv_app_sid;
+security/selinux/avc.c:175:extern struct static_key_false susfs_is_avc_log_spoofing_enabled;
+security/selinux/avc.c-176-#endif
+security/selinux/avc.c-177-
+security/selinux/avc.c-178-/**
+security/selinux/avc.c-179- * avc_dump_query - Display a SID pair and a class in human-readable form.
+security/selinux/avc.c-180- * @ssid: source security identifier
+--
+security/selinux/avc.c-196-		kfree(scontext);
+security/selinux/avc.c-197-	}
+security/selinux/avc.c-198-
+security/selinux/avc.c-199-	rc = security_sid_to_context(state, tsid, &scontext, &scontext_len);
+security/selinux/avc.c-200-
+security/selinux/avc.c:201:#ifdef CONFIG_KSU_SUSFS
+security/selinux/avc.c:202:	if (static_branch_likely(&susfs_is_avc_log_spoofing_enabled)) {
+security/selinux/avc.c:203:		if (unlikely(tsid == susfs_ksu_sid)) {
+security/selinux/avc.c-204-			if (rc)
+security/selinux/avc.c:205:				audit_log_format(ab, " tsid=%d", susfs_priv_app_sid);
+security/selinux/avc.c-206-			else
+security/selinux/avc.c-207-				audit_log_format(ab, " tcontext=%s", "u:r:priv_app:s0:c512,c768");
+security/selinux/avc.c-208-			goto bypass_orig_flow;
+security/selinux/avc.c-209-		}
+security/selinux/avc.c-210-	}
+--
+security/selinux/avc.c-215-	else {
+security/selinux/avc.c-216-		audit_log_format(ab, " tcontext=%s", scontext);
+security/selinux/avc.c-217-		kfree(scontext);
+security/selinux/avc.c-218-	}
+security/selinux/avc.c-219-
+security/selinux/avc.c:220:#ifdef CONFIG_KSU_SUSFS
+security/selinux/avc.c-221-bypass_orig_flow:
+security/selinux/avc.c-222-#endif
+security/selinux/avc.c-223-	BUG_ON(!tclass || tclass >= ARRAY_SIZE(secclass_map));
+security/selinux/avc.c-224-	audit_log_format(ab, " tclass=%s", secclass_map[tclass-1].name);
+security/selinux/avc.c-225-}
+--
+security/selinux/hooks.c-6432-abort_change:
+security/selinux/hooks.c-6433-	abort_creds(new);
+security/selinux/hooks.c-6434-	return error;
+security/selinux/hooks.c-6435-}
+security/selinux/hooks.c-6436-
+security/selinux/hooks.c:6437:#ifdef CONFIG_KSU_SUSFS
+security/selinux/hooks.c:6438:#include <linux/susfs_ksu.h>
+security/selinux/hooks.c-6439-
+security/selinux/hooks.c:6440:static int susfs_selinux_setprocattr(const char *name, void *value, size_t size)
+security/selinux/hooks.c-6441-{
+security/selinux/hooks.c:6442:	if (current_uid().val >= 10000 && READ_ONCE(ksu_selinux_hide_running) &&
+security/selinux/hooks.c-6443-	    !strcmp(name, "current"))
+security/selinux/hooks.c-6444-		return my_setprocattr(name, value, size);
+security/selinux/hooks.c-6445-	return selinux_setprocattr(name, value, size);
+security/selinux/hooks.c-6446-}
+security/selinux/hooks.c-6447-#endif
+--
+security/selinux/hooks.c-6988-	LSM_HOOK_INIT(sem_semop, selinux_sem_semop),
+security/selinux/hooks.c-6989-
+security/selinux/hooks.c-6990-	LSM_HOOK_INIT(d_instantiate, selinux_d_instantiate),
+security/selinux/hooks.c-6991-
+security/selinux/hooks.c-6992-	LSM_HOOK_INIT(getprocattr, selinux_getprocattr),
+security/selinux/hooks.c:6993:#ifdef CONFIG_KSU_SUSFS
+security/selinux/hooks.c:6994:	LSM_HOOK_INIT(setprocattr, susfs_selinux_setprocattr),
+security/selinux/hooks.c-6995-#else
+security/selinux/hooks.c-6996-	LSM_HOOK_INIT(setprocattr, selinux_setprocattr),
+security/selinux/hooks.c-6997-#endif
+security/selinux/hooks.c-6998-
+security/selinux/hooks.c-6999-	LSM_HOOK_INIT(ismaclabel, selinux_ismaclabel),
+--
+security/selinux/selinuxfs.c-40-#include "avc_ss.h"
+security/selinux/selinuxfs.c-41-#include "security.h"
+security/selinux/selinuxfs.c-42-#include "objsec.h"
+security/selinux/selinuxfs.c-43-#include "conditional.h"
+security/selinux/selinuxfs.c-44-
+security/selinux/selinuxfs.c:45:#ifdef CONFIG_KSU_SUSFS
+security/selinux/selinuxfs.c:46:#include <linux/susfs_ksu.h>
+security/selinux/selinuxfs.c-47-#include <linux/jump_label.h>
+security/selinux/selinuxfs.c-48-extern struct static_key_false fake_status_initialize_key;
+security/selinux/selinuxfs.c-49-#endif
+security/selinux/selinuxfs.c-50-
+security/selinux/selinuxfs.c-51-enum sel_inos {
+--
+security/selinux/selinuxfs.c-234-static int sel_open_handle_status(struct inode *inode, struct file *filp)
+security/selinux/selinuxfs.c-235-{
+security/selinux/selinuxfs.c-236-	struct selinux_fs_info *fsi = file_inode(filp)->i_sb->s_fs_info;
+security/selinux/selinuxfs.c-237-	struct page    *status = selinux_kernel_status_page(fsi->state);
+security/selinux/selinuxfs.c-238-
+security/selinux/selinuxfs.c:239:#ifdef CONFIG_KSU_SUSFS
+security/selinux/selinuxfs.c:240:	if (current_uid().val >= 10000 && READ_ONCE(ksu_selinux_hide_running)) {
+security/selinux/selinuxfs.c-241-		struct page *page = READ_ONCE(fake_status);
+security/selinux/selinuxfs.c-242-
+security/selinux/selinuxfs.c-243-		if (page) {
+security/selinux/selinuxfs.c-244-			filp->private_data = page;
+security/selinux/selinuxfs.c-245-			return 0;
+--
+security/selinux/selinuxfs.c-249-	if (!status)
+security/selinux/selinuxfs.c-250-		return -ENOMEM;
+security/selinux/selinuxfs.c-251-
+security/selinux/selinuxfs.c-252-	filp->private_data = status;
+security/selinux/selinuxfs.c-253-
+security/selinux/selinuxfs.c:254:#ifdef CONFIG_KSU_SUSFS
+security/selinux/selinuxfs.c-255-	/* initialize_fake_status() takes the status lock itself. */
+security/selinux/selinuxfs.c-256-	if (static_branch_unlikely(&fake_status_initialize_key) &&
+security/selinux/selinuxfs.c-257-	    !READ_ONCE(fake_status))
+security/selinux/selinuxfs.c-258-		initialize_fake_status();
+security/selinux/selinuxfs.c-259-#endif
+--
+security/selinux/selinuxfs.c-807-static ssize_t sel_write_create(struct file *file, char *buf, size_t size);
+security/selinux/selinuxfs.c-808-static ssize_t sel_write_relabel(struct file *file, char *buf, size_t size);
+security/selinux/selinuxfs.c-809-static ssize_t sel_write_user(struct file *file, char *buf, size_t size);
+security/selinux/selinuxfs.c-810-static ssize_t sel_write_member(struct file *file, char *buf, size_t size);
+security/selinux/selinuxfs.c-811-
+security/selinux/selinuxfs.c:812:#ifdef CONFIG_KSU_SUSFS
+security/selinux/selinuxfs.c:813:static ssize_t susfs_sel_write_context(struct file *file, char *buf, size_t size)
+security/selinux/selinuxfs.c-814-{
+security/selinux/selinuxfs.c:815:	if (current_uid().val >= 10000 && READ_ONCE(ksu_selinux_hide_running))
+security/selinux/selinuxfs.c-816-		return my_write_context(file, buf, size);
+security/selinux/selinuxfs.c-817-	return sel_write_context(file, buf, size);
+security/selinux/selinuxfs.c-818-}
+security/selinux/selinuxfs.c-819-
+security/selinux/selinuxfs.c:820:static ssize_t susfs_sel_write_access(struct file *file, char *buf, size_t size)
+security/selinux/selinuxfs.c-821-{
+security/selinux/selinuxfs.c:822:	if (current_uid().val >= 10000 && READ_ONCE(ksu_selinux_hide_running))
+security/selinux/selinuxfs.c-823-		return my_write_access(file, buf, size);
+security/selinux/selinuxfs.c-824-	return sel_write_access(file, buf, size);
+security/selinux/selinuxfs.c-825-}
+security/selinux/selinuxfs.c-826-#endif
+security/selinux/selinuxfs.c-827-
+security/selinux/selinuxfs.c-828-static ssize_t (*write_op[])(struct file *, char *, size_t) = {
+security/selinux/selinuxfs.c:829:#ifdef CONFIG_KSU_SUSFS
+security/selinux/selinuxfs.c:830:	[SEL_ACCESS] = susfs_sel_write_access,
+security/selinux/selinuxfs.c-831-#else
+security/selinux/selinuxfs.c-832-	[SEL_ACCESS] = sel_write_access,
+security/selinux/selinuxfs.c-833-#endif
+security/selinux/selinuxfs.c-834-	[SEL_CREATE] = sel_write_create,
+security/selinux/selinuxfs.c-835-	[SEL_RELABEL] = sel_write_relabel,
+security/selinux/selinuxfs.c-836-	[SEL_USER] = sel_write_user,
+security/selinux/selinuxfs.c-837-	[SEL_MEMBER] = sel_write_member,
+security/selinux/selinuxfs.c:838:#ifdef CONFIG_KSU_SUSFS
+security/selinux/selinuxfs.c:839:	[SEL_CONTEXT] = susfs_sel_write_context,
+security/selinux/selinuxfs.c-840-#else
+security/selinux/selinuxfs.c-841-	[SEL_CONTEXT] = sel_write_context,
+security/selinux/selinuxfs.c-842-#endif
+security/selinux/selinuxfs.c-843-};
+security/selinux/selinuxfs.c-844-

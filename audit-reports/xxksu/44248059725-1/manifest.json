@@ -1,0 +1,78 @@
+{
+  "source_commit": "6333adbc86610f1aab766f778b4e97d16df1cd11",
+  "run_id": "44248059725",
+  "attempt": "1",
+  "run_url": "https://github.com/Najip/android_kernel_a325F_bakasu/actions/runs/44248059725",
+  "note": "Source audit only, not a successful build or compatibility validation.",
+  "files": [
+    {
+      "source_name": "current-kernelsu-interfaces.txt",
+      "sha256": "f062df24edba8c444bad848d844ed50534ddef0ce4372de0b7195f58cd0ab0b2",
+      "parts": [
+        "audit-reports/xxksu/44248059725-1/current-kernelsu-interfaces.part-0001.txt",
+        "audit-reports/xxksu/44248059725-1/current-kernelsu-interfaces.part-0002.txt",
+        "audit-reports/xxksu/44248059725-1/current-kernelsu-interfaces.part-0003.txt",
+        "audit-reports/xxksu/44248059725-1/current-kernelsu-interfaces.part-0004.txt",
+        "audit-reports/xxksu/44248059725-1/current-kernelsu-interfaces.part-0005.txt",
+        "audit-reports/xxksu/44248059725-1/current-kernelsu-interfaces.part-0006.txt",
+        "audit-reports/xxksu/44248059725-1/current-kernelsu-interfaces.part-0007.txt",
+        "audit-reports/xxksu/44248059725-1/current-kernelsu-interfaces.part-0008.txt",
+        "audit-reports/xxksu/44248059725-1/current-kernelsu-interfaces.part-0009.txt",
+        "audit-reports/xxksu/44248059725-1/current-kernelsu-interfaces.part-0010.txt"
+      ]
+    },
+    {
+      "source_name": "kernel-hook-map.txt",
+      "sha256": "235d8320f40da09e7ca84bd4c0f369ea54db8f1c4bc513e6fbed72e576d481c5",
+      "parts": [
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0001.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0002.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0003.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0004.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0005.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0006.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0007.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0008.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0009.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0010.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0011.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0012.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0013.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0014.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0015.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0016.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0017.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0018.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0019.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0020.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0021.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0022.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0023.txt",
+        "audit-reports/xxksu/44248059725-1/kernel-hook-map.part-0024.txt"
+      ]
+    },
+    {
+      "source_name": "revisions.txt",
+      "sha256": "27b57c233351b19112e9baa3a3438bcf03e59c12e2dfd1a00fe6ea06deddb72a",
+      "parts": [
+        "audit-reports/xxksu/44248059725-1/revisions.part-0001.txt"
+      ]
+    },
+    {
+      "source_name": "target-xxksu-interfaces.txt",
+      "sha256": "f062df24edba8c444bad848d844ed50534ddef0ce4372de0b7195f58cd0ab0b2",
+      "parts": [
+        "audit-reports/xxksu/44248059725-1/target-xxksu-interfaces.part-0001.txt",
+        "audit-reports/xxksu/44248059725-1/target-xxksu-interfaces.part-0002.txt",
+        "audit-reports/xxksu/44248059725-1/target-xxksu-interfaces.part-0003.txt",
+        "audit-reports/xxksu/44248059725-1/target-xxksu-interfaces.part-0004.txt",
+        "audit-reports/xxksu/44248059725-1/target-xxksu-interfaces.part-0005.txt",
+        "audit-reports/xxksu/44248059725-1/target-xxksu-interfaces.part-0006.txt",
+        "audit-reports/xxksu/44248059725-1/target-xxksu-interfaces.part-0007.txt",
+        "audit-reports/xxksu/44248059725-1/target-xxksu-interfaces.part-0008.txt",
+        "audit-reports/xxksu/44248059725-1/target-xxksu-interfaces.part-0009.txt",
+        "audit-reports/xxksu/44248059725-1/target-xxksu-interfaces.part-0010.txt"
+      ]
+    }
+  ]
+}

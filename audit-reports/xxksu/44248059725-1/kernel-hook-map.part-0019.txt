@@ -1,0 +1,198 @@
+MD_SUSFS_ADD_OPEN_REDIRECT: susfs_add_open_redirect(arg); break;
+fs/susfs_ksu_glue.c-62-#endif
+fs/susfs_ksu_glue.c:63:#ifdef CONFIG_KSU_SUSFS_SUS_MAP
+fs/susfs_ksu_glue.c:64:    case CMD_SUSFS_ADD_SUS_MAP: susfs_add_sus_map(arg); break;
+fs/susfs_ksu_glue.c-65-#endif
+fs/susfs_ksu_glue.c:66:    case CMD_SUSFS_ENABLE_AVC_LOG_SPOOFING: susfs_set_avc_log_spoofing(arg); break;
+fs/susfs_ksu_glue.c:67:    case CMD_SUSFS_SHOW_ENABLED_FEATURES: susfs_get_enabled_features(arg); break;
+fs/susfs_ksu_glue.c:68:    case CMD_SUSFS_SHOW_VARIANT: susfs_show_variant(arg); break;
+fs/susfs_ksu_glue.c:69:    case CMD_SUSFS_SHOW_VERSION: susfs_show_version(arg); break;
+fs/susfs_ksu_glue.c-70-    default: break;
+fs/susfs_ksu_glue.c-71-    }
+fs/susfs_ksu_glue.c-72-    return 0;
+fs/susfs_ksu_glue.c-73-}
+fs/susfs_ksu_glue.c-74-
+fs/susfs_ksu_glue.c:75:int susfs_ksu_sys_reboot(int magic1, int magic2, unsigned int cmd, void __user **arg)
+fs/susfs_ksu_glue.c-76-{
+fs/susfs_ksu_glue.c:77:    if ((u32)magic2 == SUSFS_MAGIC) {
+fs/susfs_ksu_glue.c-78-        if (!uid_eq(current_uid(), GLOBAL_ROOT_UID))
+fs/susfs_ksu_glue.c-79-            return 0;
+fs/susfs_ksu_glue.c:80:        return susfs_ksu_handle_cmd(cmd, arg);
+fs/susfs_ksu_glue.c-81-    }
+fs/susfs_ksu_glue.c:82:    return ksu_handle_sys_reboot(magic1, magic2, cmd, arg);
+fs/susfs_ksu_glue.c-83-}
+fs/susfs_ksu_glue.c-84-
+fs/susfs_ksu_glue.c:85:static int __init susfs_ksu_glue_init(void)
+fs/susfs_ksu_glue.c-86-{
+fs/susfs_ksu_glue.c:87:    susfs_init();
+fs/susfs_ksu_glue.c-88-    return 0;
+fs/susfs_ksu_glue.c-89-}
+fs/susfs_ksu_glue.c:90:late_initcall(susfs_ksu_glue_init);
+fs/susfs_ksu_glue.c-91-
+fs/susfs_ksu_glue.c:92:struct static_key_true susfs_ksun_su_compat_key = STATIC_KEY_TRUE_INIT;
+fs/susfs_ksu_glue.c-93-
+fs/susfs_ksu_glue.c:94:static void susfs_ksun_su_to_sh(struct filename **filename)
+fs/susfs_ksu_glue.c-95-{
+fs/susfs_ksu_glue.c-96-    static const char su[] = "/system/bin/su";
+fs/susfs_ksu_glue.c-97-    struct filename *fn;
+fs/susfs_ksu_glue.c:98:    if (!filename || IS_ERR_OR_NULL(*filename) || !READ_ONCE(ksu_su_compat_enabled) ||
+fs/susfs_ksu_glue.c:99:        !ksu_is_allow_uid_for_current(current_uid().val) || likely(memcmp((*filename)->name, su, sizeof(su))))
+fs/susfs_ksu_glue.c-100-        return;
+fs/susfs_ksu_glue.c-101-    fn = getname_kernel("/system/bin/sh");
+fs/susfs_ksu_glue.c-102-    if (IS_ERR(fn))
+fs/susfs_ksu_glue.c-103-        return;
+fs/susfs_ksu_glue.c-104-    putname(*filename);
+fs/susfs_ksu_glue.c-105-    *filename = fn;
+fs/susfs_ksu_glue.c-106-}
+fs/susfs_ksu_glue.c-107-
+fs/susfs_ksu_glue.c:108:int susfs_ksun_handle_faccessat(int *dfd, struct filename **filename, int *mode, int *flags)
+fs/susfs_ksu_glue.c-109-{
+fs/susfs_ksu_glue.c:110:    susfs_ksun_su_to_sh(filename);
+fs/susfs_ksu_glue.c-111-    return 0;
+fs/susfs_ksu_glue.c-112-}
+fs/susfs_ksu_glue.c-113-
+fs/susfs_ksu_glue.c:114:int susfs_ksun_handle_stat(int *dfd, struct filename **filename, int *flags)
+fs/susfs_ksu_glue.c-115-{
+fs/susfs_ksu_glue.c:116:    susfs_ksun_su_to_sh(filename);
+fs/susfs_ksu_glue.c-117-    return 0;
+fs/susfs_ksu_glue.c-118-}
+fs/susfs_ksu_glue.c-119-
+fs/susfs_ksu_glue.c:120:int susfs_ksun_handle_execveat(int *fd, struct filename **filename_ptr, void *argv, void *envp, int *flags)
+fs/susfs_ksu_glue.c-121-{
+fs/susfs_ksu_glue.c:122:    ksu_handle_execveat_ksud(fd, filename_ptr, argv, envp, flags);
+fs/susfs_ksu_glue.c:123:    return ksu_handle_execveat_sucompat(fd, filename_ptr, argv, envp, flags);
+fs/susfs_ksu_glue.c-124-}
+fs/susfs_ksu_glue.c-125-
+fs/susfs_ksu_glue.c:126:static bool susfs_ksun_is_init_rc(struct file *fp)
+fs/susfs_ksu_glue.c-127-{
+fs/susfs_ksu_glue.c-128-    char path[256];
+fs/susfs_ksu_glue.c-129-    char *dpath;
+fs/susfs_ksu_glue.c-130-    if (strcmp(current->comm, "init") || !d_is_reg(fp->f_path.dentry))
+fs/susfs_ksu_glue.c-131-        return false;
+--
+fs/susfs_ksu_glue.c-133-    if (IS_ERR(dpath))
+fs/susfs_ksu_glue.c-134-        return false;
+fs/susfs_ksu_glue.c-135-    return !strcmp(dpath, "/init.rc") || !strcmp(dpath, "/system/etc/init/hw/init.rc");
+fs/susfs_ksu_glue.c-136-}
+fs/susfs_ksu_glue.c-137-
+fs/susfs_ksu_glue.c:138:void ksu_handle_vfs_fstat(int fd, loff_t *kstat_size_ptr)
+fs/susfs_ksu_glue.c-139-{
+fs/susfs_ksu_glue.c-140-    struct file *file;
+fs/susfs_ksu_glue.c:141:    if (!&ksu_rc_len || !&ksu_init_rc_hook || !ksu_init_rc_hook)
+fs/susfs_ksu_glue.c-142-        return;
+fs/susfs_ksu_glue.c-143-    file = fget(fd);
+fs/susfs_ksu_glue.c-144-    if (!file)
+fs/susfs_ksu_glue.c-145-        return;
+fs/susfs_ksu_glue.c:146:    if (susfs_ksun_is_init_rc(file))
+fs/susfs_ksu_glue.c:147:        *kstat_size_ptr += ksu_rc_len;
+fs/susfs_ksu_glue.c-148-    fput(file);
+fs/susfs_ksu_glue.c-149-}
+fs/susfs_ksu_glue.c-150-
+fs/susfs_ksu_glue.c:151:struct static_key_true ksu_is_input_hook_enabled __weak = STATIC_KEY_TRUE_INIT;
+fs/susfs_ksu_glue.c-152-
+fs/susfs_ksu_glue.c:153:int __weak ksu_handle_post_execveat_sucompat(int *fd, struct filename **filename_ptr, void *argv, void *envp, int *flags, int *retval)
+fs/susfs_ksu_glue.c-154-{
+fs/susfs_ksu_glue.c-155-    return 0;
+fs/susfs_ksu_glue.c-156-}
+fs/susfs_ksu_glue.c-157-
+fs/susfs_ksu_glue.c:158:int __weak ksu_setup_preinit_file(struct filename **filename_ptr, struct user_arg_ptr *argv)
+fs/susfs_ksu_glue.c-159-{
+fs/susfs_ksu_glue.c-160-    return -ENOSYS;
+fs/susfs_ksu_glue.c-161-}
+fs/susfs_ksu_glue.c-162-
+fs/susfs_ksu_glue.c:163:u32 susfs_ksu_sid __weak;
+fs/susfs_ksu_glue.c:164:u32 susfs_priv_app_sid __weak;
+fs/susfs_ksu_glue.c:165:bool ksu_selinux_hide_running __weak;
+fs/susfs_ksu_glue.c-166-struct page *fake_status __weak;
+fs/susfs_ksu_glue.c-167-DEFINE_STATIC_KEY_FALSE(fake_status_initialize_key);
+fs/susfs_ksu_glue.c-168-void __weak initialize_fake_status(void) { }
+fs/susfs_ksu_glue.c-169-ssize_t __weak my_write_context(struct file *file, char *buf, size_t size) { return -EINVAL; }
+fs/susfs_ksu_glue.c-170-ssize_t __weak my_write_access(struct file *file, char *buf, size_t size) { return -EINVAL; }
+--
+fs/susfs_priority.c-1-// SPDX-License-Identifier: GPL-2.0
+fs/susfs_priority.c-2-/*
+fs/susfs_priority.c:3: * SUSFS priority UID filter, adapted from simonpunk eb95da0 for Linux 4.14.
+fs/susfs_priority.c-4- * The parent kernel owns command dispatch and package observation so BakaSU
+fs/susfs_priority.c-5- * can remain an unmodified submodule.
+fs/susfs_priority.c-6- */
+fs/susfs_priority.c-7-#include <linux/bitmap.h>
+fs/susfs_priority.c-8-#include <linux/cred.h>
+--
+fs/susfs_priority.c-12-#include <linux/mutex.h>
+fs/susfs_priority.c-13-#include <linux/namei.h>
+fs/susfs_priority.c-14-#include <linux/rcupdate.h>
+fs/susfs_priority.c-15-#include <linux/ratelimit.h>
+fs/susfs_priority.c-16-#include <linux/slab.h>
+fs/susfs_priority.c:17:#include <linux/susfs.h>
+fs/susfs_priority.c:18:#include <linux/susfs_ksu.h>
+fs/susfs_priority.c-19-#include <linux/uaccess.h>
+fs/susfs_priority.c-20-#include <linux/workqueue.h>
+fs/susfs_priority.c-21-
+fs/susfs_priority.c-22-struct priority_bitmap {
+fs/susfs_priority.c:23:	DECLARE_BITMAP(bits, SUSFS_PRIORITY_UID_FILTER_UID_NUM);
+fs/susfs_priority.c-24-};
+fs/susfs_priority.c-25-
+fs/susfs_priority.c-26-static struct priority_bitmap __rcu *priority_bitmap;
+fs/susfs_priority.c-27-static DEFINE_MUTEX(priority_lock);
+fs/susfs_priority.c-28-static char *priority_packages;
+--
+fs/susfs_priority.c-74-	err = vfs_getattr(&path, &stat, STATX_BASIC_STATS, 0);
+fs/susfs_priority.c-75-	path_put(&path);
+fs/susfs_priority.c-76-	if (err)
+fs/susfs_priority.c-77-		return err;
+fs/susfs_priority.c-78-	*uid = from_kuid(&init_user_ns, stat.uid);
+fs/susfs_priority.c:79:	if (*uid < SUSFS_PRIORITY_UID_FILTER_MIN_UID ||
+fs/susfs_priority.c:80:	    *uid > SUSFS_PRIORITY_UID_FILTER_MAX_UID)
+fs/susfs_priority.c-81-		return -ERANGE;
+fs/susfs_priority.c-82-	return 0;
+fs/susfs_priority.c-83-}
+fs/susfs_priority.c-84-
+fs/susfs_priority.c-85-static int priority_parse(char *names, const struct path *root,
+fs/susfs_priority.c-86-			  struct priority_bitmap *bitmap, bool refresh)
+fs/susfs_priority.c-87-{
+fs/susfs_priority.c-88-	const struct cred *saved;
+fs/susfs_priority.c:89:	struct cred *cred = READ_ONCE(ksu_cred);
+fs/susfs_priority.c-90-	char *name;
+fs/susfs_priority.c-91-	uid_t uid;
+fs/susfs_priority.c-92-	int err = 0;
+fs/susfs_priority.c-93-
+fs/susfs_priority.c-94-	if (!cred)
+fs/susfs_priority.c-95-		return -EAGAIN;
+fs/susfs_priority.c-96-	saved = override_creds(cred);
+fs/susfs_priority.c:97:	if (!susfs_is_current_ksu_domain()) {
+fs/susfs_priority.c-98-		err = -EACCES;
+fs/susfs_priority.c-99-		goto out;
+fs/susfs_priority.c-100-	}
+fs/susfs_priority.c-101-	while ((name = strsep(&names, ","))) {
+fs/susfs_priority.c-102-		name = strim(name);
+--
+fs/susfs_priority.c-115-			err = 0;
+fs/susfs_priority.c-116-			continue;
+fs/susfs_priority.c-117-		}
+fs/susfs_priority.c-118-		if (err)
+fs/susfs_priority.c-119-			break;
+fs/susfs_priority.c:120:		set_bit(uid - SUSFS_PRIORITY_UID_FILTER_MIN_UID, bitmap->bits);
+fs/susfs_priority.c-121-	}
+fs/susfs_priority.c-122-out:
+fs/susfs_priority.c-123-	revert_creds(saved);
+fs/susfs_priority.c-124-	return err;
+fs/susfs_priority.c-125-}
+--
+fs/susfs_priority.c-129-	atomic_inc(&priority_events);
+fs/susfs_priority.c-130-	mod_delayed_work(system_unbound_wq, &priority_work, delay);
+fs/susfs_priority.c-131-}
+fs/susfs_priority.c-132-
+fs/susfs_priority.c-133-/* This callback holds fsnotify SRCU/rename locks: never resolve paths here. */
+fs/susfs_priority.c:134:static SUSFS_DECL_FSNOTIFY_OPS(priority_inode_event)
+fs/susfs_priority.c-135-{
+fs/susfs_priority.c:136:	if (file_name && susfs_fname_len(file_name) == 13 &&
+fs/susfs_priority.c:137:	    !memcmp(susfs_fname_arg(file_name), "packages.list", 13))
+fs/susfs_priority.c-138-		priority_queue_refresh(msecs_to_jiffies(250));
+fs/susfs_priority.c-139-	return 0;
+fs/susfs_priority.c-140-}
+fs/susfs_priority.c-141-
+fs/susfs_priority.c-142-static void priority_free_mark(struct fsnotify_mark *mark)
+--
+fs/susfs_priority.c-183-}
+fs/susfs_priority.c-184-
+fs/susfs_priority.c-185-static int priority_get_root

@@ -1,0 +1,194 @@
+s(struct path *data, struct path *system)
+fs/susfs_priority.c-186-{
+fs/susfs_priority.c-187-	const struct cred *saved;
+fs/susfs_priority.c:188:	struct cred *cred = READ_ONCE(ksu_cred);
+fs/susfs_priority.c-189-	int err;
+fs/susfs_priority.c-190-
+fs/susfs_priority.c-191-	if (!cred)
+fs/susfs_priority.c-192-		return -EAGAIN;
+fs/susfs_priority.c-193-	saved = override_creds(cred);
+fs/susfs_priority.c:194:	if (!susfs_is_current_ksu_domain()) {
+fs/susfs_priority.c-195-		err = -EACCES;
+fs/susfs_priority.c-196-		goto out;
+fs/susfs_priority.c-197-	}
+fs/susfs_priority.c-198-	err = kern_path("/data/data", LOOKUP_FOLLOW | LOOKUP_DIRECTORY, data);
+fs/susfs_priority.c-199-	if (err)
+--
+fs/susfs_priority.c-206-out:
+fs/susfs_priority.c-207-	revert_creds(saved);
+fs/susfs_priority.c-208-	return err;
+fs/susfs_priority.c-209-}
+fs/susfs_priority.c-210-
+fs/susfs_priority.c:211:int susfs_set_priority_uid_filter(void __user *arg)
+fs/susfs_priority.c-212-{
+fs/susfs_priority.c:213:	struct st_susfs_priority_uid_filter *info = NULL;
+fs/susfs_priority.c-214-	struct priority_bitmap *bitmap = NULL, *old;
+fs/susfs_priority.c-215-	struct path data = { }, system = { }, old_data;
+fs/susfs_priority.c-216-	char *names = NULL, *old_names;
+fs/susfs_priority.c-217-	int err;
+fs/susfs_priority.c-218-
+fs/susfs_priority.c:219:	BUILD_BUG_ON(offsetof(struct st_susfs_priority_uid_filter, err) != 65536);
+fs/susfs_priority.c:220:	BUILD_BUG_ON(sizeof(struct st_susfs_priority_uid_filter) != 65540);
+fs/susfs_priority.c-221-	if (!uid_eq(current_uid(), GLOBAL_ROOT_UID))
+fs/susfs_priority.c-222-		return -EPERM;
+fs/susfs_priority.c-223-	if (!arg)
+fs/susfs_priority.c-224-		return -EFAULT;
+fs/susfs_priority.c-225-	info = kvmalloc(sizeof(*info), GFP_KERNEL);
+--
+fs/susfs_priority.c-278-	if (data.mnt)
+fs/susfs_priority.c-279-		path_put(&data);
+fs/susfs_priority.c-280-	kfree(bitmap);
+fs/susfs_priority.c-281-	kvfree(names);
+fs/susfs_priority.c-282-	kvfree(info);
+fs/susfs_priority.c:283:	/* Preserve the official ksu_susfs payload ABI, including error reporting. */
+fs/susfs_priority.c:284:	if (put_user(err, &((struct st_susfs_priority_uid_filter __user *)arg)->err))
+fs/susfs_priority.c-285-		return -EFAULT;
+fs/susfs_priority.c-286-	return 0;
+fs/susfs_priority.c-287-}
+fs/susfs_priority.c-288-
+fs/susfs_priority.c-289-static void priority_refresh(struct work_struct *work)
+--
+fs/susfs_priority.c-334-	path_put(&root);
+fs/susfs_priority.c-335-	kvfree(names);
+fs/susfs_priority.c-336-	kfree(bitmap);
+fs/susfs_priority.c-337-	if (err) {
+fs/susfs_priority.c-338-		if (err != -EAGAIN)
+fs/susfs_priority.c:339:			pr_warn_ratelimited("susfs: priority UID refresh failed: %d\n", err);
+fs/susfs_priority.c-340-		mod_delayed_work(system_unbound_wq, &priority_work,
+fs/susfs_priority.c-341-				 err == -EAGAIN ? msecs_to_jiffies(250) : 5 * HZ);
+fs/susfs_priority.c-342-	}
+fs/susfs_priority.c-343-}
+fs/susfs_priority.c-344-
+fs/susfs_priority.c:345:bool susfs_is_priority_uid_filtered(uid_t uid)
+fs/susfs_priority.c-346-{
+fs/susfs_priority.c-347-	struct priority_bitmap *bitmap;
+fs/susfs_priority.c-348-	uid_t app_id = uid % 100000;
+fs/susfs_priority.c-349-	bool filtered = false;
+fs/susfs_priority.c-350-
+fs/susfs_priority.c:351:	if (app_id < SUSFS_PRIORITY_UID_FILTER_MIN_UID ||
+fs/susfs_priority.c:352:	    app_id > SUSFS_PRIORITY_UID_FILTER_MAX_UID)
+fs/susfs_priority.c-353-		return false;
+fs/susfs_priority.c-354-	rcu_read_lock();
+fs/susfs_priority.c-355-	bitmap = rcu_dereference(priority_bitmap);
+fs/susfs_priority.c-356-	if (bitmap)
+fs/susfs_priority.c:357:		filtered = test_bit(app_id - SUSFS_PRIORITY_UID_FILTER_MIN_UID, bitmap->bits);
+fs/susfs_priority.c-358-	rcu_read_unlock();
+fs/susfs_priority.c-359-	return filtered;
+fs/susfs_priority.c-360-}
+--
+include/linux/susfs.h:1:#ifndef KSU_SUSFS_H
+include/linux/susfs.h:2:#define KSU_SUSFS_H
+include/linux/susfs.h-3-
+include/linux/susfs.h-4-#include <linux/version.h>
+include/linux/susfs.h-5-#include <linux/types.h>
+include/linux/susfs.h-6-#include <linux/utsname.h>
+include/linux/susfs.h-7-#include <linux/hashtable.h>
+include/linux/susfs.h-8-#include <linux/path.h>
+include/linux/susfs.h:9:#include <linux/susfs_def.h>
+include/linux/susfs.h-10-#include <linux/statfs.h>
+include/linux/susfs.h-11-
+include/linux/susfs.h:12:#define SUSFS_VERSION "v2.3.0"
+include/linux/susfs.h-13-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)
+include/linux/susfs.h:14:#define SUSFS_VARIANT "NON-GKI"
+include/linux/susfs.h-15-#else
+include/linux/susfs.h:16:#define SUSFS_VARIANT "GKI"
+include/linux/susfs.h-17-#endif
+include/linux/susfs.h-18-
+include/linux/susfs.h-19-/*********/
+include/linux/susfs.h-20-/* MACRO */
+include/linux/susfs.h-21-/*********/
+--
+include/linux/susfs.h-35-
+include/linux/susfs.h-36-/**********/
+include/linux/susfs.h-37-/* STRUCT */
+include/linux/susfs.h-38-/**********/
+include/linux/susfs.h-39-/* sus_path */
+include/linux/susfs.h:40:#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+include/linux/susfs.h:41:struct st_susfs_sus_path {
+include/linux/susfs.h:42:	char                                    target_pathname[SUSFS_MAX_LEN_PATHNAME];
+include/linux/susfs.h-43-	int                                     err;
+include/linux/susfs.h-44-};
+include/linux/susfs.h-45-
+include/linux/susfs.h:46:struct st_susfs_sus_path_list {
+include/linux/susfs.h-47-	struct list_head                        list;
+include/linux/susfs.h:48:	struct st_susfs_sus_path                info;
+include/linux/susfs.h:49:	char                                    target_pathname[SUSFS_MAX_LEN_PATHNAME];
+include/linux/susfs.h-50-};
+include/linux/susfs.h-51-#endif
+include/linux/susfs.h-52-
+include/linux/susfs.h-53-/* sus_mount */
+include/linux/susfs.h:54:#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+include/linux/susfs.h:55:struct st_susfs_hide_sus_mnts_for_non_su_procs {
+include/linux/susfs.h-56-	bool                                    enabled;
+include/linux/susfs.h-57-	int                                     err;
+include/linux/susfs.h-58-};
+include/linux/susfs.h:59:#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+include/linux/susfs.h-60-
+include/linux/susfs.h-61-/* sus_kstat */
+include/linux/susfs.h:62:#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+include/linux/susfs.h-63-#define KSTAT_SPOOF_INO (1 << 0)
+include/linux/susfs.h-64-#define KSTAT_SPOOF_DEV (1 << 1)
+include/linux/susfs.h-65-#define KSTAT_SPOOF_NLINK (1 << 2)
+include/linux/susfs.h-66-#define KSTAT_SPOOF_SIZE (1 << 3)
+include/linux/susfs.h-67-#define KSTAT_SPOOF_ATIME_TV_SEC (1 << 4)
+--
+include/linux/susfs.h-71-#define KSTAT_SPOOF_CTIME_TV_SEC (1 << 8)
+include/linux/susfs.h-72-#define KSTAT_SPOOF_CTIME_TV_NSEC (1 << 9)
+include/linux/susfs.h-73-#define KSTAT_SPOOF_BLOCKS (1 << 10)
+include/linux/susfs.h-74-#define KSTAT_SPOOF_BLKSIZE (1 << 11)
+include/linux/susfs.h-75-
+include/linux/susfs.h:76:struct st_susfs_sus_kstat {
+include/linux/susfs.h-77-	bool                                    is_statically;
+include/linux/susfs.h-78-	unsigned long                           target_ino;
+include/linux/susfs.h:79:	char                                    target_pathname[SUSFS_MAX_LEN_PATHNAME];
+include/linux/susfs.h-80-	unsigned long                           spoofed_ino;
+include/linux/susfs.h-81-	unsigned long                           spoofed_dev;
+include/linux/susfs.h-82-	unsigned int                            spoofed_nlink;
+include/linux/susfs.h-83-	long long                               spoofed_size;
+include/linux/susfs.h-84-	long                                    spoofed_atime_tv_sec;
+--
+include/linux/susfs.h-91-	long                                    spoofed_blksize;
+include/linux/susfs.h-92-	int                                     flags;
+include/linux/susfs.h-93-	int                                     err;
+include/linux/susfs.h-94-};
+include/linux/susfs.h-95-
+include/linux/susfs.h:96:struct st_susfs_sus_kstat_hlist {
+include/linux/susfs.h-97-	struct hlist_node                       node;
+include/linux/susfs.h-98-	unsigned long                           target_ino;
+include/linux/susfs.h-99-	unsigned long                           target_dev;
+include/linux/susfs.h-100-	struct kstatfs                          spoofed_kstatfs;
+include/linux/susfs.h-101-	int                                     spoofed_mnt_id;
+include/linux/susfs.h-102-	bool                                    is_fuse;
+include/linux/susfs.h:103:	struct st_susfs_sus_kstat               info;
+include/linux/susfs.h-104-};
+include/linux/susfs.h-105-#endif
+include/linux/susfs.h-106-
+include/linux/susfs.h-107-/* spoof_uname */
+include/linux/susfs.h:108:#ifdef CONFIG_KSU_SUSFS_SPOOF_UNAME
+include/linux/susfs.h:109:struct st_susfs_uname {
+include/linux/susfs.h-110-	char                                    release[__NEW_UTS_LEN+1];
+include/linux/susfs.h-111-	char                                    version[__NEW_UTS_LEN+1];
+include/linux/susfs.h-112-	int                                     err;
+include/linux/susfs.h-113-};
+include/linux/susfs.h-114-#endif
+include/linux/susfs.h-115-
+include/linux/susfs.h-116-/* enable_log */
+include/linux/susfs.h:117:#ifdef CONFIG_KSU_SUSFS_ENABLE_LOG
+include/linux/susfs.h:118:struct st_susfs_log {
+include/linux/susfs.h-119-	bool                                    enabled;
+include/linux/susfs.h-120-	int                                     err;
+include/linux/susfs.h-121-};
+include/linux/susfs.h-122-#endif
+include/linux/susfs.h-123-
+include/linux/susfs.h-124-/* spoof_cmdline_or_bootconfig */
+include/linux/susfs.h:125:#ifdef CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
+include/linux/susfs.h:126:struct st_susfs_spoof_cmdline_or_bootconfig {
+include/linux/susfs.h:127:	char                                    fake_cmdline_or_bootconfig[SUSFS_FAKE_CMDLINE_OR_BOOTCONFIG_SIZE];
+include/linux/susfs.h-128-	int                                     err;
+include/linux/susfs.h-129-};
+include/linux/susfs.h-130-#endif
+include/linux/susfs.h-131-
+include/linux/susfs.h-132-/* open_redirect */
+include/linux/susfs.h:133:#ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
+include/linux/susfs.h:134:struct st_susfs_open_redirect {
+include/linux/susfs.h:135:	ch

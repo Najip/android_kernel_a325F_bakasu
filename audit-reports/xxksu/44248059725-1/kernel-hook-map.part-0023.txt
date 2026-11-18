@@ -1,0 +1,203 @@
+ cred;
+include/linux/susfs_ksu.h-8-struct file;
+include/linux/susfs_ksu.h-9-struct page;
+include/linux/susfs_ksu.h-10-
+include/linux/susfs_ksu.h-11-/* Native BakaSU APIs; keep the submodule's sources unmodified. */
+include/linux/susfs_ksu.h-12-#ifdef CONFIG_KSU
+include/linux/susfs_ksu.h:13:int ksu_handle_sys_read(unsigned int fd, char __user **buf, size_t *count);
+include/linux/susfs_ksu.h-14-#endif
+include/linux/susfs_ksu.h-15-
+include/linux/susfs_ksu.h:16:#ifdef CONFIG_KSU_SUSFS
+include/linux/susfs_ksu.h:17:#define SUSFS_KSU_INSTALL_MAGIC1 0xDEADBEEF
+include/linux/susfs_ksu.h:18:extern struct cred *ksu_cred;
+include/linux/susfs_ksu.h:19:bool susfs_is_current_ksu_domain(void);
+include/linux/susfs_ksu.h:20:int ksu_handle_sys_reboot(int magic1, int magic2, unsigned int cmd,
+include/linux/susfs_ksu.h-21-			  void __user **arg);
+include/linux/susfs_ksu.h:22:/* Parent-kernel glue (fs/susfs_ksu_glue.c): SUSFS commands, then KernelSU. */
+include/linux/susfs_ksu.h:23:int susfs_ksu_sys_reboot(int magic1, int magic2, unsigned int cmd,
+include/linux/susfs_ksu.h-24-			 void __user **arg);
+include/linux/susfs_ksu.h-25-
+include/linux/susfs_ksu.h:26:/* Published by BakaSU's supported SUSFS manual SELinux hook mode. */
+include/linux/susfs_ksu.h:27:extern bool ksu_selinux_hide_running;
+include/linux/susfs_ksu.h-28-extern struct page *fake_status;
+include/linux/susfs_ksu.h-29-void initialize_fake_status(void);
+include/linux/susfs_ksu.h-30-ssize_t my_write_context(struct file *file, char *buf, size_t size);
+include/linux/susfs_ksu.h-31-ssize_t my_write_access(struct file *file, char *buf, size_t size);
+include/linux/susfs_ksu.h-32-int my_setprocattr(const char *name, void *value, size_t size);
+--
+include/linux/susfs_ksun.h-1-/* SPDX-License-Identifier: GPL-2.0 */
+include/linux/susfs_ksun.h:2:#ifndef _LINUX_SUSFS_KSUN_H
+include/linux/susfs_ksun.h:3:#define _LINUX_SUSFS_KSUN_H
+include/linux/susfs_ksun.h-4-
+include/linux/susfs_ksun.h:5:#if defined(CONFIG_KSU_SUSFS) && !defined(SUSFS_KSUN_GLUE_BUILD)
+include/linux/susfs_ksun.h:6:#define ksu_handle_faccessat	susfs_ksun_handle_faccessat
+include/linux/susfs_ksun.h:7:#define ksu_handle_stat		susfs_ksun_handle_stat
+include/linux/susfs_ksun.h:8:#define ksu_su_compat_enabled	susfs_ksun_su_compat_key
+include/linux/susfs_ksun.h:9:#define ksu_handle_execveat	susfs_ksun_handle_execveat
+include/linux/susfs_ksun.h:10:#define ksu_handle_sys_reboot	susfs_ksu_sys_reboot
+include/linux/susfs_ksun.h-11-#endif
+include/linux/susfs_ksun.h-12-
+include/linux/susfs_ksun.h:13:#endif /* _LINUX_SUSFS_KSUN_H */
+--
+kernel/Makefile-16-	    extable.o params.o \
+kernel/Makefile-17-	    kthread.o sys_ni.o nsproxy.o \
+kernel/Makefile-18-	    notifier.o ksysfs.o cred.o reboot.o \
+kernel/Makefile-19-	    async.o range.o smpboot.o ucount.o
+kernel/Makefile-20-
+kernel/Makefile:21:ifdef CONFIG_KSU_SUSFS
+kernel/Makefile:22:CFLAGS_reboot.o += -include $(srctree)/include/linux/susfs_ksun.h
+kernel/Makefile-23-endif
+kernel/Makefile-24-
+kernel/Makefile-25-ifdef CONFIG_FUNCTION_TRACER
+kernel/Makefile-26-CFLAGS_REMOVE_irq_work.o = $(CC_FLAGS_FTRACE)
+kernel/Makefile-27-endif
+--
+kernel/kallsyms.c-23-#include <linux/mm.h>
+kernel/kallsyms.c-24-#include <linux/ctype.h>
+kernel/kallsyms.c-25-#include <linux/slab.h>
+kernel/kallsyms.c-26-#include <linux/filter.h>
+kernel/kallsyms.c-27-#include <linux/compiler.h>
+kernel/kallsyms.c:28:#ifdef CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS
+kernel/kallsyms.c:29:#include <linux/susfs_def.h>
+kernel/kallsyms.c:30:#endif // #ifdef CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS
+kernel/kallsyms.c-31-#include <asm/sections.h>
+kernel/kallsyms.c-32-
+kernel/kallsyms.c-33-#ifdef CONFIG_KALLSYMS_ALL
+kernel/kallsyms.c-34-#define all_var 1
+kernel/kallsyms.c-35-#else
+--
+kernel/kallsyms.c-624-					tolower(iter->type);
+kernel/kallsyms.c-625-		seq_printf(m, "%pK %c %s\t[%s]\n", (void *)iter->value,
+kernel/kallsyms.c-626-			   type, iter->name, iter->module_name);
+kernel/kallsyms.c-627-	} else
+kernel/kallsyms.c-628-
+kernel/kallsyms.c:629:#ifndef CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS
+kernel/kallsyms.c-630-		seq_printf(m, "%pK %c %s\n", (void *)iter->value,
+kernel/kallsyms.c-631-			   iter->type, iter->name);
+kernel/kallsyms.c-632-#else
+kernel/kallsyms.c-633-	{
+kernel/kallsyms.c:634:		if (susfs_starts_with(iter->name, "ksu_") ||
+kernel/kallsyms.c:635:			susfs_starts_with(iter->name, "__ksu_") ||
+kernel/kallsyms.c:636:			susfs_starts_with(iter->name, "susfs_") ||
+kernel/kallsyms.c:637:			susfs_starts_with(iter->name, "ksud") ||
+kernel/kallsyms.c:638:			susfs_starts_with(iter->name, "is_ksu_") ||
+kernel/kallsyms.c:639:			susfs_starts_with(iter->name, "is_manager_") ||
+kernel/kallsyms.c:640:			susfs_starts_with(iter->name, "escape_to_") ||
+kernel/kallsyms.c:641:			susfs_starts_with(iter->name, "setup_selinux") ||
+kernel/kallsyms.c:642:			susfs_starts_with(iter->name, "track_throne") ||
+kernel/kallsyms.c:643:			susfs_starts_with(iter->name, "on_post_fs_data") ||
+kernel/kallsyms.c:644:			susfs_starts_with(iter->name, "try_umount") ||
+kernel/kallsyms.c:645:			susfs_starts_with(iter->name, "kernelsu") ||
+kernel/kallsyms.c:646:			susfs_starts_with(iter->name, "__initcall__kmod_kernelsu") ||
+kernel/kallsyms.c:647:			susfs_starts_with(iter->name, "apply_kernelsu") ||
+kernel/kallsyms.c:648:			susfs_starts_with(iter->name, "handle_sepolicy") ||
+kernel/kallsyms.c:649:			susfs_starts_with(iter->name, "getenforce") ||
+kernel/kallsyms.c:650:			susfs_starts_with(iter->name, "setenforce") ||
+kernel/kallsyms.c:651:			susfs_starts_with(iter->name, "is_zygote"))
+kernel/kallsyms.c-652-		{
+kernel/kallsyms.c-653-			return 0;
+kernel/kallsyms.c-654-		}
+kernel/kallsyms.c-655-		seq_printf(m, "%pK %c %s\n", (void *)iter->value,
+kernel/kallsyms.c-656-			   iter->type, iter->name);
+--
+kernel/reboot.c-280- * so that some mistake won't make this re	boot the whole machine.
+kernel/reboot.c-281- * You can also set the meaning of the ctrl-alt-del-key here.
+kernel/reboot.c-282- *
+kernel/reboot.c-283- * reboot doesn't sync: do that yourself before calling this.
+kernel/reboot.c-284- */
+kernel/reboot.c:285:#ifdef CONFIG_KSU_SUSFS
+kernel/reboot.c:286:#include <linux/susfs.h>
+kernel/reboot.c:287:#include <linux/susfs_ksu.h>
+kernel/reboot.c-288-#endif
+kernel/reboot.c-289-
+kernel/reboot.c-290-SYSCALL_DEFINE4(reboot, int, magic1, int, magic2, unsigned int, cmd,
+kernel/reboot.c-291-		void __user *, arg)
+kernel/reboot.c-292-{
+kernel/reboot.c-293-	struct pid_namespace *pid_ns = task_active_pid_ns(current);
+kernel/reboot.c-294-	char buffer[256];
+kernel/reboot.c-295-	int ret = 0;
+kernel/reboot.c:296:#ifdef CONFIG_KSU_SUSFS
+kernel/reboot.c-297-	if (system_state == SYSTEM_RUNNING &&
+kernel/reboot.c:298:	    (u32)magic1 == SUSFS_KSU_INSTALL_MAGIC1) {
+kernel/reboot.c:299:		if ((u32)magic2 == SUSFS_MAGIC &&
+kernel/reboot.c:300:		    cmd == CMD_SUSFS_SET_PRIORITY_UID_FILTER) {
+kernel/reboot.c-301-			if (!uid_eq(current_uid(), GLOBAL_ROOT_UID))
+kernel/reboot.c-302-				return -EPERM;
+kernel/reboot.c:303:			return susfs_set_priority_uid_filter(arg);
+kernel/reboot.c-304-		}
+kernel/reboot.c:305:		return ksu_handle_sys_reboot(magic1, magic2, cmd, &arg);
+kernel/reboot.c-306-	}
+kernel/reboot.c-307-#endif
+kernel/reboot.c-308-
+kernel/reboot.c-309-	/* We only trust the superuser with rebooting the system. */
+kernel/reboot.c-310-	if (!ns_capable(pid_ns->user_ns, CAP_SYS_BOOT))
+--
+kernel/sys.c-191-	set_user_nice(p, niceval);
+kernel/sys.c-192-out:
+kernel/sys.c-193-	return error;
+kernel/sys.c-194-}
+kernel/sys.c-195-
+kernel/sys.c:196:#ifdef CONFIG_KSU_SUSFS
+kernel/sys.c:197:#include <linux/susfs.h>
+kernel/sys.c-198-#endif
+kernel/sys.c-199-
+kernel/sys.c-200-SYSCALL_DEFINE3(setpriority, int, which, int, who, int, niceval)
+kernel/sys.c-201-{
+kernel/sys.c-202-	struct task_struct *g, *p;
+--
+kernel/sys.c-240-		uid = make_kuid(cred->user_ns, who);
+kernel/sys.c-241-		user = cred->user;
+kernel/sys.c-242-		if (!who)
+kernel/sys.c-243-			uid = cred->uid;
+kernel/sys.c-244-		else if (!uid_eq(uid, cred->uid)) {
+kernel/sys.c:245:#ifdef CONFIG_KSU_SUSFS
+kernel/sys.c:246:			if (cred->uid.val >= 10000 && susfs_is_priority_uid_filtered(uid.val))
+kernel/sys.c-247-				goto out_unlock;
+kernel/sys.c-248-#endif
+kernel/sys.c-249-			user = find_user(uid);
+kernel/sys.c-250-			if (!user)
+kernel/sys.c-251-				goto out_unlock;	/* No processes for this user */
+--
+kernel/sys.c-312-		uid = make_kuid(cred->user_ns, who);
+kernel/sys.c-313-		user = cred->user;
+kernel/sys.c-314-		if (!who)
+kernel/sys.c-315-			uid = cred->uid;
+kernel/sys.c-316-		else if (!uid_eq(uid, cred->uid)) {
+kernel/sys.c:317:#ifdef CONFIG_KSU_SUSFS
+kernel/sys.c:318:			if (cred->uid.val >= 10000 && susfs_is_priority_uid_filtered(uid.val))
+kernel/sys.c-319-				goto out_unlock;
+kernel/sys.c-320-#endif
+kernel/sys.c-321-			user = find_user(uid);
+kernel/sys.c-322-			if (!user)
+kernel/sys.c-323-				goto out_unlock;	/* No processes for this user */
+--
+kernel/sys.c-609-/*
+kernel/sys.c-610- * This function implements a generic ability to update ruid, euid,
+kernel/sys.c-611- * and suid.  This allows you to implement the 4.4 compatible seteuid().
+kernel/sys.c-612- */
+kernel/sys.c-613-#ifdef CONFIG_KSU
+kernel/sys.c:614:extern int ksu_handle_setresuid(uid_t ruid, uid_t euid, uid_t suid);
+kernel/sys.c-615-#endif
+kernel/sys.c-616-
+kernel/sys.c-617-SYSCALL_DEFINE3(setresuid, uid_t, ruid, uid_t, euid, uid_t, suid)
+kernel/sys.c-618-{
+kernel/sys.c-619-	struct user_namespace *ns = current_user_ns();
+--
+kernel/sys.c-670-
+kernel/sys.c-671-	retval = security_task_fix_setuid(new, old, LSM_SETID_RES);
+kernel/sys.c-672-	if (retval < 0)
+kernel/sys.c-673-		goto error;
+kernel/sys.c-674-
+kernel/sys.c:675:#ifdef CONFIG_KSU_SUSFS
+kernel/sys.c:676:	retval = ksu_handle_setresuid(ruid, euid, suid);
+kernel/sys.c-677-	if (retval)
+kernel/sys.c-678-		goto error;
+kernel/sys.c-679-#endif
+kernel/sys.c-680-	return commit_creds(new);
+kernel/sys.c-681-
+--
+kernel/sys.c-1204-		ret = copy_to_user(release, buf, copy + 1);
+kernel/sys.c-1205-	}
+kernel/sys.c-1206-	return ret;
+kernel/sys.c-1207-}
+kernel/sys.c-1208-

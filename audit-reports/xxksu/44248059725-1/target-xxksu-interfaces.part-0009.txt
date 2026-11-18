@@ -1,0 +1,168 @@
+p);
+kernel/selinux/sepolicy.c-427-			}
+--
+kernel/supercall/dispatch.c-4-	__u32 audit_uid = current_uid().val;
+kernel/supercall/dispatch.c-5-	__u32 audit_euid = current_euid().val;
+kernel/supercall/dispatch.c-6-
+kernel/supercall/dispatch.c-7-	// we already check uid above on allowed_for_su()
+kernel/supercall/dispatch.c-8-
+kernel/supercall/dispatch.c:9:	write_sulog('i'); // log ioctl escalation
+kernel/supercall/dispatch.c-10-
+kernel/supercall/dispatch.c-11-	pr_info("allow root for: %d\n", audit_uid);
+kernel/supercall/dispatch.c-12-	ret = escape_with_root_profile();
+kernel/supercall/dispatch.c-13-	ksu_sulog_emit_grant_root(ret, audit_uid, audit_euid, GFP_KERNEL);
+kernel/supercall/dispatch.c-14-
+--
+kernel/supercall/dispatch.c-82-		// Reset for emulated soft reboot
+kernel/supercall/dispatch.c-83-		services_started = false;
+kernel/supercall/dispatch.c-84-		if (!post_fs_data_lock) {
+kernel/supercall/dispatch.c-85-			post_fs_data_lock = true;
+kernel/supercall/dispatch.c-86-			pr_info("post-fs-data triggered\n");
+kernel/supercall/dispatch.c:87:			on_post_fs_data();
+kernel/supercall/dispatch.c-88-		}
+kernel/supercall/dispatch.c-89-		break;
+kernel/supercall/dispatch.c-90-	}
+kernel/supercall/dispatch.c-91-	case EVENT_BOOT_COMPLETED: {
+kernel/supercall/dispatch.c-92-		static bool boot_complete_lock = false;
+kernel/supercall/dispatch.c-93-		if (!boot_complete_lock) {
+kernel/supercall/dispatch.c-94-			boot_complete_lock = true;
+kernel/supercall/dispatch.c-95-			pr_info("boot_complete triggered\n");
+kernel/supercall/dispatch.c:96:			on_boot_completed();
+kernel/supercall/dispatch.c-97-		}
+kernel/supercall/dispatch.c-98-		break;
+kernel/supercall/dispatch.c-99-	}
+kernel/supercall/dispatch.c-100-	case EVENT_MODULE_MOUNTED: {
+kernel/supercall/dispatch.c-101-		pr_info("module mounted!\n");
+kernel/supercall/dispatch.c:102:		on_module_mounted();
+kernel/supercall/dispatch.c-103-		break;
+kernel/supercall/dispatch.c-104-	}
+kernel/supercall/dispatch.c-105-	case EVENT_SERVICES: {
+kernel/supercall/dispatch.c-106-		if (services_started) {
+kernel/supercall/dispatch.c-107-			pr_info("services already started, skipping\n");
+--
+kernel/supercall/dispatch.c-620-
+kernel/supercall/dispatch.c-621-			return 0;
+kernel/supercall/dispatch.c-622-		}
+kernel/supercall/dispatch.c-623-		
+kernel/supercall/dispatch.c-624-		// WARNING! this is straight up pointerwalking.
+kernel/supercall/dispatch.c:625:		// this way we dont need to redefine the ioctl defs.
+kernel/supercall/dispatch.c-626-		// this also avoids us needing to kmalloc
+kernel/supercall/dispatch.c-627-		// userspace have to send pointer to memory (malloc/alloca) or pointer to a VLA.
+kernel/supercall/dispatch.c-628-		case KSU_UMOUNT_GETLIST: {
+kernel/supercall/dispatch.c-629-			if (!cmd.arg)
+kernel/supercall/dispatch.c-630-				return -EFAULT;
+--
+kernel/supercall/dispatch.c-789-	kvfree(addrs);
+kernel/supercall/dispatch.c-790-	return ret;
+kernel/supercall/dispatch.c-791-}
+kernel/supercall/dispatch.c-792-
+kernel/supercall/dispatch.c-793-// IOCTL handlers mapping table
+kernel/supercall/dispatch.c:794:static const struct ksu_ioctl_cmd_map ksu_ioctl_handlers[] = {
+kernel/supercall/dispatch.c-795-	{ .cmd = KSU_IOCTL_GRANT_ROOT, .name = "GRANT_ROOT", .handler = do_grant_root, .perm_check = allowed_for_su  },
+kernel/supercall/dispatch.c-796-	{ .cmd = KSU_IOCTL_GET_INFO, .name = "GET_INFO", .handler = do_get_info, .perm_check = always_allow },
+kernel/supercall/dispatch.c-797-	{ .cmd = KSU_IOCTL_GET_INFO_LEGACY, .name = "GET_INFO_LEGACY", .handler = do_get_info_legacy, .perm_check = always_allow },
+kernel/supercall/dispatch.c-798-	{ .cmd = KSU_IOCTL_REPORT_EVENT, .name = "REPORT_EVENT", .handler = do_report_event, .perm_check = only_root },
+kernel/supercall/dispatch.c-799-	{ .cmd = KSU_IOCTL_SET_SEPOLICY, .name = "SET_SEPOLICY", .handler = do_set_sepolicy, .perm_check = only_root },
+--
+kernel/supercall/dispatch.c-818-	{ .cmd = KSU_IOCTL_DISABLE_ESCAPE_TO_ROOT, .name = "DISABLE_ESCAPE_TO_ROOT", .handler = do_disable_escape_to_root, .perm_check = only_root, .allow_su_session = true },
+kernel/supercall/dispatch.c-819-	{ .cmd = KSU_IOCTL_LOOKUP_SYMBOLS, .name = "LOOKUP_SYMBOLS", .handler = do_lookup_symbols, .perm_check = only_root },
+kernel/supercall/dispatch.c-820-	{ .cmd = 0, .name = NULL, .handler = NULL, .perm_check = NULL } // Sentinel
+kernel/supercall/dispatch.c-821-};
+kernel/supercall/dispatch.c-822-
+kernel/supercall/dispatch.c:823:long ksu_supercall_handle_ioctl(const struct file *filp, unsigned int cmd, void __user *argp)
+kernel/supercall/dispatch.c-824-{
+kernel/supercall/dispatch.c-825-	int i;
+kernel/supercall/dispatch.c-826-
+kernel/supercall/dispatch.c-827-#ifdef CONFIG_KSU_DEBUG
+kernel/supercall/dispatch.c:828:	pr_info_ratelimited("ksu ioctl: cmd=0x%x from uid=%d\n", cmd, current_uid().val);
+kernel/supercall/dispatch.c-829-#endif
+kernel/supercall/dispatch.c-830-
+kernel/supercall/dispatch.c:831:	for (i = 0; ksu_ioctl_handlers[i].handler; i++) {
+kernel/supercall/dispatch.c:832:		if (cmd == ksu_ioctl_handlers[i].cmd) {
+kernel/supercall/dispatch.c-833-			// Check permission first
+kernel/supercall/dispatch.c:834:			if (ksu_ioctl_handlers[i].perm_check && !ksu_ioctl_handlers[i].perm_check() &&
+kernel/supercall/dispatch.c:835:				!(ksu_ioctl_handlers[i].allow_su_session && ksu_is_su_session_fd(filp))) {
+kernel/supercall/dispatch.c:836:				pr_warn_ratelimited("ksu ioctl: permission denied for cmd=0x%x uid=%d\n", cmd, current_uid().val);
+kernel/supercall/dispatch.c-837-				return -EPERM;
+kernel/supercall/dispatch.c-838-			}
+kernel/supercall/dispatch.c-839-			// Execute handler
+kernel/supercall/dispatch.c:840:			return ksu_ioctl_handlers[i].handler(argp);
+kernel/supercall/dispatch.c-841-		}
+kernel/supercall/dispatch.c-842-	}
+kernel/supercall/dispatch.c-843-
+kernel/supercall/dispatch.c:844:	pr_warn_ratelimited("ksu ioctl: unsupported command 0x%x\n", cmd);
+kernel/supercall/dispatch.c-845-	return -ENOTTY;
+kernel/supercall/dispatch.c-846-}
+kernel/supercall/dispatch.c-847-
+kernel/supercall/dispatch.c-848-void __init ksu_supercall_dump_commands(void)
+kernel/supercall/dispatch.c-849-{
+kernel/supercall/dispatch.c-850-	int i;
+kernel/supercall/dispatch.c-851-
+kernel/supercall/dispatch.c-852-	pr_info("KernelSU IOCTL Commands:\n");
+kernel/supercall/dispatch.c:853:	for (i = 0; ksu_ioctl_handlers[i].handler; i++) {
+kernel/supercall/dispatch.c:854:		pr_info("  %-24s = 0x%08x\n", ksu_ioctl_handlers[i].name, ksu_ioctl_handlers[i].cmd);
+kernel/supercall/dispatch.c-855-	}
+kernel/supercall/dispatch.c-856-}
+kernel/supercall/dispatch.c-857-
+kernel/supercall/dispatch.c-858-void ksu_supercall_cleanup_state(void) {}
+--
+kernel/supercall/internal.h-5-bool only_root(void);
+kernel/supercall/internal.h-6-bool manager_or_root(void);
+kernel/supercall/internal.h-7-bool always_allow(void);
+kernel/supercall/internal.h-8-bool allowed_for_su(void);
+kernel/supercall/internal.h-9-
+kernel/supercall/internal.h:10:long ksu_supercall_handle_ioctl(const struct file *filp, unsigned int cmd, void __user *argp);
+kernel/supercall/internal.h-11-void ksu_supercall_dump_commands(void);
+kernel/supercall/internal.h-12-void ksu_supercall_cleanup_state(void);
+kernel/supercall/internal.h-13-
+kernel/supercall/internal.h-14-#endif // __KSU_H_SUPERCALL_INTERNAL
+--
+kernel/supercall/supercall.c-9-	kfree(filp->private_data);
+kernel/supercall/supercall.c-10-	pr_info("ksu fd released\n");
+kernel/supercall/supercall.c-11-	return 0;
+kernel/supercall/supercall.c-12-}
+kernel/supercall/supercall.c-13-
+kernel/supercall/supercall.c:14:static long anon_ksu_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+kernel/supercall/supercall.c-15-{
+kernel/supercall/supercall.c:16:	return ksu_supercall_handle_ioctl(filp, cmd, (void __user *)arg);
+kernel/supercall/supercall.c-17-}
+kernel/supercall/supercall.c-18-
+kernel/supercall/supercall.c-19-// File operations structure
+kernel/supercall/supercall.c-20-static const struct file_operations anon_ksu_fops = {
+kernel/supercall/supercall.c-21-	.owner = THIS_MODULE,
+kernel/supercall/supercall.c:22:	.unlocked_ioctl = anon_ksu_ioctl,
+kernel/supercall/supercall.c:23:	.compat_ioctl = anon_ksu_ioctl,
+kernel/supercall/supercall.c-24-	.release = anon_ksu_release,
+kernel/supercall/supercall.c-25-};
+kernel/supercall/supercall.c-26-
+kernel/supercall/supercall.c-27-// Install KSU fd to current process
+kernel/supercall/supercall.c-28-static int ksu_install_fd_with_permissions(unsigned int fd_flags, unsigned long permissions)
+--
+kernel/supercall/supercall.c-76-
+kernel/supercall/supercall.c-77-	return context && (context->permissions & KSU_DRIVER_PERMISSION_SU_SESSION);
+kernel/supercall/supercall.c-78-}
+kernel/supercall/supercall.c-79-
+kernel/supercall/supercall.c-80-// downstream: make sure to pass arg as reference, this can allow us to extend things.
+kernel/supercall/supercall.c:81:int ksu_handle_sys_reboot(int magic1, int magic2, unsigned int cmd, void __user **arg)
+kernel/supercall/supercall.c-82-{
+kernel/supercall/supercall.c-83-	if (magic1 != KSU_INSTALL_MAGIC1)
+kernel/supercall/supercall.c-84-		return 0;
+kernel/supercall/supercall.c-85-
+kernel/supercall/supercall.c-86-	// when ternary on fmt?
+--
+kernel/supercall/supercall.h-1-#ifndef __KSU_H_SUPERCALL
+kernel/supercall/supercall.h-2-#define __KSU_H_SUPERCALL
+kernel/supercall/supercall.h-3-
+kernel/supercall/supercall.h-4-// IOCTL handler types
+kernel/supercall/supercall.h:5:typedef int (*ksu_ioctl_handler_t)(void __user *arg);
+kernel/supercall/supercall.h-6-typedef bool (*ksu_perm_check_t)(void);
+kernel/supercall/supercall.h-7-
+kernel/supercall/supercall.h-8-// IOCTL command mapping
+kernel/supercall/supercall.h:9:struct ksu_ioctl_cmd_map {
+kernel/supercall/supercall.h-10-	unsigned int cmd;
+kernel/supercall/supercall.h-11-	const char *name;
+kernel/supercall/supercall.h:12:	ksu_ioctl_handler_t handler;
+kernel/supercall/supercall.h-13-	ksu_perm_check_t perm_check; // Permission check function
+kernel/supercall/supercall.h-14-	bool allow_su_session;
+kernel/supercall/supercall.h-15-};
+kernel/supercall

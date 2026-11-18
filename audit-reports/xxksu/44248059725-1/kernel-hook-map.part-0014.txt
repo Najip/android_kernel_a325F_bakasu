@@ -1,0 +1,226 @@
+fs/susfs.c:519:	SUSFS_LOGI("CMD_SUSFS_UPDATE_SUS_KSTAT -> ret: %d\n", info.err);
+fs/susfs.c-520-}
+fs/susfs.c-521-
+fs/susfs.c:522:__attribute__((hot)) bool susfs_is_inode_sus_kstat(struct inode *inode, bool *out_is_fuse) {
+fs/susfs.c-523-	struct fuse_inode *fi = NULL;
+fs/susfs.c-524-
+fs/susfs.c-525-	if (!inode)
+fs/susfs.c-526-		return false;
+fs/susfs.c-527-	if (inode->i_sb->s_magic == FUSE_SUPER_MAGIC) {
+fs/susfs.c-528-		fi = get_fuse_inode(inode);
+fs/susfs.c-529-		if (!fi || !fi->inode.i_mapping) {
+fs/susfs.c:530:			SUSFS_LOGE("fi || fi->inode.i_mapping is NULL\n");
+fs/susfs.c-531-			return false;
+fs/susfs.c-532-		}
+fs/susfs.c-533-		if (test_bit(AS_FLAGS_SUS_KSTAT, &fi->inode.i_state)) {
+fs/susfs.c-534-			*out_is_fuse = true;
+fs/susfs.c-535-			return true;
+fs/susfs.c-536-		}
+fs/susfs.c-537-		return false;
+fs/susfs.c-538-	}
+fs/susfs.c-539-	if (!inode->i_mapping) {
+fs/susfs.c:540:		SUSFS_LOGE("inode->i_mapping is NULL\n");
+fs/susfs.c-541-		return false;
+fs/susfs.c-542-	}
+fs/susfs.c-543-	if (test_bit(AS_FLAGS_SUS_KSTAT, &inode->i_state))
+fs/susfs.c-544-		return true;
+fs/susfs.c-545-	return false;
+fs/susfs.c-546-}
+fs/susfs.c-547-
+fs/susfs.c:548:void susfs_sus_kstat_spoof_generic_fillattr(struct inode *inode, struct kstat *stat, u32 result_mask)
+fs/susfs.c-549-{
+fs/susfs.c:550:	struct st_susfs_sus_kstat_hlist *entry = NULL;
+fs/susfs.c-551-	struct fuse_inode *fi = NULL;
+fs/susfs.c-552-	unsigned long target_ino = 0;
+fs/susfs.c-553-	dev_t target_dev = 0;
+fs/susfs.c-554-	bool is_fuse = false;
+fs/susfs.c-555-
+--
+fs/susfs.c-572-	rcu_read_lock();
+fs/susfs.c-573-	hash_for_each_possible_rcu(SUS_KSTAT_HLIST, entry, node, target_ino) {
+fs/susfs.c-574-		if (entry->target_dev == target_dev &&
+fs/susfs.c-575-			entry->is_fuse == is_fuse)
+fs/susfs.c-576-		{
+fs/susfs.c:577:			SUSFS_LOGI("spoofing kstat for vfs_getattr_nosec, target_ino: %lu, target_dev: %u\n",
+fs/susfs.c-578-					target_ino, target_dev);
+fs/susfs.c-579-			if (entry->info.flags & KSTAT_SPOOF_INO)
+fs/susfs.c-580-				stat->ino = entry->info.spoofed_ino;
+fs/susfs.c-581-			if (entry->info.flags & KSTAT_SPOOF_DEV)
+fs/susfs.c-582-				stat->dev = entry->info.spoofed_dev;
+--
+fs/susfs.c-608-		}
+fs/susfs.c-609-	}
+fs/susfs.c-610-	rcu_read_unlock();
+fs/susfs.c-611-}
+fs/susfs.c-612-
+fs/susfs.c:613:void susfs_sus_kstat_spoof_show_map_vma(struct inode *inode, dev_t *out_dev, unsigned long *out_ino) {
+fs/susfs.c:614:	struct st_susfs_sus_kstat_hlist *entry = NULL;
+fs/susfs.c-615-	struct fuse_inode *fi = NULL;
+fs/susfs.c-616-	unsigned long target_ino = 0;
+fs/susfs.c-617-	dev_t target_dev = 0;
+fs/susfs.c-618-	bool is_fuse = false;
+fs/susfs.c-619-
+fs/susfs.c-620-	if (inode->i_sb->s_magic == FUSE_SUPER_MAGIC) {
+fs/susfs.c-621-		fi = get_fuse_inode(inode);
+fs/susfs.c-622-		if (!fi || !fi->inode.i_mapping) {
+fs/susfs.c:623:			SUSFS_LOGE("fi || fi->inode.i_mapping is NULL\n");
+fs/susfs.c-624-			return;
+fs/susfs.c-625-		}
+fs/susfs.c-626-		target_ino = fi->inode.i_ino;
+fs/susfs.c-627-		target_dev = fi->inode.i_sb->s_dev;
+fs/susfs.c-628-		is_fuse = true;
+fs/susfs.c-629-		goto out_spoof_kstat;
+fs/susfs.c-630-	}
+fs/susfs.c-631-
+fs/susfs.c-632-	if (!inode->i_mapping) {
+fs/susfs.c:633:		SUSFS_LOGE("inode->i_mapping is NULL\n");
+fs/susfs.c-634-		return;
+fs/susfs.c-635-	}
+fs/susfs.c-636-
+fs/susfs.c-637-	target_ino = inode->i_ino;
+fs/susfs.c-638-	target_dev = inode->i_sb->s_dev;
+--
+fs/susfs.c-641-	rcu_read_lock();
+fs/susfs.c-642-	hash_for_each_possible_rcu(SUS_KSTAT_HLIST, entry, node, target_ino) {
+fs/susfs.c-643-		if (entry->target_dev == target_dev &&
+fs/susfs.c-644-			entry->is_fuse == is_fuse)
+fs/susfs.c-645-		{
+fs/susfs.c:646:			SUSFS_LOGI("spoofing kstat for show_map_vma, target_ino: %lu, target_dev: %u\n", target_ino, target_dev);
+fs/susfs.c-647-			*out_dev = entry->info.spoofed_dev;
+fs/susfs.c-648-			*out_ino = entry->info.spoofed_ino;
+fs/susfs.c-649-			rcu_read_unlock();
+fs/susfs.c-650-			return;
+fs/susfs.c-651-		}
+fs/susfs.c-652-	}
+fs/susfs.c-653-	rcu_read_unlock();
+fs/susfs.c-654-}
+fs/susfs.c-655-
+fs/susfs.c:656:int susfs_sus_kstat_spoof_vfs_statfs(struct inode *inode, struct kstatfs *buf, bool *is_fuse) {
+fs/susfs.c:657:	struct st_susfs_sus_kstat_hlist *entry = NULL;
+fs/susfs.c-658-	struct inode *target_inode = inode;
+fs/susfs.c-659-
+fs/susfs.c-660-	if (*is_fuse)
+fs/susfs.c-661-		target_inode = &get_fuse_inode(inode)->inode;
+fs/susfs.c-662-
+fs/susfs.c-663-	rcu_read_lock();
+fs/susfs.c-664-	hash_for_each_possible_rcu(SUS_KSTAT_HLIST, entry, node, target_inode->i_ino) {
+fs/susfs.c-665-		if (entry->target_dev == inode->i_sb->s_dev)
+fs/susfs.c-666-		{
+fs/susfs.c:667:			SUSFS_LOGI("spoofing kstat for vfs_statfs, target_ino: %lu, target_dev: %u\n", target_inode->i_ino, target_inode->i_sb->s_dev);
+fs/susfs.c-668-			memcpy(buf, &entry->spoofed_kstatfs, sizeof(struct kstatfs));
+fs/susfs.c-669-			rcu_read_unlock();
+fs/susfs.c-670-			return 0;
+fs/susfs.c-671-		}
+fs/susfs.c-672-	}
+fs/susfs.c-673-	rcu_read_unlock();
+fs/susfs.c-674-	return -EINVAL;
+fs/susfs.c-675-}
+fs/susfs.c-676-
+fs/susfs.c:677:void susfs_sus_kstat_spoof_inotify_fdinfo(unsigned long *out_target_ino, dev_t *out_target_dev) {
+fs/susfs.c:678:	struct st_susfs_sus_kstat_hlist *entry = NULL;
+fs/susfs.c-679-
+fs/susfs.c-680-	rcu_read_lock();
+fs/susfs.c-681-	hash_for_each_possible_rcu(SUS_KSTAT_HLIST, entry, node, *out_target_ino) {
+fs/susfs.c-682-		if (entry->target_dev == *out_target_dev)
+fs/susfs.c-683-		{
+fs/susfs.c:684:			SUSFS_LOGI("spoofing kstat for inotify_fdinfo, target_ino: %lu, target_dev: %u\n", *out_target_ino, *out_target_dev);
+fs/susfs.c-685-			*out_target_ino = entry->info.spoofed_ino;
+fs/susfs.c-686-			*out_target_dev = entry->info.spoofed_dev;
+fs/susfs.c-687-			rcu_read_unlock();
+fs/susfs.c-688-			return;
+fs/susfs.c-689-		}
+fs/susfs.c-690-	}
+fs/susfs.c-691-	rcu_read_unlock();
+fs/susfs.c-692-}
+fs/susfs.c-693-
+fs/susfs.c:694:void susfs_sus_kstat_spoof_proc_fd_seq_show(int *out_target_mnt_id, unsigned long *out_target_ino, dev_t target_dev) {
+fs/susfs.c:695:	struct st_susfs_sus_kstat_hlist *entry = NULL;
+fs/susfs.c-696-
+fs/susfs.c-697-	rcu_read_lock();
+fs/susfs.c-698-	hash_for_each_possible_rcu(SUS_KSTAT_HLIST, entry, node, *out_target_ino) {
+fs/susfs.c-699-		if (entry->target_dev == target_dev)
+fs/susfs.c-700-		{
+fs/susfs.c:701:			SUSFS_LOGI("spoofing kstat for proc_fd_seq_show, target_ino: %lu, target_dev: %u\n", *out_target_ino, target_dev);
+fs/susfs.c-702-			*out_target_mnt_id = entry->spoofed_mnt_id;
+fs/susfs.c-703-			*out_target_ino = entry->info.spoofed_ino;
+fs/susfs.c-704-			rcu_read_unlock();
+fs/susfs.c-705-			return;
+fs/susfs.c-706-		}
+fs/susfs.c-707-	}
+fs/susfs.c-708-	rcu_read_unlock();
+fs/susfs.c-709-}
+fs/susfs.c:710:#endif // #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/susfs.c-711-
+fs/susfs.c-712-/* spoof_uname */
+fs/susfs.c:713:#ifdef CONFIG_KSU_SUSFS_SPOOF_UNAME
+fs/susfs.c:714:static struct st_susfs_uname my_uname = {0};
+fs/susfs.c:715:DEFINE_STATIC_KEY_FALSE(susfs_is_uname_spoof_buffer_set);
+fs/susfs.c:716:static DEFINE_SEQLOCK(susfs_uname_seqlock);
+fs/susfs.c-717-
+fs/susfs.c:718:void susfs_set_uname(void __user **user_info) {
+fs/susfs.c:719:	struct st_susfs_uname info = {0};
+fs/susfs.c-720-
+fs/susfs.c:721:	if (copy_from_user(&info, (struct st_susfs_uname __user*)*user_info, sizeof(info))) {
+fs/susfs.c-722-		info.err = -EFAULT;
+fs/susfs.c-723-		goto out_copy_to_user;
+fs/susfs.c-724-	}
+fs/susfs.c-725-
+fs/susfs.c-726-	if (*info.release == '\0' || *info.version == '\0') {
+fs/susfs.c-727-		info.err = -EFAULT;
+fs/susfs.c-728-		goto out_copy_to_user;
+fs/susfs.c-729-	}
+fs/susfs.c-730-
+fs/susfs.c:731:	write_seqlock(&susfs_uname_seqlock);
+fs/susfs.c-732-	if (!strcmp(info.release, "default")) {
+fs/susfs.c-733-		strscpy(my_uname.release, utsname()->release, __NEW_UTS_LEN);
+fs/susfs.c-734-	} else {
+fs/susfs.c-735-		strscpy(my_uname.release, info.release, __NEW_UTS_LEN);
+fs/susfs.c-736-	}
+fs/susfs.c-737-	if (!strcmp(info.version, "default")) {
+fs/susfs.c-738-		strscpy(my_uname.version, utsname()->version, __NEW_UTS_LEN);
+fs/susfs.c-739-	} else {
+fs/susfs.c-740-		strscpy(my_uname.version, info.version, __NEW_UTS_LEN);
+fs/susfs.c-741-	}
+fs/susfs.c:742:	write_sequnlock(&susfs_uname_seqlock);
+fs/susfs.c-743-
+fs/susfs.c:744:	if (!static_key_enabled(&susfs_is_uname_spoof_buffer_set))
+fs/susfs.c:745:		static_branch_enable(&susfs_is_uname_spoof_buffer_set);
+fs/susfs.c-746-
+fs/susfs.c:747:	SUSFS_LOGI("set spoofed release: '%s', version: '%s'\n",
+fs/susfs.c-748-				my_uname.release, my_uname.version);
+fs/susfs.c-749-
+fs/susfs.c-750-	info.err = 0;
+fs/susfs.c-751-out_copy_to_user:
+fs/susfs.c:752:	if (copy_to_user(&((struct st_susfs_uname __user*)*user_info)->err, &info.err, sizeof(info.err))) {
+fs/susfs.c-753-		info.err = -EFAULT;
+fs/susfs.c-754-	}
+fs/susfs.c:755:	SUSFS_LOGI("CMD_SUSFS_SET_UNAME -> ret: %d\n", info.err);
+fs/susfs.c-756-}
+fs/susfs.c-757-
+fs/susfs.c:758:void susfs_spoof_uname(struct new_utsname* tmp) {
+fs/susfs.c-759-	unsigned seq;
+fs/susfs.c-760-
+fs/susfs.c-761-	do {
+fs/susfs.c:762:		seq = read_seqbegin(&susfs_uname_seqlock);
+fs/susfs.c-763-		strscpy(tmp->release, my_uname.release, __NEW_UTS_LEN);
+fs/susfs.c-764-		strscpy(tmp->version, my_uname.version, __NEW_UTS_LEN);
+fs/susfs.c:765:	} while (read_seqretry(&susfs_uname_seqlock, seq));
+fs/susfs.c-766-}
+fs/susfs.c:767:#endif // #ifdef CONFIG_KSU_SUSFS_SPOOF_UNAME
+fs/susfs.c-768-
+fs/susfs.c-769-/* enable_log */
+fs/susfs.c:770:#ifdef CONFIG_KSU_SUSFS_ENABLE_LOG
+fs/susfs.c:771:void susfs_enable_log(void __user **user_info) {
+fs/susfs.c:772:	struct st_susfs_log info = {0};
+fs/susfs.c-773-
+fs/susfs.c:774:	if (copy_from_user(&info, (struct st_susfs_log __user*)*user_info, sizeof(info))) {
+fs/susfs.c-775-		info.err = -EFAULT;
+fs/susfs.c-776-		goto out_copy_to_user;
+fs/susfs.c-777-	}
+fs/susfs.c-778-
+fs/susfs.c-779-	if (info.enabled) {
+fs/susfs.c:780:		static_branch_enable(&susfs_is_log_enabled);
+fs/susfs.c:781:		pr_info("susfs: enable logging to kernel");
+fs/susfs.c-782-	} else {
+fs/susfs.c:783:		static_branch_disable(&susfs_is_log_enabled);
+fs/susfs.c:784:		pr_info("susfs: disable l

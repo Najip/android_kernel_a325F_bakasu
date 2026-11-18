@@ -1,0 +1,159 @@
+h-60-
+include/linux/susfs_def.h:61:#define TRY_UMOUNT_DEFAULT 0 /* used by susfs_try_umount() */
+include/linux/susfs_def.h:62:#define TRY_UMOUNT_DETACH 1 /* used by susfs_try_umount() */
+include/linux/susfs_def.h-63-
+include/linux/susfs_def.h:64:#define DEFAULT_KSU_MNT_ID 2000000000 /* used for mounts created or single cloned by ksu process */
+include/linux/susfs_def.h:65:#define DEFAULT_KSU_MNT_GROUP_ID 200000 /* used by mount->mnt_group_id */
+include/linux/susfs_def.h:66:#define DEFAULT_KSU_MNT_MINOR_DEV (1 << 12) /* should be way enough, here minor(dev) begins with 4097 */
+include/linux/susfs_def.h-67-
+include/linux/susfs_def.h-68-#ifndef FUSE_SUPER_MAGIC
+include/linux/susfs_def.h-69-#define FUSE_SUPER_MAGIC 0x65735546
+include/linux/susfs_def.h-70-#endif
+include/linux/susfs_def.h-71-
+--
+include/linux/susfs_def.h-76- * nd->state => storing flag 'ND_STATE_'
+include/linux/susfs_def.h-77- * nd->flags => storing flag 'ND_FLAGS_'
+include/linux/susfs_def.h-78- * statx request_mark => storing flag 'STATX_'
+include/linux/susfs_def.h-79- */
+include/linux/susfs_def.h-80-
+include/linux/susfs_def.h:81:#define VFSMOUNT_MNT_FLAGS_KSU_UNSHARED_MNT 0x80000000 /* used for mounts that are unshared by ksu process */
+include/linux/susfs_def.h-82-
+include/linux/susfs_def.h-83-#define TIF_PROC_UMOUNTED 33
+include/linux/susfs_def.h-84-#define TIF_PROC_NO_SU 34
+include/linux/susfs_def.h-85-#define TIF_PROC_UMOUNTED_FOR_ZYGOTE_NEXT 35
+include/linux/susfs_def.h-86-
+--
+include/linux/susfs_def.h-95-#define ND_FLAGS_LOOKUP_LAST 0x2000000
+include/linux/susfs_def.h-96-
+include/linux/susfs_def.h-97-#define STATX_SUS_KSTAT 0x10000000U
+include/linux/susfs_def.h-98-#define STATX_SUS_KSTAT_FUSE 0x20000000U
+include/linux/susfs_def.h-99-
+include/linux/susfs_def.h:100:static inline bool susfs_starts_with(const char *str, const char *prefix) {
+include/linux/susfs_def.h-101-	while (*prefix) {
+include/linux/susfs_def.h-102-		if (*str++ != *prefix++)
+include/linux/susfs_def.h-103-			return false;
+include/linux/susfs_def.h-104-	}
+include/linux/susfs_def.h-105-	return true;
+include/linux/susfs_def.h-106-}
+include/linux/susfs_def.h-107-
+include/linux/susfs_def.h:108:static inline bool susfs_ends_with(const char *str, const char *suffix) {
+include/linux/susfs_def.h-109-	size_t str_len, suffix_len;
+include/linux/susfs_def.h-110-
+include/linux/susfs_def.h-111-	if (!str || !suffix)
+include/linux/susfs_def.h-112-		return false;
+include/linux/susfs_def.h-113-
+--
+include/linux/susfs_def.h-120-	return !strcmp(str + str_len - suffix_len, suffix);
+include/linux/susfs_def.h-121-}
+include/linux/susfs_def.h-122-
+include/linux/susfs_def.h-123-/* From KernelSU */
+include/linux/susfs_def.h-124-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 2, 0)
+include/linux/susfs_def.h:125:typedef const struct qstr *susfs_fname_t;
+include/linux/susfs_def.h:126:#define susfs_fname_len(f) ((f)->len)
+include/linux/susfs_def.h:127:#define susfs_fname_arg(f) ((f)->name)
+include/linux/susfs_def.h-128-#else
+include/linux/susfs_def.h:129:typedef const unsigned char *susfs_fname_t;
+include/linux/susfs_def.h:130:#define susfs_fname_len(f) (strlen(f))
+include/linux/susfs_def.h:131:#define susfs_fname_arg(f) (f)
+include/linux/susfs_def.h-132-#endif
+include/linux/susfs_def.h-133-
+include/linux/susfs_def.h-134-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 9, 0)
+include/linux/susfs_def.h:135:#define SUSFS_DECL_FSNOTIFY_OPS(name)                                            \
+include/linux/susfs_def.h-136-int name(struct fsnotify_mark *mark, u32 mask, struct inode *inode,    \
+include/linux/susfs_def.h-137-struct inode *dir, const struct qstr *file_name, u32 cookie)
+include/linux/susfs_def.h-138-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 2, 0)
+include/linux/susfs_def.h:139:#define SUSFS_DECL_FSNOTIFY_OPS(name)                                            \
+include/linux/susfs_def.h-140-int name(struct fsnotify_group *group, struct inode *inode, u32 mask,  \
+include/linux/susfs_def.h:141:const void *data, int data_type, susfs_fname_t file_name,       \
+include/linux/susfs_def.h-142-u32 cookie, struct fsnotify_iter_info *iter_info)
+include/linux/susfs_def.h-143-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 18, 0)
+include/linux/susfs_def.h:144:#define SUSFS_DECL_FSNOTIFY_OPS(name)                                            \
+include/linux/susfs_def.h-145-int name(struct fsnotify_group *group, struct inode *inode, u32 mask,  \
+include/linux/susfs_def.h:146:const void *data, int data_type, susfs_fname_t file_name,       \
+include/linux/susfs_def.h-147-u32 cookie, struct fsnotify_iter_info *iter_info)
+include/linux/susfs_def.h-148-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0)
+include/linux/susfs_def.h:149:#define SUSFS_DECL_FSNOTIFY_OPS(name)                                            \
+include/linux/susfs_def.h-150-int name(struct fsnotify_group *group, struct inode *inode,            \
+include/linux/susfs_def.h-151-struct fsnotify_mark *inode_mark,                             \
+include/linux/susfs_def.h-152-struct fsnotify_mark *vfsmount_mark, u32 mask,                \
+include/linux/susfs_def.h:153:const void *data, int data_type, susfs_fname_t file_name,       \
+include/linux/susfs_def.h-154-u32 cookie, struct fsnotify_iter_info *iter_info)
+include/linux/susfs_def.h-155-#else
+include/linux/susfs_def.h:156:#define SUSFS_DECL_FSNOTIFY_OPS(name)                                            \
+include/linux/susfs_def.h-157-int name(struct fsnotify_group *group, struct inode *inode,            \
+include/linux/susfs_def.h-158-struct fsnotify_mark *inode_mark,                             \
+include/linux/susfs_def.h-159-struct fsnotify_mark *vfsmount_mark, u32 mask, void *data,    \
+include/linux/susfs_def.h:160:int data_type, susfs_fname_t file_name, u32 cookie)
+include/linux/susfs_def.h-161-#endif
+include/linux/susfs_def.h-162-
+include/linux/susfs_def.h:163:static inline bool susfs_is_current_app_uid(void) {
+include/linux/susfs_def.h-164-	return ((current_uid().val % 100000) >= 10000);
+include/linux/susfs_def.h-165-}
+include/linux/susfs_def.h-166-
+include/linux/susfs_def.h:167:static inline bool susfs_is_current_proc_umounted(void) {
+include/linux/susfs_def.h-168-	return (likely(test_thread_flag(TIF_PROC_UMOUNTED)));
+include/linux/susfs_def.h-169-}
+include/linux/susfs_def.h-170-
+include/linux/susfs_def.h:171:static inline void susfs_set_current_proc_umounted(void) {
+include/linux/susfs_def.h-172-	set_thread_flag(TIF_PROC_UMOUNTED);
+include/linux/susfs_def.h-173-}
+include/linux/susfs_def.h-174-
+include/linux/susfs_def.h:175:static inline void susfs_clear_current_proc_umounted(void) {
+include/linux/susfs_def.h-176-	clear_thread_flag(TIF_PROC_UMOUNTED);
+include/linux/susfs_def.h-177-}
+include/linux/susfs_def.h-178-
+include/linux/susfs_def.h:179:static inline bool susfs_is_current_proc_umounted_for_zygote_next(void) {
+include/linux/susfs_def.h-180-	return (likely(test_thread_flag(TIF_PROC_UMOUNTED_FOR_ZYGOTE_NEXT)));
+include/linux/susfs_def.h-181-}
+include/linux/susfs_def.h-182-
+include/linux/susfs_def.h:183:static inline void susfs_set_current_proc_umounted_for_zygote_next(void) {
+include/linux/susfs_def.h-184-	set_thread_flag(TIF_PROC_UMOUNTED_FOR_ZYGOTE_NEXT);
+include/linux/susfs_def.h-185-}
+include/linux/susfs_def.h-186-
+include/linux/susfs_def.h:187:static inline void susfs_clear_current_proc_umounted_for_zygote_next(void) {
+include/linux/susfs_def.h-188-	clear_thread_flag(TIF_PROC_UMOUNTED_FOR_ZYGOTE_NEXT);
+include/linux/susfs_def.h-189-}
+include/linux/susfs_def.h-190-
+include/linux/susfs_def.h:191:static inline bool susfs_is_current_proc_umounted_app(void) {
+include/linux/susfs_def.h-192-	return (likely(test_thread_flag(TIF_PROC_UMOUNTED)) &&
+include/linux/susfs_def.h-193-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0)
+include/linux/susfs_def.h-194-			__kuid_val(current_uid()) >= 10000);
+include/linux/susfs_def.h-195-#else
+include/linux/susfs_def.h-196-			current_uid().val >= 10000);
+include/linux/susfs_def.h-197-#endif
+include/linux/susfs_def.h-198-}
+include/linux/susfs_def.h-199-
+include/linux/susfs_def.h:200:static inline bool susfs_is_current_proc_no_su(void) {
+include/linux/susfs_def.h-201-	return (likely(test_thread_flag(TIF_PROC_NO_SU)));
+include/linux/susfs_def.h-202-}
+include/linux/susfs_def.h-203-
+include/linux/susfs_def.h:204:static inline void susfs_set_current_proc_no_su(void) {
+include/linux/susfs_def.h-205-	set_thread_flag(TIF_PROC_NO_SU);
+include/linux/susfs_def.h-206-}
+include/linux/susfs_def.h-207-
+include/linux/susfs_def.h:208:static inline void susfs_clear_current_proc_no_su(void) {
+include/linux/susfs_def.h-209-	clear_thread_flag(TIF_PROC_NO_SU);
+include/linux/susfs_def.h-210-}
+include/linux/susfs_def.h-211-
+include/linux/susfs_def.h:212:#define SUSFS_IS_INODE_SUS_MAP(inode) \
+include/linux/susfs_def.h-213-		inode && inode->i_mapping && \
+include/linux/susfs_def.h-214-		unlikely(test_bit(AS_FLAGS_SUS_MAP, &inode->i_state)) && \
+include/linux/susfs_def.h:215:		susfs_is_current_proc_umounted_app()
+include/linux/susfs_def.h-216-
+include/linux/susfs_def.h:217:#define SUSFS_IS_INODE_OPEN_REDIRECT_WITHOUT_UID_CHECK(inode) \
+include/linux/susfs_def.h-218-		inode && inode->i_mapping && \
+include/linux/susfs_def.h-219-		unlikely(test_bit(AS_FLAGS_OPEN_REDIRECT, &inode->i_state))
+include/linux/susfs_def.h-220-
+include/linux/susfs_def.h:221:#define SUSFS_IS_INODE_OPEN_REDIRECT(inode) \
+include/linux/susfs_def.h-222-		inode && inode->i_mapping && \
+include/linux/susfs_def.h-223-		unlikely(test_bit(AS_FLAGS_OPEN_REDIRECT, &inode->i_state)) && \
+include/linux/susfs_def.h:224:		susfs_is_current_proc_umounted_app()
+include/linux/susfs_def.h:225:#endif // #ifndef KSU_SUSFS_DEF_H
+--
+include/linux/susfs_ksu.h-1-/* SPDX-License-Identifier: GPL-2.0 */
+include/linux/susfs_ksu.h:2:#ifndef _LINUX_SUSFS_KSU_H
+include/linux/susfs_ksu.h:3:#define _LINUX_SUSFS_KSU_H
+include/linux/susfs_ksu.h-4-
+include/linux/susfs_ksu.h-5-#include <linux/types.h>
+include/linux/susfs_ksu.h-6-
+include/linux/susfs_ksu.h-7-struct

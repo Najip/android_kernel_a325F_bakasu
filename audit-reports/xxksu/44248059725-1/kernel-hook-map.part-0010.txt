@@ -1,0 +1,248 @@
+34-	struct inode *inode;
+fs/readdir.c-635-#endif
+fs/readdir.c-636-
+fs/readdir.c-637-	buf->error = -EINVAL;	/* only used if we fail.. */
+fs/readdir.c-638-	if (reclen > buf->count)
+--
+fs/readdir.c-648-		if (signal_pending(current))
+fs/readdir.c-649-			return -EINTR;
+fs/readdir.c-650-		if (__put_user(offset, &dirent->d_off))
+fs/readdir.c-651-			goto efault;
+fs/readdir.c-652-	}
+fs/readdir.c:653:#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+fs/readdir.c-654-	inode = ilookup(buf->sb, ino);
+fs/readdir.c-655-	if (!inode) {
+fs/readdir.c-656-		goto orig_flow;
+fs/readdir.c-657-	}
+fs/readdir.c:658:	if (susfs_is_inode_sus_path(inode)) {
+fs/readdir.c-659-		iput(inode);
+fs/readdir.c-660-		return 0;
+fs/readdir.c-661-	}
+fs/readdir.c-662-	iput(inode);
+fs/readdir.c-663-orig_flow:
+--
+fs/readdir.c-692-		.ctx.actor = compat_filldir,
+fs/readdir.c-693-		.current_dir = dirent,
+fs/readdir.c-694-		.count = count
+fs/readdir.c-695-	};
+fs/readdir.c-696-	int error;
+fs/readdir.c:697:#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+fs/readdir.c-698-	int path_err = -EINVAL;
+fs/readdir.c-699-	struct path path;
+fs/readdir.c-700-#endif
+fs/readdir.c-701-
+fs/readdir.c-702-	if (!access_ok(VERIFY_WRITE, dirent, count))
+--
+fs/readdir.c-704-
+fs/readdir.c-705-	f = fdget_pos(fd);
+fs/readdir.c-706-	if (!f.file)
+fs/readdir.c-707-		return -EBADF;
+fs/readdir.c-708-
+fs/readdir.c:709:#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+fs/readdir.c-710-	if (f.file->f_inode->i_sb->s_magic == FUSE_SUPER_MAGIC) {
+fs/readdir.c:711:		path_err = susfs_get_data_path(&path);
+fs/readdir.c-712-		if (!path_err) {
+fs/readdir.c-713-			buf.sb = path.dentry->d_inode->i_sb;
+fs/readdir.c-714-			goto orig_flow;
+fs/readdir.c-715-		}
+fs/readdir.c-716-	}
+--
+fs/readdir.c-727-			error = -EFAULT;
+fs/readdir.c-728-		else
+fs/readdir.c-729-			error = count - buf.count;
+fs/readdir.c-730-	}
+fs/readdir.c-731-	fdput_pos(f);
+fs/readdir.c:732:#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+fs/readdir.c-733-	if (!path_err)
+fs/readdir.c-734-		path_put(&path);
+fs/readdir.c-735-#endif
+fs/readdir.c-736-	return error;
+fs/readdir.c-737-}
+--
+fs/stat.c-18-#include <linux/pagemap.h>
+fs/stat.c-19-#include <linux/compat.h>
+fs/stat.c-20-
+fs/stat.c-21-#include <linux/uaccess.h>
+fs/stat.c-22-#include <asm/unistd.h>
+fs/stat.c:23:#ifdef CONFIG_KSU_SUSFS
+fs/stat.c:24:#include <linux/susfs_def.h>
+fs/stat.c-25-#include "mount.h"
+fs/stat.c-26-#endif
+fs/stat.c:27:#ifdef CONFIG_KSU_SUSFS
+fs/stat.c:28:extern struct static_key_true ksu_is_init_rc_hook_enabled;
+fs/stat.c:29:extern void ksu_handle_vfs_fstat(int fd, loff_t *kstat_size_ptr);
+fs/stat.c:30:extern struct static_key_true ksu_su_compat_enabled;
+fs/stat.c:31:extern bool __ksu_is_allow_uid_for_current(uid_t uid);
+fs/stat.c:32:extern int ksu_handle_stat(int *dfd, struct filename **filename, int *flags);
+fs/stat.c:33:#endif // #ifdef CONFIG_KSU_SUSFS
+fs/stat.c-34-
+fs/stat.c:35:#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/stat.c:36:extern bool susfs_is_inode_sus_kstat(struct inode *inode, bool *out_is_fuse);
+fs/stat.c:37:extern void susfs_sus_kstat_spoof_generic_fillattr(struct inode *inode, struct kstat *stat, u32 result_mask);
+fs/stat.c:38:#endif // #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/stat.c-39-
+fs/stat.c-40-/**
+fs/stat.c-41- * generic_fillattr - Fill in the basic attributes from the inode struct
+fs/stat.c-42- * @inode: Inode to use as the source
+fs/stat.c-43- * @stat: Where to fill in the attributes
+--
+fs/stat.c-85-int vfs_getattr_nosec(const struct path *path, struct kstat *stat,
+fs/stat.c-86-		      u32 request_mask, unsigned int query_flags)
+fs/stat.c-87-{
+fs/stat.c-88-	struct inode *inode = d_backing_inode(path->dentry);
+fs/stat.c-89-	int error;
+fs/stat.c:90:#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/stat.c:91:	u32 susfs_mask = 0;
+fs/stat.c-92-#endif
+fs/stat.c-93-
+fs/stat.c-94-	memset(stat, 0, sizeof(*stat));
+fs/stat.c-95-	stat->result_mask |= STATX_BASIC_STATS;
+fs/stat.c-96-	request_mask &= STATX_ALL;
+fs/stat.c-97-	query_flags &= KSTAT_QUERY_FLAGS;
+fs/stat.c:98:#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/stat.c:99:	if (susfs_is_current_app_uid()) {
+fs/stat.c-100-		bool is_fuse = false;
+fs/stat.c:101:		if (susfs_is_inode_sus_kstat(d_backing_inode(path->dentry), &is_fuse)) {
+fs/stat.c:102:			susfs_mask = is_fuse ? STATX_SUS_KSTAT_FUSE : STATX_SUS_KSTAT;
+fs/stat.c-103-		}
+fs/stat.c-104-	}
+fs/stat.c:105:#endif // #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/stat.c-106-
+fs/stat.c-107-	if (inode->i_op->getattr) {
+fs/stat.c-108-		error = inode->i_op->getattr(path, stat, request_mask, query_flags);
+fs/stat.c-109-		if (error)
+fs/stat.c-110-			return error;
+fs/stat.c-111-	} else {
+fs/stat.c-112-		generic_fillattr(inode, stat);
+fs/stat.c-113-	}
+fs/stat.c:114:#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/stat.c:115:	/* Keep SUSFS routing flags private, including on FD-based getattr paths. */
+fs/stat.c:116:	if (susfs_mask)
+fs/stat.c:117:		susfs_sus_kstat_spoof_generic_fillattr(inode, stat, susfs_mask);
+fs/stat.c:118:#endif // #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/stat.c-119-	return 0;
+fs/stat.c-120-}
+fs/stat.c-121-EXPORT_SYMBOL(vfs_getattr_nosec);
+fs/stat.c-122-
+fs/stat.c-123-/*
+--
+fs/stat.c-176-
+fs/stat.c-177-	f = fdget_raw(fd);
+fs/stat.c-178-	if (f.file) {
+fs/stat.c-179-		error = vfs_getattr(&f.file->f_path, stat,
+fs/stat.c-180-				    request_mask, query_flags);
+fs/stat.c:181:#ifdef CONFIG_KSU_SUSFS
+fs/stat.c:182:		if (!error && static_branch_unlikely(&ksu_is_init_rc_hook_enabled))
+fs/stat.c:183:			ksu_handle_vfs_fstat(fd, &stat->size);
+fs/stat.c:184:#endif // #ifdef CONFIG_KSU_SUSFS
+fs/stat.c-185-
+fs/stat.c-186-		fdput(f);
+fs/stat.c-187-	}
+fs/stat.c-188-	return error;
+fs/stat.c-189-}
+--
+fs/stat.c-208-	      struct kstat *stat, u32 request_mask)
+fs/stat.c-209-{
+fs/stat.c-210-	struct path path;
+fs/stat.c-211-	int error = -EINVAL;
+fs/stat.c-212-	unsigned int lookup_flags = LOOKUP_FOLLOW | LOOKUP_AUTOMOUNT;
+fs/stat.c:213:#ifdef CONFIG_KSU_SUSFS
+fs/stat.c-214-	struct filename *fname = NULL;
+fs/stat.c-215-	extern int filename_lookup(int dfd, struct filename *name, unsigned flags,
+fs/stat.c-216-					struct path *path, struct path *root);
+fs/stat.c-217-#endif
+fs/stat.c-218-
+--
+fs/stat.c-227-		lookup_flags &= ~LOOKUP_AUTOMOUNT;
+fs/stat.c-228-	if (flags & AT_EMPTY_PATH)
+fs/stat.c-229-		lookup_flags |= LOOKUP_EMPTY;
+fs/stat.c-230-
+fs/stat.c-231-retry:
+fs/stat.c:232:#ifdef CONFIG_KSU_SUSFS
+fs/stat.c-233-	fname = getname_flags(filename, lookup_flags, NULL);
+fs/stat.c-234-
+fs/stat.c:235:	if (likely(susfs_is_current_proc_no_su()))
+fs/stat.c-236-		goto orig_flow;
+fs/stat.c-237-
+fs/stat.c:238:	if (static_branch_likely(&ksu_su_compat_enabled)) {
+fs/stat.c:239:		if (unlikely(__ksu_is_allow_uid_for_current(current_uid().val)))
+fs/stat.c:240:			ksu_handle_stat(&dfd, &fname, &flags);
+fs/stat.c-241-	}
+fs/stat.c-242-
+fs/stat.c-243-orig_flow:
+fs/stat.c-244-	error = filename_lookup(dfd, fname, lookup_flags, &path, NULL);
+fs/stat.c-245-	// no putname(fname) here as filename_lookup() has it done for us already;
+--
+fs/statfs.c-7-#include <linux/namei.h>
+fs/statfs.c-8-#include <linux/statfs.h>
+fs/statfs.c-9-#include <linux/security.h>
+fs/statfs.c-10-#include <linux/uaccess.h>
+fs/statfs.c-11-#include <linux/compat.h>
+fs/statfs.c:12:#ifdef CONFIG_KSU_SUSFS
+fs/statfs.c:13:#include <linux/susfs_def.h>
+fs/statfs.c-14-#include "mount.h"
+fs/statfs.c:15:#endif // #ifdef CONFIG_KSU_SUSFS
+fs/statfs.c-16-#include "internal.h"
+fs/statfs.c-17-
+fs/statfs.c-18-static int flags_by_mnt(int mnt_flags)
+fs/statfs.c-19-{
+fs/statfs.c-20-	int flags = 0;
+--
+fs/statfs.c-69-	if (retval == 0 && buf->f_frsize == 0)
+fs/statfs.c-70-		buf->f_frsize = buf->f_bsize;
+fs/statfs.c-71-	return retval;
+fs/statfs.c-72-}
+fs/statfs.c-73-
+fs/statfs.c:74:#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/statfs.c:75:extern bool susfs_is_inode_sus_kstat(struct inode *inode, bool *out_is_fuse);
+fs/statfs.c:76:extern int susfs_sus_kstat_spoof_vfs_statfs(struct inode *inode, struct kstatfs *buf, bool *is_fuse);
+fs/statfs.c:77:#endif // #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/statfs.c:78:#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+fs/statfs.c:79:extern struct vfsmount *susfs_get_non_sus_vfsmnt_from_vfsmnt(struct vfsmount *vfsmnt);
+fs/statfs.c:80:#endif //#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+fs/statfs.c-81-
+fs/statfs.c:82:#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/statfs.c-83-int statfs_by_dentry_wrapper(struct dentry *dentry, struct kstatfs *buf){
+fs/statfs.c-84-	return statfs_by_dentry(dentry, buf);
+fs/statfs.c-85-}
+fs/statfs.c-86-
+fs/statfs.c-87-int calculate_f_flags_wrapper(struct vfsmount *mnt)
+fs/statfs.c-88-{
+fs/statfs.c-89-	return calculate_f_flags(mnt);
+fs/statfs.c-90-}
+fs/statfs.c-91-
+fs/statfs.c:92:static int susfs_statfs_by_dentry(struct dentry *dentry, struct vfsmount *mnt, struct kstatfs *buf, bool *is_fuse)
+fs/statfs.c-93-{
+fs/statfs.c-94-	int retval;
+fs/statfs.c-95-
+fs/statfs.c-96-	if (!dentry->d_sb->s_op->statfs)
+fs/statfs.c-97-		return -ENOSYS;
+fs/statfs.c-98-
+fs/statfs.c-99-	memset(buf, 0, sizeof(*buf));
+fs/statfs.c-100-	retval = security_sb_statfs(dentry);
+fs/statfs.c-101-	if (retval)
+fs/statfs.c-102-		return retval;
+fs/statfs.c:103:	if (!susfs_sus_kstat_spoof_vfs_statfs(d_backing_inode(dentry), buf, is_fuse)) {
+fs/statfs.c-104-		if (buf->f_frsize == 0)
+fs/statfs.c-105-			buf->f_frsize = buf->f_bsize;
+fs/statfs.c-106-		return retval;
+fs/statfs.c-107-	}
+fs/statfs.c-108-	retval = dentry->d_sb->s_op->statfs(dentry, buf);
+--
+fs/statfs.c-111-		if (buf->f_frsize == 0)
+fs/statfs.c-112-			buf->f_frsize = buf->f_bsize;
+fs/statfs.c-113-	}
+fs/statfs.c-114-	return retval;
+fs/statfs.c-115-}
+fs/statfs.c:116:#endif // #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/statfs.c-117-
+fs/statfs.c-118-int vfs_statfs(const struct path *path, struct kstatfs *buf)
+fs/statfs.c-119-{
+fs/statfs.c-120-	int error;
+fs/statfs.c:121:#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/statfs.c:122:	if (susfs_is_current_app_uid()) {
+fs/statfs.c-123-		struct inode *inode = d_backing_inode(path->dentry);
+fs/statfs.c-124-		bool is_fuse = false;
+fs/statfs.c:125:		if (susfs_is_inode_sus_kstat(inode, &is_fuse)) {
+fs/statfs.c-126-			// - here we do not call calculate_f_flags() here as buf->f_flags on the
+fs/statfs.c:127:			/

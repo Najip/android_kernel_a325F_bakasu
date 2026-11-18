@@ -1,0 +1,244 @@
+-ECHILD))
+fs/namei.c-1843-			/* we'd been told to redo it in non-rcu mode */
+fs/namei.c-1844-			status = d_revalidate(dentry, nd->flags);
+fs/namei.c-1845-	} else {
+fs/namei.c-1846-		dentry = __d_lookup(parent, &nd->last);
+fs/namei.c:1847:#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+fs/namei.c-1848-		if (is_nd_state_lookup_last_and_open_last && dentry && !IS_ERR(dentry) && dentry->d_inode &&
+fs/namei.c:1849:			susfs_is_inode_sus_path(dentry->d_inode))
+fs/namei.c-1850-		{
+fs/namei.c-1851-			if (d_in_lookup(dentry))
+fs/namei.c-1852-				d_lookup_done(dentry);
+fs/namei.c-1853-			dput(dentry);
+fs/namei.c-1854-			dentry = NULL;
+--
+fs/namei.c-1883-				  unsigned int flags)
+fs/namei.c-1884-{
+fs/namei.c-1885-	struct dentry *dentry = ERR_PTR(-ENOENT), *old;
+fs/namei.c-1886-	struct inode *inode = dir->d_inode;
+fs/namei.c-1887-	DECLARE_WAIT_QUEUE_HEAD_ONSTACK(wq);
+fs/namei.c:1888:#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+fs/namei.c-1889-	bool found_sus_path = false;
+fs/namei.c-1890-	bool is_nd_flags_lookup_last = (flags & ND_FLAGS_LOOKUP_LAST);
+fs/namei.c-1891-#endif
+fs/namei.c-1892-
+fs/namei.c-1893-	inode_lock_shared(inode);
+fs/namei.c-1894-	/* Don't go there if it's already dead */
+fs/namei.c-1895-	if (unlikely(IS_DEADDIR(inode)))
+fs/namei.c-1896-		goto out;
+fs/namei.c-1897-again:
+fs/namei.c-1898-	dentry = d_alloc_parallel(dir, name, &wq);
+fs/namei.c:1899:#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+fs/namei.c-1900-retry:
+fs/namei.c-1901-#endif
+fs/namei.c-1902-	if (IS_ERR(dentry))
+fs/namei.c-1903-		goto out;
+fs/namei.c-1904-	if (unlikely(!d_in_lookup(dentry))) {
+--
+fs/namei.c-1906-			int error = d_revalidate(dentry, flags);
+fs/namei.c-1907-			if (unlikely(error <= 0)) {
+fs/namei.c-1908-				if (!error) {
+fs/namei.c-1909-					d_invalidate(dentry);
+fs/namei.c-1910-					dput(dentry);
+fs/namei.c:1911:#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+fs/namei.c-1912-					if (found_sus_path) {
+fs/namei.c:1913:						dentry = d_alloc_parallel(dir, &susfs_fake_qstr_name, &wq);
+fs/namei.c-1914-						goto retry;
+fs/namei.c-1915-					}
+fs/namei.c-1916-#endif
+fs/namei.c-1917-					goto again;
+fs/namei.c-1918-				}
+--
+fs/namei.c-1926-		if (unlikely(old)) {
+fs/namei.c-1927-			dput(dentry);
+fs/namei.c-1928-			dentry = old;
+fs/namei.c-1929-		}
+fs/namei.c-1930-	}
+fs/namei.c:1931:#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+fs/namei.c-1932-	if (is_nd_flags_lookup_last && !found_sus_path && dentry && !IS_ERR(dentry) && dentry->d_inode &&
+fs/namei.c:1933:		susfs_is_inode_sus_path(dentry->d_inode))
+fs/namei.c-1934-	{
+fs/namei.c-1935-		if (d_in_lookup(dentry))
+fs/namei.c-1936-			d_lookup_done(dentry);
+fs/namei.c-1937-		if (!(flags & LOOKUP_RCU))
+fs/namei.c-1938-			dput(dentry);
+fs/namei.c:1939:		dentry = d_alloc_parallel(dir, &susfs_fake_qstr_name, &wq);
+fs/namei.c-1940-		found_sus_path = true;
+fs/namei.c-1941-		goto retry;
+fs/namei.c-1942-	}
+fs/namei.c-1943-#endif
+fs/namei.c-1944-out:
+--
+fs/namei.c-2061-	}
+fs/namei.c-2062-	err = lookup_fast(nd, &path, &inode, &seq);
+fs/namei.c-2063-	if (unlikely(err <= 0)) {
+fs/namei.c-2064-		if (err < 0)
+fs/namei.c-2065-			return err;
+fs/namei.c:2066:#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+fs/namei.c-2067-		if (nd->state & ND_STATE_LOOKUP_LAST) {
+fs/namei.c-2068-			nd->flags |= ND_FLAGS_LOOKUP_LAST;
+fs/namei.c-2069-		}
+fs/namei.c-2070-#endif
+fs/namei.c-2071-		path.dentry = lookup_slow(&nd->last, nd->path.dentry,
+--
+fs/namei.c-2342-
+fs/namei.c-2343-		err = may_lookup(nd);
+fs/namei.c-2344-		if (err)
+fs/namei.c-2345-			return err;
+fs/namei.c-2346-
+fs/namei.c:2347:#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+fs/namei.c-2348-		{
+fs/namei.c-2349-			struct dentry *dentry = nd->path.dentry;
+fs/namei.c:2350:			if (dentry->d_inode && susfs_is_inode_sus_path(dentry->d_inode)) {
+fs/namei.c-2351-				// - No need to dput() here
+fs/namei.c-2352-				// - return -ENOENT here since it is walking the sub path of sus path
+fs/namei.c-2353-				return -ENOENT;
+fs/namei.c-2354-			}
+fs/namei.c-2355-		}
+--
+fs/namei.c-2543-
+fs/namei.c-2544-static inline int lookup_last(struct nameidata *nd)
+fs/namei.c-2545-{
+fs/namei.c-2546-	if (nd->last_type == LAST_NORM && nd->last.name[nd->last.len])
+fs/namei.c-2547-		nd->flags |= LOOKUP_FOLLOW | LOOKUP_DIRECTORY;
+fs/namei.c:2548:#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+fs/namei.c-2549-	nd->state |= ND_STATE_LOOKUP_LAST;
+fs/namei.c-2550-#endif
+fs/namei.c-2551-
+fs/namei.c-2552-	nd->flags &= ~LOOKUP_PARENT;
+fs/namei.c-2553-	return walk_component(nd, 0);
+--
+fs/namei.c-3436-	int open_flag = op->open_flag;
+fs/namei.c-3437-	struct dentry *dentry;
+fs/namei.c-3438-	int error, create_error = 0;
+fs/namei.c-3439-	umode_t mode = op->mode;
+fs/namei.c-3440-	DECLARE_WAIT_QUEUE_HEAD_ONSTACK(wq);
+fs/namei.c:3441:#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+fs/namei.c-3442-	bool found_sus_path = false;
+fs/namei.c-3443-	bool is_nd_state_open_last = (nd->state & ND_STATE_OPEN_LAST);
+fs/namei.c-3444-#endif
+fs/namei.c-3445-
+fs/namei.c-3446-	if (unlikely(IS_DEADDIR(dir_inode)))
+fs/namei.c-3447-		return -ENOENT;
+fs/namei.c-3448-
+fs/namei.c-3449-	*opened &= ~FILE_CREATED;
+fs/namei.c-3450-	dentry = d_lookup(dir, &nd->last);
+fs/namei.c:3451:#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+fs/namei.c-3452-	if (is_nd_state_open_last && dentry && !IS_ERR(dentry) && dentry->d_inode &&
+fs/namei.c:3453:		susfs_is_inode_sus_path(dentry->d_inode))
+fs/namei.c-3454-	{
+fs/namei.c-3455-		if (d_in_lookup(dentry))
+fs/namei.c-3456-			d_lookup_done(dentry);
+fs/namei.c-3457-		dput(dentry);
+fs/namei.c-3458-		dentry = NULL;
+fs/namei.c-3459-		found_sus_path = true;
+fs/namei.c-3460-	}
+fs/namei.c-3461-#endif
+fs/namei.c-3462-	for (;;) {
+fs/namei.c-3463-		if (!dentry) {
+fs/namei.c:3464:#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+fs/namei.c-3465-			if (found_sus_path) {
+fs/namei.c:3466:				dentry = d_alloc_parallel(dir, &susfs_fake_qstr_name, &wq);
+fs/namei.c-3467-				goto skip_orig_flow;
+fs/namei.c-3468-			}
+fs/namei.c-3469-#endif
+fs/namei.c-3470-			dentry = d_alloc_parallel(dir, &nd->last, &wq);
+fs/namei.c:3471:#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+fs/namei.c-3472-skip_orig_flow:
+fs/namei.c-3473-#endif
+fs/namei.c-3474-			if (IS_ERR(dentry))
+fs/namei.c-3475-				return PTR_ERR(dentry);
+fs/namei.c-3476-		}
+--
+fs/namei.c-3594-	unsigned seq;
+fs/namei.c-3595-	struct inode *inode;
+fs/namei.c-3596-	struct path path;
+fs/namei.c-3597-	int error;
+fs/namei.c-3598-
+fs/namei.c:3599:#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+fs/namei.c-3600-	nd->state |= ND_STATE_OPEN_LAST;
+fs/namei.c-3601-#endif
+fs/namei.c-3602-
+fs/namei.c-3603-	nd->flags &= ~LOOKUP_PARENT;
+fs/namei.c-3604-	nd->flags |= op->intent;
+--
+fs/namei.c-3813-
+fs/namei.c-3814-static int do_tmpfile(struct nameidata *nd, unsigned flags,
+fs/namei.c-3815-		const struct open_flags *op,
+fs/namei.c-3816-		struct file *file, int *opened)
+fs/namei.c-3817-{
+fs/namei.c:3818:#ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
+fs/namei.c-3819-	int old_dfd = nd->dfd;
+fs/namei.c-3820-	struct filename *fake_filename = NULL;
+fs/namei.c:3821:#endif // #ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
+fs/namei.c-3822-	struct dentry *child;
+fs/namei.c-3823-	struct path path;
+fs/namei.c-3824-	int error = path_lookupat(nd, flags | LOOKUP_DIRECTORY, &path);
+fs/namei.c-3825-
+fs/namei.c:3826:#ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
+fs/namei.c-3827-	if ((likely(!error) && old_dfd != -1) &&
+fs/namei.c:3828:		SUSFS_IS_INODE_OPEN_REDIRECT_WITHOUT_UID_CHECK(path.dentry->d_inode))
+fs/namei.c-3829-	{
+fs/namei.c:3830:		fake_filename = susfs_open_redirect_spoof_do_sys_openat(path.dentry->d_inode);
+fs/namei.c-3831-		if (fake_filename && !IS_ERR(fake_filename)) {
+fs/namei.c-3832-			struct path fake_path;
+fs/namei.c-3833-
+fs/namei.c-3834-			/* filename_lookup() consumes fake_filename */
+fs/namei.c-3835-			error = filename_lookup(old_dfd, fake_filename, flags | LOOKUP_DIRECTORY, &fake_path, NULL);
+--
+fs/namei.c-3837-			if (unlikely(error))
+fs/namei.c-3838-				return error;
+fs/namei.c-3839-			path = fake_path;
+fs/namei.c-3840-		}
+fs/namei.c-3841-	}
+fs/namei.c:3842:#endif // #ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
+fs/namei.c-3843-	if (unlikely(error))
+fs/namei.c-3844-		return error;
+fs/namei.c-3845-	error = mnt_want_write(path.mnt);
+fs/namei.c-3846-	if (unlikely(error))
+fs/namei.c-3847-		goto out;
+--
+fs/namei.c-3870-	return error;
+fs/namei.c-3871-}
+fs/namei.c-3872-
+fs/namei.c-3873-static int do_o_path(struct nameidata *nd, unsigned flags, struct file *file)
+fs/namei.c-3874-{
+fs/namei.c:3875:#ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
+fs/namei.c-3876-	int old_dfd = nd->dfd;
+fs/namei.c-3877-	struct filename *fake_filename = NULL;
+fs/namei.c:3878:#endif // #ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
+fs/namei.c-3879-	struct path path;
+fs/namei.c-3880-	int error = path_lookupat(nd, flags, &path);
+fs/namei.c-3881-	if (!error) {
+fs/namei.c:3882:#ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
+fs/namei.c-3883-		if (old_dfd != -1 &&
+fs/namei.c:3884:			SUSFS_IS_INODE_OPEN_REDIRECT_WITHOUT_UID_CHECK(path.dentry->d_inode))
+fs/namei.c-3885-		{
+fs/namei.c:3886:			fake_filename = susfs_open_redirect_spoof_do_sys_openat(path.dentry->d_inode);
+fs/namei.c-3887-			if (fake_filename && !IS_ERR(fake_filename)) {
+fs/namei.c-3888-				struct path fake_path;
+fs/namei.c-3889-
+fs/namei.c-3890-				/* filename_lookup() consumes fake_filename */
+fs/namei.c-3891-				error = filename_lookup(old_dfd, fake_filename, flags, &fake_path, NULL);
+--
+fs/namei.c-3893-				if (unlikely(error))
+fs/namei.c-3894-					return error;
+fs/namei.c-3895-				path = fake_path;
+fs/namei.c-3896-			}
+fs/namei.c-3897-		}
+fs/namei.c:3898:#endif // #ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
+fs/namei.c-3899-		audit_inode(nd->name, path.dentry, 0);
+fs/namei.c-3900-		error = vfs_open(&path, file);
+fs/namei.c-3901-		path_put(&path);
+fs/namei.c-3902-	}
+fs/namei.c-3903-	return error;
+fs/namei.c-3904-}
+fs/namei.c-3905-
+fs/namei.c-3906-static struct file *path_openat(struct nameidata *nd,
+fs/namei.c-3907-			const struct open_flags *op, unsigned flags)
+fs/namei.c-3908-{
+fs/namei.c:3909:#ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
+fs/namei.c-3910-	int old_dfd = nd->dfd;
+fs/namei.c-3911-	struct filename *fake_filename = NULL;
+fs/namei.c-3912-	struct filename *old_name = nd->name;
+fs/namei.c:3913:#endif // #ifdef CONFIG

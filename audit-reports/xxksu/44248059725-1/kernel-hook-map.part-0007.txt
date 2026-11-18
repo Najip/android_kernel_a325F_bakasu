@@ -1,0 +1,202 @@
+uct mount *orig_mnt);
+fs/proc/fd.c:25:#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+fs/proc/fd.c-26-
+fs/proc/fd.c:27:#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/proc/fd.c:28:extern bool susfs_is_inode_sus_kstat(struct inode *inode, bool *out_is_fuse);
+fs/proc/fd.c:29:extern void susfs_sus_kstat_spoof_proc_fd_seq_show(int *out_target_mnt_id, unsigned long *out_target_ino, dev_t target_dev);
+fs/proc/fd.c:30:#endif // #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/proc/fd.c-31-static int seq_show(struct seq_file *m, void *v)
+fs/proc/fd.c-32-{
+fs/proc/fd.c-33-	struct files_struct *files = NULL;
+fs/proc/fd.c-34-	int f_flags = 0, ret = -ENOENT;
+fs/proc/fd.c-35-	struct file *file = NULL;
+--
+fs/proc/fd.c-62-	}
+fs/proc/fd.c-63-
+fs/proc/fd.c-64-	if (ret)
+fs/proc/fd.c-65-		return ret;
+fs/proc/fd.c-66-
+fs/proc/fd.c:67:#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/proc/fd.c:68:	if (susfs_is_current_app_uid()) {
+fs/proc/fd.c-69-		struct inode *inode = file_inode(file);
+fs/proc/fd.c-70-		bool is_fuse = false;
+fs/proc/fd.c:71:		if (susfs_is_inode_sus_kstat(inode, &is_fuse)) {
+fs/proc/fd.c-72-			int mnt_id = real_mount(file->f_path.mnt)->mnt_id;
+fs/proc/fd.c-73-			unsigned long ino = inode->i_ino;
+fs/proc/fd.c:74:			susfs_sus_kstat_spoof_proc_fd_seq_show(&mnt_id, &ino, inode->i_sb->s_dev);
+fs/proc/fd.c-75-			seq_printf(m, "pos:\t%lli\nflags:\t0%o\nmnt_id:\t%i\nino:\t%lu\n",
+fs/proc/fd.c-76-					(long long)file->f_pos, f_flags,
+fs/proc/fd.c-77-					mnt_id,
+fs/proc/fd.c-78-					ino);
+fs/proc/fd.c-79-			goto bypass_orig_flow;
+fs/proc/fd.c-80-		}
+fs/proc/fd.c-81-	}
+fs/proc/fd.c:82:#endif // #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/proc/fd.c-83-
+fs/proc/fd.c:84:#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+fs/proc/fd.c:85:	if (likely(susfs_is_current_proc_umounted())) {
+fs/proc/fd.c-86-		struct mount *mnt = real_mount(file->f_path.mnt);
+fs/proc/fd.c:87:		if (mnt->mnt_id >= DEFAULT_KSU_MNT_ID) {
+fs/proc/fd.c-88-			struct path path;
+fs/proc/fd.c-89-			char *pathname = kmalloc(PAGE_SIZE, GFP_KERNEL);
+fs/proc/fd.c-90-			char *dpath;
+fs/proc/fd.c-91-
+fs/proc/fd.c-92-			if (!pathname) {
+--
+fs/proc/fd.c-103-				goto out_path_put;
+fs/proc/fd.c-104-			}
+fs/proc/fd.c-105-
+fs/proc/fd.c-106-			seq_printf(m, "pos:\t%lli\nflags:\t0%o\nmnt_id:\t%i\nino:\t%lu\n",
+fs/proc/fd.c-107-					(long long)file->f_pos, f_flags,
+fs/proc/fd.c:108:					susfs_get_non_sus_mnt_id_from_mnt(mnt),
+fs/proc/fd.c-109-					d_backing_inode(path.dentry)->i_ino);
+fs/proc/fd.c-110-			path_put(&path);
+fs/proc/fd.c-111-			kfree(pathname);
+fs/proc/fd.c-112-			goto bypass_orig_flow;
+fs/proc/fd.c-113-out_path_put:
+--
+fs/proc/fd.c-116-			kfree(pathname);
+fs/proc/fd.c-117-			goto orig_flow;
+fs/proc/fd.c-118-		}
+fs/proc/fd.c-119-	}
+fs/proc/fd.c-120-orig_flow:
+fs/proc/fd.c:121:#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+fs/proc/fd.c-122-
+fs/proc/fd.c-123-	seq_printf(m, "pos:\t%lli\nflags:\t0%o\nmnt_id:\t%i\n",
+fs/proc/fd.c-124-		   (long long)file->f_pos, f_flags,
+fs/proc/fd.c-125-		   real_mount(file->f_path.mnt)->mnt_id);
+fs/proc/fd.c-126-
+fs/proc/fd.c:127:#if defined(CONFIG_KSU_SUSFS_SUS_MOUNT) || defined(CONFIG_KSU_SUSFS_SUS_KSTAT)
+fs/proc/fd.c-128-bypass_orig_flow:
+fs/proc/fd.c:129:#endif // #if defined(CONFIG_KSU_SUSFS_SUS_MOUNT) || defined(CONFIG_KSU_SUSFS_SUS_KSTAT)
+fs/proc/fd.c-130-	show_fd_locks(m, file, files);
+fs/proc/fd.c-131-	if (seq_has_overflowed(m))
+fs/proc/fd.c-132-		goto out;
+fs/proc/fd.c-133-
+fs/proc/fd.c-134-	if (file->f_op->show_fdinfo)
+--
+fs/proc/task_mmu.c-17-#include <linux/mmu_notifier.h>
+fs/proc/task_mmu.c-18-#include <linux/page_idle.h>
+fs/proc/task_mmu.c-19-#include <linux/shmem_fs.h>
+fs/proc/task_mmu.c-20-#include <linux/uaccess.h>
+fs/proc/task_mmu.c-21-#include <linux/mm_inline.h>
+fs/proc/task_mmu.c:22:#if defined(CONFIG_KSU_SUSFS_SUS_KSTAT) || defined(CONFIG_KSU_SUSFS_SUS_MAP) || defined(CONFIG_KSU_SUSFS_OPEN_REDIRECT)
+fs/proc/task_mmu.c:23:#include <linux/susfs_def.h>
+fs/proc/task_mmu.c:24:#endif // #if defined(CONFIG_KSU_SUSFS_SUS_KSTAT) || defined(CONFIG_KSU_SUSFS_SUS_MAP) || defined(CONFIG_KSU_SUSFS_OPEN_REDIRECT)
+fs/proc/task_mmu.c-25-#include <linux/freezer.h>
+fs/proc/task_mmu.c-26-
+fs/proc/task_mmu.c-27-#include <asm/elf.h>
+fs/proc/task_mmu.c-28-#include <asm/tlb.h>
+fs/proc/task_mmu.c-29-#include <asm/tlbflush.h>
+--
+fs/proc/task_mmu.c-362-		   flags & VM_MAYSHARE ? 's' : 'p',
+fs/proc/task_mmu.c-363-		   pgoff,
+fs/proc/task_mmu.c-364-		   MAJOR(dev), MINOR(dev), ino);
+fs/proc/task_mmu.c-365-}
+fs/proc/task_mmu.c-366-
+fs/proc/task_mmu.c:367:#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/proc/task_mmu.c:368:extern void susfs_sus_kstat_spoof_show_map_vma(struct inode *inode, dev_t *out_dev, unsigned long *out_ino);
+fs/proc/task_mmu.c:369:#endif // #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/proc/task_mmu.c:370:#ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
+fs/proc/task_mmu.c:371:extern struct srcu_struct susfs_srcu_open_redirect;
+fs/proc/task_mmu.c:372:extern int susfs_open_redirect_spoof_show_map_vma_srcu(struct inode *inode, unsigned long *out_ino, dev_t *out_dev, char **out_spoofed_name);
+fs/proc/task_mmu.c:373:#endif // #ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
+fs/proc/task_mmu.c-374-
+fs/proc/task_mmu.c-375-static void
+fs/proc/task_mmu.c-376-show_map_vma(struct seq_file *m, struct vm_area_struct *vma)
+fs/proc/task_mmu.c-377-{
+fs/proc/task_mmu.c-378-	struct mm_struct *mm = vma->vm_mm;
+--
+fs/proc/task_mmu.c-384-	dev_t dev = 0;
+fs/proc/task_mmu.c-385-	const char *name = NULL;
+fs/proc/task_mmu.c-386-
+fs/proc/task_mmu.c-387-	if (file) {
+fs/proc/task_mmu.c-388-		struct inode *inode = file_inode(vma->vm_file);
+fs/proc/task_mmu.c:389:#ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
+fs/proc/task_mmu.c:390:		if (SUSFS_IS_INODE_OPEN_REDIRECT(inode)) {
+fs/proc/task_mmu.c-391-			char *spoofed_redirected_name = NULL;
+fs/proc/task_mmu.c:392:			int srcu_idx = srcu_read_lock(&susfs_srcu_open_redirect);
+fs/proc/task_mmu.c:393:			int ret = susfs_open_redirect_spoof_show_map_vma_srcu(inode, &ino, &dev, &spoofed_redirected_name);
+fs/proc/task_mmu.c-394-			if (!ret) {
+fs/proc/task_mmu.c-395-				pgoff = ((loff_t)vma->vm_pgoff) << PAGE_SHIFT;
+fs/proc/task_mmu.c-396-				start = vma->vm_start;
+fs/proc/task_mmu.c-397-				end = vma->vm_end;
+fs/proc/task_mmu.c-398-				show_vma_header_prefix(m, start, end, flags, pgoff, dev, ino);
+fs/proc/task_mmu.c-399-				seq_pad(m, ' ');
+fs/proc/task_mmu.c-400-				if (spoofed_redirected_name)
+fs/proc/task_mmu.c-401-					seq_puts(m, spoofed_redirected_name);
+fs/proc/task_mmu.c-402-				seq_putc(m, '\n');
+fs/proc/task_mmu.c:403:				srcu_read_unlock(&susfs_srcu_open_redirect, srcu_idx);
+fs/proc/task_mmu.c-404-				return;
+fs/proc/task_mmu.c-405-			}
+fs/proc/task_mmu.c:406:			srcu_read_unlock(&susfs_srcu_open_redirect, srcu_idx);
+fs/proc/task_mmu.c-407-		}
+fs/proc/task_mmu.c:408:#endif // #ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
+fs/proc/task_mmu.c:409:#ifdef CONFIG_KSU_SUSFS_SUS_MAP
+fs/proc/task_mmu.c:410:		if (SUSFS_IS_INODE_SUS_MAP(inode))
+fs/proc/task_mmu.c-411-			return;
+fs/proc/task_mmu.c:412:#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MAP
+fs/proc/task_mmu.c-413-		dev = inode->i_sb->s_dev;
+fs/proc/task_mmu.c-414-		ino = inode->i_ino;
+fs/proc/task_mmu.c-415-		pgoff = ((loff_t)vma->vm_pgoff) << PAGE_SHIFT;
+fs/proc/task_mmu.c:416:#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/proc/task_mmu.c:417:		susfs_sus_kstat_spoof_show_map_vma(inode, &dev, &ino);
+fs/proc/task_mmu.c:418:#endif // #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+fs/proc/task_mmu.c-419-	}
+fs/proc/task_mmu.c-420-
+fs/proc/task_mmu.c-421-	start = vma->vm_start;
+fs/proc/task_mmu.c-422-	end = vma->vm_end;
+fs/proc/task_mmu.c-423-	show_vma_header_prefix(m, start, end, flags, pgoff, dev, ino);
+--
+fs/proc/task_mmu.c-838-		.hugetlb_entry = smaps_hugetlb_range,
+fs/proc/task_mmu.c-839-#endif
+fs/proc/task_mmu.c-840-		.mm = vma->vm_mm,
+fs/proc/task_mmu.c-841-	};
+fs/proc/task_mmu.c-842-
+fs/proc/task_mmu.c:843:#ifdef CONFIG_KSU_SUSFS_SUS_MAP
+fs/proc/task_mmu.c:844:	if (vma->vm_file && SUSFS_IS_INODE_SUS_MAP(file_inode(vma->vm_file)))
+fs/proc/task_mmu.c-845-		return;
+fs/proc/task_mmu.c-846-#endif
+fs/proc/task_mmu.c-847-
+fs/proc/task_mmu.c-848-	smaps_walk.private = mss;
+fs/proc/task_mmu.c-849-
+--
+fs/proc/task_mmu.c-925-	struct vm_area_struct *vma = v;
+fs/proc/task_mmu.c-926-	struct mem_size_stats mss;
+fs/proc/task_mmu.c-927-
+fs/proc/task_mmu.c-928-	memset(&mss, 0, sizeof(mss));
+fs/proc/task_mmu.c-929-
+fs/proc/task_mmu.c:930:#ifdef CONFIG_KSU_SUSFS_SUS_MAP
+fs/proc/task_mmu.c:931:	if (vma->vm_file && SUSFS_IS_INODE_SUS_MAP(file_inode(vma->vm_file)))
+fs/proc/task_mmu.c-932-		return 0;
+fs/proc/task_mmu.c-933-#endif
+fs/proc/task_mmu.c-934-
+fs/proc/task_mmu.c-935-	smap_gather_stats(vma, &mss);
+fs/proc/task_mmu.c-936-
+--
+fs/proc/task_mmu.c-1730-	 */
+fs/proc/task_mmu.c-1731-	ret = 0;
+fs/proc/task_mmu.c-1732-	while (count && (start_vaddr < end_vaddr)) {
+fs/proc/task_mmu.c-1733-		int len;
+fs/proc/task_mmu.c-1734-		unsigned long end;
+fs/proc/task_mmu.c:1735:#ifdef CONFIG_KSU_SUSFS_SUS_MAP
+fs/proc/task_mmu.c-1736-		struct vm_area_struct *vma;
+fs/proc/task_mmu.c:1737:#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MAP
+fs/proc/task_mmu.c-1738-
+fs/proc/task_mmu.c-1739-		pm.pos = 0;
+fs/proc/task_mmu.c-1740-		end = (start_vaddr + PAGEMAP_WALK_SIZE) & PAGEMAP_WALK_MASK;
+fs/proc/task_mmu.c-1741-		/* overflow ? */
+fs/proc/task_mmu.c-1742-		if (end < start_vaddr || end > end_vaddr)
+fs/proc/task_mmu.c-1743-			end = end_vaddr;
+fs/proc/task_mmu.c-1744-		down_read(&mm->mmap_sem);
+fs/proc/task_mmu.c:1745:#ifdef CONFIG_KSU_SUSFS_SUS_MAP
+fs/proc/task_mmu.c-1746-		vma = find_vma(mm, start_vaddr);
+fs/proc/task_mmu.c:1747:		if (vma && vma->vm_file && SUSFS_IS_INODE_SUS_MAP(file_inode(vma->vm_file)))
+fs/proc/task_mmu.c-1748-			goto bypass_orig_flow;
+fs/proc/task_mmu.c:1749:#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MAP
+fs/proc/task_mmu.c-1750-		ret = walk_page_range(start_vaddr, end, &pagemap_walk);
+fs/proc/task_mmu.c:1751:#ifdef CONFIG_KSU_SUSFS_SUS_MAP
+fs/proc/task_mmu.c-1752-bypass_orig_flow:
+fs/proc/task_mmu.c:1753:#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MAP
+fs/proc/task_mmu.c-1754-		up_read(&mm->mmap_sem);
+fs/proc/task_mmu.c-1755-		start_vaddr = end;

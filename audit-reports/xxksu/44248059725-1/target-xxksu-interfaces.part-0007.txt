@@ -1,0 +1,194 @@
+failed!\n");
+kernel/ksu.c-256-		return -ENOSYS;
+kernel/ksu.c-257-	}
+kernel/ksu.c-258-
+kernel/ksu.c-259-	// register features
+--
+kernel/ksu.c-318-	ksu_late_loaded = true;
+kernel/ksu.c-319-
+kernel/ksu.c-320-	stop_init_rc_hook();
+kernel/ksu.c-321-	apply_kernelsu_rules();
+kernel/ksu.c-322-	cache_sid();
+kernel/ksu.c:323:	setup_ksu_cred();
+kernel/ksu.c-324-	escape_to_root_forced();
+kernel/ksu.c-325-
+kernel/ksu.c-326-	track_throne(false);
+kernel/ksu.c:327:	on_post_fs_data();
+kernel/ksu.c:328:	on_boot_completed();
+kernel/ksu.c-329-
+kernel/ksu.c-330-	ksu_feature_apply_forced();
+kernel/ksu.c-331-	kthread_run(ksu_disable_preinit_branch, nullptr, "kthread");
+kernel/ksu.c-332-
+kernel/ksu.c-333-	if (!!getenforce())
+--
+kernel/policy/allowlist.c-231-
+kernel/policy/allowlist.c-232-bool ksu_is_uid_granted_root(uid_t uid)
+kernel/policy/allowlist.c-233-{
+kernel/policy/allowlist.c-234-	if (unlikely(uid == 0)) {
+kernel/policy/allowlist.c-235-		// already root, but only allow our domain.
+kernel/policy/allowlist.c:236:		return is_ksu_domain();
+kernel/policy/allowlist.c-237-	}
+kernel/policy/allowlist.c-238-	return __ksu_is_allow_uid(uid);
+kernel/policy/allowlist.c-239-}
+kernel/policy/allowlist.c-240-
+kernel/policy/allowlist.c-241-bool __ksu_is_allow_uid_for_current(uid_t uid)
+--
+kernel/policy/allowlist.c-360-	u32 version = FILE_FORMAT_VERSION;
+kernel/policy/allowlist.c-361-	struct perm_data *p = NULL;
+kernel/policy/allowlist.c-362-	loff_t off = 0;
+kernel/policy/allowlist.c-363-	int i;
+kernel/policy/allowlist.c-364-
+kernel/policy/allowlist.c:365:	const struct cred *saved = override_creds(ksu_cred);
+kernel/policy/allowlist.c-366-	struct file *fp = filp_open(KERNEL_SU_ALLOWLIST, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+kernel/policy/allowlist.c-367-	if (IS_ERR(fp)) {
+kernel/policy/allowlist.c-368-		pr_err("save_allow_list create file failed: %ld\n", PTR_ERR(fp));
+kernel/policy/allowlist.c-369-		goto out;
+kernel/policy/allowlist.c-370-	}
+--
+kernel/policy/allowlist.c-446-	u32 magic;
+kernel/policy/allowlist.c-447-	u32 version;
+kernel/policy/allowlist.c-448-	size_t app_profile_size;
+kernel/policy/allowlist.c-449-
+kernel/policy/allowlist.c-450-	// load allowlist now!
+kernel/policy/allowlist.c:451:	const struct cred *saved = override_creds(ksu_cred);
+kernel/policy/allowlist.c-452-	fp = filp_open(KERNEL_SU_ALLOWLIST, O_RDONLY, 0);
+kernel/policy/allowlist.c-453-	revert_creds(saved);
+kernel/policy/allowlist.c-454-	if (IS_ERR(fp)) {
+kernel/policy/allowlist.c-455-		pr_err("load_allow_list open file failed: %ld\n", PTR_ERR(fp));
+kernel/policy/allowlist.c-456-		return;
+--
+kernel/policy/app_profile.c-147-		memcpy(&cred->cap_ambient, &profile->capabilities.effective, sizeof(cred->cap_ambient));
+kernel/policy/app_profile.c-148-#endif
+kernel/policy/app_profile.c-149-	}
+kernel/policy/app_profile.c-150-
+kernel/policy/app_profile.c-151-	setup_groups(profile, cred);
+kernel/policy/app_profile.c:152:	setup_selinux(profile->selinux_domain, cred);
+kernel/policy/app_profile.c-153-
+kernel/policy/app_profile.c-154-	commit_creds(cred);
+kernel/policy/app_profile.c-155-
+kernel/policy/app_profile.c-156-	if (ksu_is_seccomp_enabled())
+kernel/policy/app_profile.c-157-		disable_seccomp();
+--
+kernel/preinit/runner/runner.c-425-        .addrs = (unsigned long)lookup_addrs,
+kernel/preinit/runner/runner.c-426-        .count = *n,
+kernel/preinit/runner/runner.c-427-        .flags = 0,
+kernel/preinit/runner/runner.c-428-    };
+kernel/preinit/runner/runner.c-429-    uint32_t i;
+kernel/preinit/runner/runner.c:430:    /* sys_ioctl returns -errno directly, otherwise the number found */
+kernel/preinit/runner/runner.c:431:    int ret = sys_ioctl(drv, KSU_IOCTL_LOOKUP_SYMBOLS, (unsigned long)&cmd);
+kernel/preinit/runner/runner.c-432-
+kernel/preinit/runner/runner.c-433-    if (ret < 0) {
+kernel/preinit/runner/runner.c-434-        klog("[%s] insmod %s: symbol lookup failed: %d", m->id, path, -ret);
+kernel/preinit/runner/runner.c-435-        return -1;
+kernel/preinit/runner/runner.c-436-    }
+--
+kernel/preinit/runner/runner_oot.h-27-#include <signal.h>
+kernel/preinit/runner/runner_oot.h-28-#include <sys/types.h>
+kernel/preinit/runner/runner_oot.h-29-#include <sys/stat.h>
+kernel/preinit/runner/runner_oot.h-30-#include <sys/wait.h>
+kernel/preinit/runner/runner_oot.h-31-#include <sys/mman.h>
+kernel/preinit/runner/runner_oot.h:32:#include <sys/ioctl.h>
+kernel/preinit/runner/runner_oot.h-33-#include <sys/syscall.h>
+kernel/preinit/runner/runner_oot.h-34-#include <elf.h>
+kernel/preinit/runner/runner_oot.h-35-#include <stdint.h>
+kernel/preinit/runner/runner_oot.h-36-#include <dirent.h>
+kernel/preinit/runner/runner_oot.h-37-
+--
+kernel/preinit/runner/runner_oot.h-63-#define small_rt_use_errno
+kernel/preinit/runner/runner_oot.h-64-#include "small_rt.h"
+kernel/preinit/runner/runner_oot.h-65-#define syscall __syscall
+kernel/preinit/runner/runner_oot.h-66-
+kernel/preinit/runner/runner_oot.h-67-#define sys_reboot(a, b, c, d)	syscall(SYS_reboot, a, b, c, d)
+kernel/preinit/runner/runner_oot.h:68:#define sys_ioctl(a, b, c)	syscall(SYS_ioctl, a, b, c)
+kernel/preinit/runner/runner_oot.h-69-#define getdents64(a, b, c)	syscall(SYS_getdents64, a, b, c)
+kernel/preinit/runner/runner_oot.h-70-#define fsync(fd)		syscall(SYS_fsync, fd)
+kernel/preinit/runner/runner_oot.h-71-#define chdir(path)		syscall(SYS_chdir, path)
+kernel/preinit/runner/runner_oot.h-72-#define setpgid(pid, pgid)	syscall(SYS_setpgid, pid, pgid)
+kernel/preinit/runner/runner_oot.h-73-#define execve(fn, arg, env)	syscall(SYS_execve, fn, arg, env)
+--
+kernel/runtime/boot_event.c-1-static bool ksu_module_mounted __read_mostly = false;
+kernel/runtime/boot_event.c-2-static bool ksu_boot_completed __read_mostly = false;
+kernel/runtime/boot_event.c-3-
+kernel/runtime/boot_event.c:4:void on_post_fs_data(void)
+kernel/runtime/boot_event.c-5-{
+kernel/runtime/boot_event.c-6-	static bool done = false;
+kernel/runtime/boot_event.c-7-	if (done) {
+kernel/runtime/boot_event.c:8:		pr_info("on_post_fs_data already done\n");
+kernel/runtime/boot_event.c-9-		return;
+kernel/runtime/boot_event.c-10-	}
+kernel/runtime/boot_event.c-11-	done = true;
+kernel/runtime/boot_event.c:12:	pr_info("on_post_fs_data!\n");
+kernel/runtime/boot_event.c-13-
+kernel/runtime/boot_event.c-14-	ksu_load_allow_list();
+kernel/runtime/boot_event.c-15-
+kernel/runtime/boot_event.c-16-	// Sanity check for safe mode only needs early-boot input samples.
+kernel/runtime/boot_event.c-17-	ksu_stop_input_hook_runtime();
+--
+kernel/runtime/boot_event.c-41-	ext4_unregister_sysfs(sb);
+kernel/runtime/boot_event.c-42-	path_put(&path);
+kernel/runtime/boot_event.c-43-	return 0;
+kernel/runtime/boot_event.c-44-}
+kernel/runtime/boot_event.c-45-
+kernel/runtime/boot_event.c:46:void on_module_mounted(void)
+kernel/runtime/boot_event.c-47-{
+kernel/runtime/boot_event.c:48:	pr_info("on_module_mounted!\n");
+kernel/runtime/boot_event.c-49-	ksu_module_mounted = true;
+kernel/runtime/boot_event.c-50-}
+kernel/runtime/boot_event.c-51-
+kernel/runtime/boot_event.c:52:void on_boot_completed(void)
+kernel/runtime/boot_event.c-53-{
+kernel/runtime/boot_event.c-54-	ksu_boot_completed = true;
+kernel/runtime/boot_event.c:55:	pr_info("on_boot_completed!\n");
+kernel/runtime/boot_event.c-56-	track_throne(true);
+kernel/runtime/boot_event.c-57-#ifdef CONFIG_KSU_HOSTSREDIRECT
+kernel/runtime/boot_event.c-58-	ksu_hostsredirect_init();
+kernel/runtime/boot_event.c-59-#endif
+kernel/runtime/boot_event.c-60-}
+--
+kernel/runtime/ksud_boot.h-1-#ifndef __KSU_H_KSUD_BOOT
+kernel/runtime/ksud_boot.h-2-#define __KSU_H_KSUD_BOOT
+kernel/runtime/ksud_boot.h-3-
+kernel/runtime/ksud_boot.h:4:void on_post_fs_data(void);
+kernel/runtime/ksud_boot.h:5:void on_module_mounted(void);
+kernel/runtime/ksud_boot.h:6:void on_boot_completed(void);
+kernel/runtime/ksud_boot.h-7-
+kernel/runtime/ksud_boot.h-8-bool ksu_is_safe_mode(void);
+kernel/runtime/ksud_boot.h-9-
+kernel/runtime/ksud_boot.h-10-int nuke_ext4_sysfs(const char* mnt);
+kernel/runtime/ksud_boot.h-11-
+--
+kernel/runtime/ksud_integration.c-86-
+kernel/runtime/ksud_integration.c-87-	if (loaded)
+kernel/runtime/ksud_integration.c-88-		return;
+kernel/runtime/ksud_integration.c-89-	loaded = true;
+kernel/runtime/ksud_integration.c-90- 
+kernel/runtime/ksud_integration.c:91:	old_cred = override_creds(ksu_cred);
+kernel/runtime/ksud_integration.c-92-
+kernel/runtime/ksud_integration.c-93-	f = open_module_rc(&path);
+kernel/runtime/ksud_integration.c-94-	if (IS_ERR(f)) {
+kernel/runtime/ksud_integration.c-95-		pr_info("module rc: open %s failed: %ld\n", path, PTR_ERR(f));
+kernel/runtime/ksud_integration.c-96-		goto out_revert_creds;
+--
+kernel/runtime/ksud_integration.c-333-	// since we already have domains, selinux is initialized, we can apply rules and shit
+kernel/runtime/ksud_integration.c-334-	// https://github.com/LineageOS/android_system_core_old/blob/ecbcdafc3/init/init.cpp#L669
+kernel/runtime/ksud_integration.c-335-	pr_info("%s: init.rc second stage, fp: 0x%lx \n", __func__, (uintptr_t)file);
+kernel/runtime/ksud_integration.c-336-	apply_kernelsu_rules();
+kernel/runtime/ksud_integration.c-337-	cache_sid();
+kernel/runtime/ksud_integration.c:338:	setup_ksu_cred();
+kernel/runtime/ksud_integration.c-339-	ksu_grab_init_session_keyring();
+kernel/runtime/ksud_integration.c-340-	ksu_feature_apply_forced();
+kernel/runtime/ksud_integration.c-341-
+kernel/runtime/ksud_integration.c-342-	// now we can sure that the init process is reading
+kernel/runtime/ksud_integration.c-343-	// `/system/etc/init/init.rc`
+--
+kernel/runtime/ksud_integration.c-365-
+kernel/runtime/ksud_integration.c-366-	return;
+kernel/runtime/ksud_integration.c-367-}
+kernel/runtime/ksud_integration.c-368-
+kernel/runtime/ksud_integration.c-369-// for sys_read kp / syscall table
+kernel/runtime/ksud_integration.c:370:static noinline void ksu_handle_sys_read_fd(unsigned int fd)
+kernel/runtime/ksud_integration.c-371-{
+kernel/runtime/ksud_integration.c-372-	if (likely(!ksu_vfs_read_hook))
+kernel/runtime/ksud_integration.c-373-		return;
+kernel/runtime/ksud_integration.c-374-
+kernel/runtime/ksud_

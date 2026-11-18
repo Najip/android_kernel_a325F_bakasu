@@ -1,0 +1,135 @@
+syscall_table_hook_arm.c:43:	ksu_handle_sys_reboot(magic1, magic2, cmd, arg);
+kernel/hook/syscall_table_hook_arm.c-44-	return sys_reboot(regs);
+kernel/hook/syscall_table_hook_arm.c-45-}
+kernel/hook/syscall_table_hook_arm.c-46-
+kernel/hook/syscall_table_hook_arm.c-47-static syscall_fn_t armeabi_execve __read_mostly = nullptr;
+kernel/hook/syscall_table_hook_arm.c-48-asmlinkage long hook_armeabi_execve(const struct pt_regs *regs)
+kernel/hook/syscall_table_hook_arm.c-49-{
+kernel/hook/syscall_table_hook_arm.c-50-	const char __user **filename = (const char __user **)&regs->regs[0];
+kernel/hook/syscall_table_hook_arm.c-51-	void ***argv = (void ***)&regs->regs[1];
+kernel/hook/syscall_table_hook_arm.c-52-	void ***envp = (void ***)&regs->regs[2];
+kernel/hook/syscall_table_hook_arm.c-53-
+kernel/hook/syscall_table_hook_arm.c:54:	ksu_handle_sys_execve(filename, argv, envp);
+kernel/hook/syscall_table_hook_arm.c-55-	return sys_execve(regs);
+kernel/hook/syscall_table_hook_arm.c-56-}
+kernel/hook/syscall_table_hook_arm.c-57-
+kernel/hook/syscall_table_hook_arm.c-58-static syscall_fn_t armeabi_execveat __read_mostly = nullptr;
+kernel/hook/syscall_table_hook_arm.c-59-asmlinkage long hook_armeabi_execveat(const struct pt_regs *regs)
+--
+kernel/hook/syscall_table_hook_arm.c-62-	const char __user **filename = (const char __user **)&regs->regs[1];
+kernel/hook/syscall_table_hook_arm.c-63-	void ***argv = (void ***)&regs->regs[2];
+kernel/hook/syscall_table_hook_arm.c-64-	void ***envp = (void ***)&regs->regs[3];
+kernel/hook/syscall_table_hook_arm.c-65-	int *flags = (int *)&regs->regs[4];
+kernel/hook/syscall_table_hook_arm.c-66-
+kernel/hook/syscall_table_hook_arm.c:67:	ksu_handle_sys_execveat(fd, filename, argv, envp, flags);
+kernel/hook/syscall_table_hook_arm.c-68-	return sys_execveat(regs);
+kernel/hook/syscall_table_hook_arm.c-69-}
+kernel/hook/syscall_table_hook_arm.c-70-
+kernel/hook/syscall_table_hook_arm.c-71-static syscall_fn_t armeabi_faccessat __read_mostly = nullptr;
+kernel/hook/syscall_table_hook_arm.c-72-asmlinkage long hook_armeabi_faccessat(const struct pt_regs *regs)
+kernel/hook/syscall_table_hook_arm.c-73-{
+kernel/hook/syscall_table_hook_arm.c-74-	const char __user **filename = (const char __user **)&regs->regs[1];
+kernel/hook/syscall_table_hook_arm.c-75-
+kernel/hook/syscall_table_hook_arm.c:76:	ksu_handle_faccessat(NULL, filename, NULL, NULL);
+kernel/hook/syscall_table_hook_arm.c-77-	return sys_faccessat(regs);
+kernel/hook/syscall_table_hook_arm.c-78-}
+kernel/hook/syscall_table_hook_arm.c-79-
+kernel/hook/syscall_table_hook_arm.c-80-static syscall_fn_t armeabi_fstatat64 __read_mostly = nullptr;
+kernel/hook/syscall_table_hook_arm.c-81-asmlinkage long hook_armeabi_fstatat64(const struct pt_regs *regs)
+kernel/hook/syscall_table_hook_arm.c-82-{
+kernel/hook/syscall_table_hook_arm.c-83-	const char __user **filename = (const char __user **)&regs->regs[1];
+kernel/hook/syscall_table_hook_arm.c-84-
+kernel/hook/syscall_table_hook_arm.c:85:	ksu_handle_stat(NULL, filename, NULL);
+kernel/hook/syscall_table_hook_arm.c-86-	return sys_fstatat64(regs);
+kernel/hook/syscall_table_hook_arm.c-87-}
+kernel/hook/syscall_table_hook_arm.c-88-
+kernel/hook/syscall_table_hook_arm.c-89-static syscall_fn_t armeabi_fstat64 __read_mostly = nullptr;
+kernel/hook/syscall_table_hook_arm.c-90-asmlinkage long hook_armeabi_fstat64_ret(const struct pt_regs *regs)
+--
+kernel/hook/syscall_table_hook_arm.c-92-	// we handle it like rp
+kernel/hook/syscall_table_hook_arm.c-93-	unsigned long *fd = (unsigned long *)&regs->regs[0];
+kernel/hook/syscall_table_hook_arm.c-94-	struct stat64 __user **statbuf = (struct stat64 __user **)&regs->regs[1];
+kernel/hook/syscall_table_hook_arm.c-95-
+kernel/hook/syscall_table_hook_arm.c-96-	long ret = sys_fstat64(regs);
+kernel/hook/syscall_table_hook_arm.c:97:	ksu_handle_fstat64_ret(fd, statbuf);
+kernel/hook/syscall_table_hook_arm.c-98-	return ret;
+kernel/hook/syscall_table_hook_arm.c-99-}
+kernel/hook/syscall_table_hook_arm.c-100-
+kernel/hook/syscall_table_hook_arm.c-101-static syscall_fn_t armeabi_read __read_mostly = nullptr;
+kernel/hook/syscall_table_hook_arm.c-102-asmlinkage long hook_armeabi_read(const struct pt_regs *regs)
+kernel/hook/syscall_table_hook_arm.c-103-{
+kernel/hook/syscall_table_hook_arm.c-104-	unsigned int fd = (unsigned int)regs->regs[0];	
+kernel/hook/syscall_table_hook_arm.c-105-
+kernel/hook/syscall_table_hook_arm.c:106:	ksu_handle_sys_read_fd(fd);
+kernel/hook/syscall_table_hook_arm.c-107-	return sys_read(regs);
+kernel/hook/syscall_table_hook_arm.c-108-}
+kernel/hook/syscall_table_hook_arm.c-109-
+kernel/hook/syscall_table_hook_arm.c-110-#else // END OF 4.19+ SYSCALL HANDLERS
+kernel/hook/syscall_table_hook_arm.c-111-
+kernel/hook/syscall_table_hook_arm.c-112-static void *armeabi_reboot __read_mostly = nullptr;
+kernel/hook/syscall_table_hook_arm.c-113-asmlinkage long hook_armeabi_reboot(int magic1, int magic2, unsigned int cmd, void __user *arg)
+kernel/hook/syscall_table_hook_arm.c-114-{
+kernel/hook/syscall_table_hook_arm.c:115:	ksu_handle_sys_reboot(magic1, magic2, cmd, &arg);
+kernel/hook/syscall_table_hook_arm.c-116-	return sys_reboot(magic1, magic2, cmd, arg);
+kernel/hook/syscall_table_hook_arm.c-117-}
+kernel/hook/syscall_table_hook_arm.c-118-
+kernel/hook/syscall_table_hook_arm.c-119-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 7, 0)
+kernel/hook/syscall_table_hook_arm.c-120-static void *armeabi_execve __read_mostly = nullptr;
+kernel/hook/syscall_table_hook_arm.c-121-asmlinkage long hook_armeabi_execve(const char __user * filename, const char __user *const __user * argv, const char __user *const __user * envp)
+kernel/hook/syscall_table_hook_arm.c-122-{
+kernel/hook/syscall_table_hook_arm.c:123:	ksu_handle_sys_execve(&filename, (void ***)&argv, (void ***)&envp);
+kernel/hook/syscall_table_hook_arm.c-124-	return sys_execve(filename, argv, envp);
+kernel/hook/syscall_table_hook_arm.c-125-}
+kernel/hook/syscall_table_hook_arm.c-126-
+kernel/hook/syscall_table_hook_arm.c-127-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 19, 0)
+kernel/hook/syscall_table_hook_arm.c-128-__weak long sys_execveat(int fd, const char __user * filename, const char __user *const __user * argv, const char __user *const __user * envp, int flags) { return -ENOSYS; }
+kernel/hook/syscall_table_hook_arm.c-129-#endif
+kernel/hook/syscall_table_hook_arm.c-130-static void *armeabi_execveat __read_mostly = nullptr;
+kernel/hook/syscall_table_hook_arm.c-131-asmlinkage long hook_armeabi_execveat(int fd, const char __user * filename, const char __user *const __user * argv, const char __user *const __user * envp, int flags)
+kernel/hook/syscall_table_hook_arm.c-132-{
+kernel/hook/syscall_table_hook_arm.c:133:	ksu_handle_sys_execveat(&fd, &filename, (void ***)&argv, (void ***)&envp, &flags);
+kernel/hook/syscall_table_hook_arm.c-134-	return sys_execveat(fd, filename, argv, envp, flags);
+kernel/hook/syscall_table_hook_arm.c-135-}
+kernel/hook/syscall_table_hook_arm.c-136-
+kernel/hook/syscall_table_hook_arm.c-137-#else /* sys_execve_oabi */ /* NOTE: execveat is not on this unless someone makes one !! */
+kernel/hook/syscall_table_hook_arm.c-138-
+--
+kernel/hook/syscall_table_hook_arm.c-152-#include <asm/ptrace.h>
+kernel/hook/syscall_table_hook_arm.c-153-static void *armeabi_execve __read_mostly = nullptr;
+kernel/hook/syscall_table_hook_arm.c-154-__attribute__((used))
+kernel/hook/syscall_table_hook_arm.c-155-asmlinkage long hook_sys_execve(const char __user *filenamei, const char __user *const __user *argv, const char __user *const __user *envp, struct pt_regs *regs)
+kernel/hook/syscall_table_hook_arm.c-156-{
+kernel/hook/syscall_table_hook_arm.c:157:	ksu_handle_sys_execve(&filenamei, (void ***)&argv, (void ***)&envp);
+kernel/hook/syscall_table_hook_arm.c-158-	return sys_execve(filenamei, argv, envp, regs);
+kernel/hook/syscall_table_hook_arm.c-159-}
+kernel/hook/syscall_table_hook_arm.c-160-
+kernel/hook/syscall_table_hook_arm.c-161-#define S_OFF "8"
+kernel/hook/syscall_table_hook_arm.c-162-__attribute__((naked))
+--
+kernel/hook/syscall_table_hook_arm.c-172-
+kernel/hook/syscall_table_hook_arm.c-173-
+kernel/hook/syscall_table_hook_arm.c-174-static void *armeabi_faccessat __read_mostly = nullptr;
+kernel/hook/syscall_table_hook_arm.c-175-asmlinkage long hook_armeabi_faccessat(int dfd, const char __user * filename, int mode)
+kernel/hook/syscall_table_hook_arm.c-176-{
+kernel/hook/syscall_table_hook_arm.c:177:	ksu_handle_faccessat(&dfd, &filename, &mode, NULL);
+kernel/hook/syscall_table_hook_arm.c-178-	return sys_faccessat(dfd, filename, mode);
+kernel/hook/syscall_table_hook_arm.c-179-}
+kernel/hook/syscall_table_hook_arm.c-180-
+kernel/hook/syscall_table_hook_arm.c-181-static void *armeabi_fstatat64 __read_mostly = nullptr;
+kernel/hook/syscall_table_hook_arm.c-182-asmlinkage long hook_armeabi_fstatat64(int dfd, const char __user * filename, struct stat64 __user * statbuf, int flag)
+kernel/hook/syscall_table_hook_arm.c-183-{
+kernel/hook/syscall_table_hook_arm.c:184:	ksu_handle_stat(&dfd, &filename, &flag);
+kernel/hook/syscall_table_hook_arm.c-185-	return sys_fstatat64(dfd, filename, statbuf, flag);
+kernel/hook/syscall_table_hook_arm.c-186-}
+kernel/hook/syscall_table_hook_arm.c-187-
+kernel/hook/syscall_table_hook_arm.c-188-static void *armeabi_fstat64 __read_mostly = nullptr;
+kernel/hook/syscall_table_hook_arm.c-189-asmlinkage long hook_armeabi_fstat64_ret(unsigned long fd, struct stat64 __user * statbuf)
+kernel/hook/syscall_table_hook_arm.c-190-{
+kernel/hook/syscall_table_hook_arm.c-191-	// we handle it like rp
+kernel/hook/syscall_table_hook_arm.c-192-	long ret = sys_fstat64(fd, statbuf);
+kernel/hook/syscall_table_hook_arm.c:193:	ksu_handle_fstat64_ret(&fd, &statbuf);
+kernel/hook/syscall_table_hook_arm.c-194-	return ret;
+kernel/hook/syscall_table_hook_arm.c-195-}
+kernel/hook/syscall_table_hook_arm.c-196-
+kernel/hook/syscall_table_hook_arm.c-197-static void *armeabi_read __read_mostly = nullptr;
+kernel/hook/syscall_table_hook_arm.c-198-asmlinkage long hook_armeabi_read(unsigned int fd, char __user *bu
