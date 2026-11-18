@@ -1,0 +1,356 @@
+C      sound/core/info.o
+  CC      sound/core/ctljack.o
+  CC      sound/core/jack.o
+  CC      drivers/base/bus.o
+  CC      fs/f2fs/data.o
+  CC      sound/core/hwdep.o
+  CC      drivers/base/dd.o
+  CC      sound/core/timer.o
+  CC      drivers/base/syscore.o
+  CC      sound/core/hrtimer.o
+  CC      drivers/base/driver.o
+  CC      sound/core/pcm.o
+  CC      fs/f2fs/node.o
+  CC      drivers/base/class.o
+  CC      drivers/base/platform.o
+  CC      sound/core/pcm_native.o
+4 warnings generated.
+  CC      kernel/sched/rt.o
+  CC      drivers/base/cpu.o
+  CC      drivers/base/firmware.o
+  CC      fs/f2fs/segment.o
+  CC      kernel/sched/deadline.o
+  CC      drivers/base/init.o
+  CC      sound/core/pcm_lib.o
+  CC      drivers/base/map.o
+  CC      drivers/base/devres.o
+  CC      kernel/sched/wait.o
+  CC      sound/core/pcm_misc.o
+  CC      drivers/base/attribute_container.o
+  CC      kernel/sched/wait_bit.o
+  CC      kernel/sched/swait.o
+  CC      drivers/base/transport_class.o
+  CC      sound/core/pcm_memory.o
+  CC      kernel/sched/completion.o
+  CC      drivers/base/topology.o
+  CC      fs/f2fs/recovery.o
+  CC      sound/core/memalloc.o
+  CC      kernel/sched/idle.o
+  CC      drivers/base/container.o
+  CC      drivers/base/property.o
+  CC      sound/core/pcm_timer.o
+  CC      sound/core/seq_device.o
+  CC      kernel/sched/cpupri.o
+  CC      fs/f2fs/shrinker.o
+  CC      kernel/sched/cpudeadline.o
+  CC      fs/f2fs/extent_cache.o
+  CC      sound/core/rawmidi.o
+  CC      kernel/sched/topology.o
+  CC      drivers/base/cacheinfo.o
+  CC      drivers/base/power/sysfs.o
+  CC      fs/f2fs/sysfs.o
+  CC      kernel/sched/stop_task.o
+  CC      drivers/base/power/generic_ops.o
+  CC      sound/core/seq/seq.o
+  CC      kernel/sched/energy.o
+  CC      sound/core/seq/seq_lock.o
+  CC      fs/f2fs/debug.o
+  CC      kernel/sched/stats.o
+  CC      drivers/base/power/common.o
+  CC      sound/core/seq/seq_clientmgr.o
+  CC      fs/f2fs/xattr.o
+  CC      kernel/sched/debug.o
+  CC      drivers/base/power/qos.o
+  CC      fs/f2fs/acl.o
+  CC      sound/core/seq/seq_memory.o
+  CC      kernel/sched/tune.o
+  CC      drivers/base/power/runtime.o
+  CC      fs/f2fs/verity.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/kernel/sched/tune.c:9:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched.h:1851:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+                TP_PROTO(struct hmp_statisic *hmp_stats),
+                                ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+                int task_load, struct clb_stats *B, struct clb_stats *L),
+                                      ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+  CC      sound/core/seq/seq_queue.o
+12 warnings generated.
+  CC      fs/f2fs/compress.o
+  CC      sound/core/seq/seq_fifo.o
+  CC      drivers/base/power/wakeirq.o
+  CC      kernel/sched/cpuacct.o
+  CC      sound/core/seq/seq_prioq.o
+  CC      sound/core/seq/seq_timer.o
+  CC      drivers/base/power/main.o
+  CC      kernel/sched/cpufreq.o
+  CC      sound/core/seq/seq_system.o
+  AR      fs/f2fs/f2fs.o
+  AR      fs/f2fs/built-in.o
+  CC      fs/fat/cache.o
+  CC      kernel/sched/cpufreq_schedutil.o
+  CC      sound/core/seq/seq_ports.o
+  CC      fs/fat/dir.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/kernel/sched/cpufreq_schedutil.c:19:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched.h:1851:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+                TP_PROTO(struct hmp_statisic *hmp_stats),
+                                ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+                int task_load, struct clb_stats *B, struct clb_stats *L),
+                                      ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+  CC      sound/core/seq/seq_info.o
+12 warnings generated.
+  CC      drivers/base/power/wakeup.o
+  CC      sound/core/seq/seq_dummy.o
+  CC      kernel/sched/membarrier.o
+  CC      sound/core/seq/seq_midi.o
+  CC      fs/fat/fatent.o
+  CC      kernel/sched/psi.o
+  CC      sound/core/seq/seq_midi_event.o
+  CC      drivers/base/power/wakeup_stats.o
+  CC      drivers/base/power/opp/core.o
+  CC      fs/fat/file.o
+  AR      sound/core/seq/snd-seq.o
+  AR      sound/core/seq/snd-seq-dummy.o
+  AR      sound/core/seq/snd-seq-midi.o
+  AR      sound/core/seq/snd-seq-midi-event.o
+  AR      sound/core/seq/built-in.o
+  AR      sound/core/snd.o
+  AR      sound/core/snd-hwdep.o
+  AR      sound/core/snd-timer.o
+  AR      sound/core/snd-hrtimer.o
+  AR      sound/core/snd-pcm.o
+  AR      sound/core/snd-seq-device.o
+  AR      sound/core/snd-rawmidi.o
+  AR      sound/core/built-in.o
+  AR      kernel/sched/built-in.o
+  AR      sound/drivers/mpu401/built-in.o
+  CC      kernel/time/time.o
+  AR      sound/drivers/opl3/built-in.o
+  AR      sound/drivers/opl4/built-in.o
+  AR      sound/drivers/pcsp/built-in.o
+  AR      sound/drivers/vx/built-in.o
+  AR      sound/drivers/built-in.o
+  AR      sound/firewire/built-in.o
+  AR      sound/hda/built-in.o
+  AR      sound/i2c/other/built-in.o
+  AR      sound/i2c/built-in.o
+  AR      sound/isa/ad1816a/built-in.o
+  AR      sound/isa/ad1848/built-in.o
+  AR      sound/isa/cs423x/built-in.o
+  CC      drivers/base/power/opp/cpu.o
+  AR      sound/isa/es1688/built-in.o
+  CC      fs/fat/inode.o
+  AR      sound/isa/galaxy/built-in.o
+  AR      sound/isa/gus/built-in.o
+  AR      sound/isa/msnd/built-in.o
+  AR      sound/isa/opti9xx/built-in.o
+  AR      sound/isa/sb/built-in.o
+  AR      sound/isa/wavefront/built-in.o
+  AR      sound/isa/wss/built-in.o
+  AR      sound/isa/built-in.o
+  CC      kernel/time/timer.o
+  AR      sound/mips/built-in.o
+  AR      sound/parisc/built-in.o
+  AR      sound/pci/ac97/built-in.o
+  CC      drivers/base/power/opp/of.o
+  AR      sound/pci/ali5451/built-in.o
+  AR      sound/pci/asihpi/built-in.o
+  AR      sound/pci/au88x0/built-in.o
+  AR      sound/pci/aw2/built-in.o
+  AR      sound/pci/ca0106/built-in.o
+  AR      sound/pci/cs46xx/built-in.o
+  AR      sound/pci/cs5535audio/built-in.o
+  AR      sound/pci/ctxfi/built-in.o
+  AR      sound/pci/echoaudio/built-in.o
+  AR      sound/pci/emu10k1/built-in.o
+  AR      sound/pci/hda/built-in.o
+  AR      sound/pci/ice1712/built-in.o
+  AR      sound/pci/korg1212/built-in.o
+  CC      fs/fat/misc.o
+  AR      sound/pci/lola/built-in.o
+  AR      sound/pci/lx6464es/built-in.o
+  AR      sound/pci/mixart/built-in.o
+  AR      sound/pci/nm256/built-in.o
+  AR      sound/pci/oxygen/built-in.o
+  AR      drivers/base/power/opp/built-in.o
+  CC      drivers/base/power/clock_ops.o
+  AR      sound/pci/pcxhr/built-in.o
+  AR      sound/pci/riptide/built-in.o
+  AR      sound/pci/rme9652/built-in.o
+  AR      sound/pci/trident/built-in.o
+  AR      sound/pci/vx222/built-in.o
+  AR      sound/pci/ymfpci/built-in.o
+  AR      sound/pci/built-in.o
+  CC      fs/fat/nfs.o
+  AR      sound/pcmcia/pdaudiocf/built-in.o
+  AR      sound/pcmcia/vx/built-in.o
+  AR      sound/pcmcia/built-in.o
+  CC      kernel/time/hrtimer.o
+  AR      sound/ppc/built-in.o
+  AR      sound/sh/built-in.o
+  AR      drivers/base/power/built-in.o
+  CC      drivers/base/regmap/regmap.o
+  CC      sound/soc/soc-core.o
+  CC      fs/fat/namei_vfat.o
+  CC      fs/fat/namei_msdos.o
+  CC      kernel/time/timekeeping.o
+  AR      fs/fat/fat.o
+  AR      fs/fat/vfat.o
+  AR      fs/fat/msdos.o
+  AR      fs/fat/built-in.o
+  CC      fs/fuse/dev.o
+  CC      drivers/base/regmap/regcache.o
+  CC      sound/soc/soc-dapm.o
+  CC      kernel/time/ntp.o
+  CC      drivers/base/regmap/regcache-rbtree.o
+  CC      kernel/time/clocksource.o
+  CC      fs/fuse/dir.o
+  CC      drivers/base/regmap/regcache-flat.o
+  CC      drivers/base/regmap/regmap-i2c.o
+  CC      kernel/time/jiffies.o
+  CC      kernel/time/timer_list.o
+  CC      fs/fuse/file.o
+  CC      drivers/base/regmap/regmap-spi.o
+  CC      sound/soc/soc-jack.o
+  CC      kernel/time/timeconv.o
+  CC      drivers/base/regmap/regmap-mmio.o
+  CC      kernel/time/timecounter.o
+  CC      kernel/time/alarmtimer.o
+  CC      sound/soc/soc-cache.o
+  AR      drivers/base/regmap/built-in.o
+  AR      drivers/base/test/built-in.o
+  CC      drivers/base/dma-mapping.o
+  CC      fs/fuse/inode.o
+  CC      sound/soc/soc-utils.o
+  CC      kernel/time/posix-timers.o
+  CC      drivers/base/dma-coherent.o
+  CC      sound/soc/soc-pcm.o
+  CC      fs/fuse/control.o
+  CC      kernel/time/posix-cpu-timers.o
+  CC      drivers/base/firmware_class.o
+  CC      fs/fuse/xattr.o
+  CC      kernel/time/posix-clock.o
+  CC      fs/fuse/acl.o
+  CC      sound/soc/soc-io.o
+  CC      drivers/base/module.o
+  CC      kernel/time/itimer.o
+  CC      fs/fuse/passthrough.o
+  CC      drivers/base/soc.o
+  CC      sound/soc/soc-devres.o
+  CC      kernel/time/clockevents.o
+  AR      fs/fuse/fuse.o
+  AR      fs/fuse/built-in.o
+  CC      fs/incfs/data_mgmt.o
+  CC      drivers/base/pinctrl.o
+  CC      drivers/base/arch_topology.o
+  CC      sound/soc/soc-ops.o
+  CC      kernel/time/tick-common.o
+  CC      fs/incfs/format.o
+  AR      drivers/base/built-in.o
+  AR      drivers/battery/charger/pca9468_charger/built-in.o
+  CC      drivers/battery/charger/sm5714_charger/sm5714_charger.o
+  CC      fs/incfs/integrity.o
+  AR      sound/soc/adi/built-in.o
+  AR      sound/soc/amd/built-in.o
+  AR      sound/soc/atmel/built-in.o
+  AR      sound/soc/au1x/built-in.o
+  CC      kernel/time/tick-broadcast.o
+  AR      sound/soc/bcm/built-in.o
+  AR      sound/soc/blackfin/built-in.o
+  CC      fs/incfs/main.o
+  AR      sound/soc/cirrus/built-in.o
+  CC      drivers/battery/charger/sm5714_charger/sm5714_charger_oper.o
+  CC      sound/soc/codecs/mt6358.o
+  CC      fs/incfs/pseudo_files.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/fs/incfs/pseudo_files.c:25:22: warning: redefinition of typedef '__poll_t' is a C11 feature [-Wtypedef-redefinition]
+typedef unsigned int __poll_t;
+                     ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/uapi/linux/types.h:55:18: note: previous definition is here
+typedef unsigned __poll_t;
+                 ^
+  CC      kernel/time/tick-broadcast-hrtimer.o
+  AR      drivers/battery/charger/sm5714_charger/built-in.o
+  CC      drivers/battery/common/sec_battery.o
+1 warning generated.
+  CC      kernel/time/sched_clock.o
+  CC      fs/incfs/sysfs.o
+  CC      kernel/time/tick-oneshot.o
+  CC      fs/incfs/vfs.o
+  CC      sound/soc/codecs/sma1305.o
+  CC      kernel/time/tick-sched.o
+  CC      fs/incfs/verity.o
+  CC      kernel/time/timer_list_aee.o
+  AR      sound/soc/codecs/snd-soc-mt6358.o
+  AR      sound/soc/codecs/snd-soc-sma1305.o
+  AR      sound/soc/codecs/built-in.o
+  AR      sound/soc/davinci/built-in.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/kernel/time/timer_list_aee.c:44:5: warning: 'CONFIG_TIMER_AEE_FULL_DUMP' is not defined, evaluates to 0 [-Wundef]
+#if CONFIG_TIMER_AEE_FULL_DUMP
+    ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/kernel/time/timer_list_aee.c:60:5: warning: 'CONFIG_TIMER_AEE_FULL_DUMP' is not defined, evaluates to 0 [-Wundef]
+#if CONFIG_TIMER_AEE_FULL_DUMP
+    ^
+  AR      sound/soc/dwc/built-in.o
+  AR      sound/soc/fsl/built-in.o
+  AR      sound/soc/generic/built-in.o
+2 warnings generated.
+  AR      sound/soc/hisilicon/built-in.o
+  AR      kernel/time/built-in.o
+  AR      sound/soc/img/built-in.o
+  AR      fs/incfs/incrementalfs.o
+  AR      fs/incfs/built-in.o
+  CC      kernel/trace/trace_clock.o
+  AR      sound/soc/intel/boards/built-in.o
+  CC      fs/isofs/namei.o
+  AR      sound/soc/intel/built-in.o
+  CC      drivers/battery/common/sec_battery_vote.o
+  AR      sound/soc/jz4740/built-in.o
+  AR      sound/soc/kirkwood/built-in.o
+  CC      sound/soc/mediatek/common/mtk-mmap-ion.o
+  CC      kernel/trace/ring_buffer.o
+  CC      fs/isofs/inode.o
+  CC      sound/soc/mediatek/common/mtk-afe-platform-driver.o
+  CC      drivers/battery/common/sec_battery_thermal.o
+  CC      drivers/battery/common/sec_battery_dt.o
+  CC      fs/isofs/dir.o
+  CC      sound/soc/mediatek/common/mtk-afe-fe-dai.o
+  CC      fs/isofs/util.o
+  CC      fs/isofs/rock.o
+  CC      kernel/trace/trace.o
+  CC      drivers/battery/common/sec_battery_ttf.o
+  CC      sound/soc/mediatek/common/mtk-sram-manager.o
+  CC      drivers/battery/common/sec_core_sysfs.o
+  CC      fs/isofs/export.o
+  CC      sound/soc/mediatek/common/mtk-sp-pcm-ops.o
+  CC      drivers/battery/common/sec_battery_sysfs.o
+  CC      fs/isofs/joliet.o
+  CC      sound/soc/mediatek/common/mtk-afe-debug.o
+  CC      drivers/battery/common/sec_device_sysfs.o
+  CC      fs/isofs/compress.o
+  CC      sound/soc/mediatek/common/mtk-sp-spk-amp.o
+  AR      fs/isofs/isofs.o
+  AR      fs/isofs/built-in.o
+  CC      fs/jbd2/transaction.o
+  CC      drivers/battery/com

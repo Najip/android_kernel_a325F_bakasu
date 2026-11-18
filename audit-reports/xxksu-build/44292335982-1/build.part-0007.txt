@@ -1,0 +1,414 @@
+              ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:409:23: warning: unused variable 'scpsys_base' [-Wunused-variable]
+        static void __iomem *scpsys_base, *pwr_sta, *pwr_sta_2nd;
+                             ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:410:13: warning: unused variable 'pwr_sta_val' [-Wunused-variable]
+        static int pwr_sta_val[STA_NUM];
+                   ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:409:37: warning: unused variable 'pwr_sta' [-Wunused-variable]
+        static void __iomem *scpsys_base, *pwr_sta, *pwr_sta_2nd;
+                                           ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:470:37: warning: incompatible pointer to integer conversion passing 'u32 *' (aka 'unsigned int *') to parameter of type 'u32' (aka 'unsigned int'); dereference with * [-Wint-conversion]
+                return clk_hw_pwr_sta_is_on(c_hw, spm_pwr_status, pvdck);
+                                                  ^~~~~~~~~~~~~~
+                                                  *
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:419:8: note: passing argument to parameter 'spm_pwr_status' here
+                        u32 spm_pwr_status, struct provider_clk *pvdck)
+                            ^
+  CC      fs/ntfs/dir.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:2023:39: warning: incompatible integer to pointer conversion passing 'u32' (aka 'unsigned int') to parameter of type 'u32 *' (aka 'unsigned int *'); take the address with & [-Wint-conversion]
+        save_all_clks_state(sp->clks_states, sp->spm_pwr_status);
+                                             ^~~~~~~~~~~~~~~~~~
+                                             &
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:1952:10: note: passing argument to parameter 'spm_pwr_status' here
+                                u32 *spm_pwr_status)
+                                     ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:848:12: warning: unused function 'clkdbg_prepare' [-Wunused-function]
+static int clkdbg_prepare(struct seq_file *s, void *v)
+           ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:854:12: warning: unused function 'clkdbg_unprepare' [-Wunused-function]
+static int clkdbg_unprepare(struct seq_file *s, void *v)
+           ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:860:12: warning: unused function 'clkdbg_enable' [-Wunused-function]
+static int clkdbg_enable(struct seq_file *s, void *v)
+           ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:866:12: warning: unused function 'clkdbg_disable' [-Wunused-function]
+static int clkdbg_disable(struct seq_file *s, void *v)
+           ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:872:12: warning: unused function 'clkdbg_prepare_enable' [-Wunused-function]
+static int clkdbg_prepare_enable(struct seq_file *s, void *v)
+           ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:878:12: warning: unused function 'clkdbg_disable_unprepare' [-Wunused-function]
+static int clkdbg_disable_unprepare(struct seq_file *s, void *v)
+           ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:933:12: warning: unused function 'clkdbg_prepare_enable_provider' [-Wunused-function]
+static int clkdbg_prepare_enable_provider(struct seq_file *s, void *v)
+           ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:939:12: warning: unused function 'clkdbg_disable_unprepare_provider' [-Wunused-function]
+static int clkdbg_disable_unprepare_provider(struct seq_file *s, void *v)
+           ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:945:12: warning: unused function 'clkdbg_set_parent' [-Wunused-function]
+static int clkdbg_set_parent(struct seq_file *s, void *v)
+           ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:994:12: warning: unused function 'clkdbg_set_rate' [-Wunused-function]
+static int clkdbg_set_rate(struct seq_file *s, void *v)
+           ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:1113:12: warning: unused function 'clkdbg_reg_read' [-Wunused-function]
+static int clkdbg_reg_read(struct seq_file *s, void *v)
+           ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:1129:12: warning: unused function 'clkdbg_reg_write' [-Wunused-function]
+static int clkdbg_reg_write(struct seq_file *s, void *v)
+           ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:1146:12: warning: unused function 'clkdbg_reg_set' [-Wunused-function]
+static int clkdbg_reg_set(struct seq_file *s, void *v)
+           ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:1163:12: warning: unused function 'clkdbg_reg_clr' [-Wunused-function]
+static int clkdbg_reg_clr(struct seq_file *s, void *v)
+           ^
+20 warnings generated.
+  AR      drivers/clk/mediatek/built-in.o
+  AR      drivers/clk/mvebu/built-in.o
+  AR      drivers/clk/renesas/built-in.o
+  CC      kernel/kallsyms.o
+  AR      drivers/clk/ti/built-in.o
+  AR      drivers/clk/built-in.o
+  CC      drivers/clocksource/timer-of.o
+  CC      net/802/psnap.o
+  CC      fs/ntfs/file.o
+  CC      drivers/clocksource/timer-probe.o
+  CC      fs/ntfs/index.o
+  CC      drivers/clocksource/mmio.o
+  CC      net/802/stp.o
+  CC      drivers/clocksource/mtk_apxgpt.o
+  CC      fs/ntfs/inode.o
+  CC      kernel/compat.o
+  CC      drivers/clocksource/mtk_systimer.o
+  CC      fs/ntfs/mft.o
+  CC      drivers/clocksource/arm_arch_timer.o
+  AR      net/802/built-in.o
+  CC      net/8021q/vlan_core.o
+  CC      kernel/utsname.o
+  CC      fs/ntfs/mst.o
+  CC      kernel/pid_namespace.o
+  CC      fs/ntfs/namei.o
+  CC      drivers/clocksource/dummy_timer.o
+  CC      net/8021q/vlan.o
+  AR      drivers/clocksource/built-in.o
+  CC      fs/ntfs/runlist.o
+  CC      drivers/connector/cn_queue.o
+  GZIP    kernel/config_data.gz
+  CHK     kernel/kheaders_data.tar.xz
+  CC      fs/ntfs/super.o
+  GEN     kernel/kheaders_data.tar.xz
+  CC      drivers/connector/connector.o
+  CC      net/8021q/vlan_dev.o
+  CC      fs/ntfs/sysctl.o
+  CC      net/8021q/vlan_netlink.o
+  CC      fs/ntfs/unistr.o
+  CC      drivers/connector/cn_proc.o
+  CC      fs/ntfs/upcase.o
+  CC      net/8021q/vlanproc.o
+  AR      fs/ntfs/ntfs.o
+  AR      drivers/connector/cn.o
+  AR      fs/ntfs/built-in.o
+  AR      drivers/connector/built-in.o
+  CC      fs/overlayfs/super.o
+  CC      drivers/cpufreq/cpufreq.o
+  AR      net/8021q/8021q.o
+  AR      net/8021q/built-in.o
+  CC      net/bpf/test_run.o
+  CC      fs/overlayfs/namei.o
+  CC      fs/overlayfs/util.o
+  CC      fs/overlayfs/inode.o
+  CC      drivers/cpufreq/freq_table.o
+  AR      net/bpf/built-in.o
+  CC      net/bridge/br.o
+  CC      fs/overlayfs/dir.o
+  CC      drivers/cpufreq/cpufreq_stats.o
+  CC      drivers/cpufreq/cpufreq_times.o
+  CC      net/bridge/br_device.o
+  CC      fs/overlayfs/readdir.o
+  CC      drivers/cpufreq/cpufreq_limit.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/cpufreq/cpufreq_limit.c:18:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/sched/sched_ctl.h:31:40: warning: declaration of 'enum SCHED_LB_TYPE' will not be visible outside of this function [-Wvisibility]
+extern int sched_scheduler_switch(enum SCHED_LB_TYPE new_sched);
+                                       ^
+  CC      fs/overlayfs/copy_up.o
+1 warning generated.
+  CC      drivers/cpufreq/cpufreq_performance.o
+  CC      net/bridge/br_fdb.o
+  CC      drivers/cpufreq/cpufreq_powersave.o
+  AR      fs/overlayfs/overlay.o
+  AR      fs/overlayfs/built-in.o
+  CC      drivers/cpufreq/cpufreq_userspace.o
+  CC      fs/proc/task_mmu.o
+  CC      drivers/cpufreq/cpufreq_ondemand.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/fs/proc/task_mmu.c:116:6: warning: unused variable 'zswap_stored_pages_temp' [-Wunused-variable]
+        int zswap_stored_pages_temp=0;
+            ^
+  CC      net/bridge/br_forward.o
+  CC      drivers/cpufreq/cpufreq_conservative.o
+1 warning generated.
+  CC      fs/proc/inode.o
+  CC      drivers/cpufreq/cpufreq_governor.o
+  CC      fs/proc/root.o
+  CC      net/bridge/br_if.o
+  CC      fs/proc/base.o
+  CC      drivers/cpufreq/cpufreq_governor_attr_set.o
+  CC      net/bridge/br_input.o
+  AR      drivers/cpufreq/built-in.o
+  CC      drivers/cpuidle/cpuidle.o
+  CC      fs/proc/generic.o
+  CC      drivers/cpuidle/driver.o
+  CC      net/bridge/br_ioctl.o
+  CC      fs/proc/array.o
+  CC      drivers/cpuidle/governor.o
+  CC      drivers/cpuidle/sysfs.o
+  CC      fs/proc/fd.o
+  CC      net/bridge/br_stp.o
+  CC      drivers/cpuidle/governors/menu.o
+  CC      fs/proc/proc_tty.o
+  CC      drivers/cpuidle/governors/mtk_menu.o
+  CC      net/bridge/br_stp_bpdu.o
+  CC      fs/proc/cmdline.o
+  CC      fs/proc/consoles.o
+  AR      drivers/cpuidle/governors/built-in.o
+  CC      drivers/cpuidle/cpuidle-mtk_acao.o
+  CC      fs/proc/cpuinfo.o
+  CC      net/bridge/br_stp_if.o
+  CC      fs/proc/devices.o
+  CC      fs/proc/interrupts.o
+  AR      drivers/cpuidle/built-in.o
+  AR      drivers/crypto/built-in.o
+  CC      drivers/dax/super.o
+  CC      net/bridge/br_stp_timer.o
+  CC      fs/proc/loadavg.o
+  CC      fs/proc/meminfo.o
+  CC      net/bridge/br_netlink.o
+  AR      drivers/dax/dax.o
+  AR      drivers/dax/built-in.o
+  CC      fs/proc/stat.o
+  CC      drivers/devfreq/devfreq.o
+  CC      fs/proc/uptime.o
+  CC      net/bridge/br_netlink_tunnel.o
+  CC      fs/proc/version.o
+  CC      drivers/devfreq/helio-dvfsrc-ipi.o
+  CC      fs/proc/softirqs.o
+  CC      drivers/devfreq/helio-dvfsrc-v2/helio-dvfsrc.o
+  CC      fs/proc/namespaces.o
+  CC      net/bridge/br_sysfs_if.o
+  CC      drivers/devfreq/helio-dvfsrc-v2/helio-dvfsrc-mt6768.o
+  CC      fs/proc/self.o
+  CC      fs/proc/thread_self.o
+  CC      net/bridge/br_sysfs_br.o
+  CC      fs/proc/fslog.o
+  CC      drivers/devfreq/helio-dvfsrc-v2/helio-dvfsrc-opp-mt6768.o
+  CC      drivers/devfreq/helio-dvfsrc-v2/helio-dvfsrc-opp.o
+  CC      fs/proc/uid.o
+  CC      net/bridge/br_nf_core.o
+  CC      drivers/devfreq/helio-dvfsrc-v2/helio-dvfsrc-sysfs.o
+  CC      fs/proc/proc_sysctl.o
+  CC      drivers/devfreq/devfreq_boost.o
+  CC      net/bridge/br_multicast.o
+  AR      drivers/devfreq/built-in.o
+  CC      drivers/dma/dmaengine.o
+  CC      fs/proc/proc_net.o
+  CC      drivers/dma/virt-dma.o
+  CC      fs/proc/kmsg.o
+  CC      fs/proc/page.o
+  CC      net/bridge/br_mdb.o
+  CC      drivers/dma/of-dma.o
+  CC      fs/proc/proc_avc.o
+  AR      fs/proc/proc.o
+  AR      fs/proc/built-in.o
+  CC      fs/pstore/inode.o
+  CC      drivers/dma/8250_mtk_dma.o
+  AR      net/bridge/netfilter/built-in.o
+  CC [M]  net/bridge/br_netfilter_hooks.o
+  CC      fs/pstore/platform.o
+  AR      drivers/dma/mediatek/built-in.o
+  AR      drivers/dma/qcom/built-in.o
+  AR      drivers/dma/xilinx/built-in.o
+  AR      drivers/dma/built-in.o
+  CC      drivers/dma-buf/dma-buf.o
+  CC      fs/pstore/pmsg.o
+  CC [M]  net/bridge/br_netfilter_ipv6.o
+  CC      fs/pstore/ram.o
+  CC      drivers/dma-buf/dma-fence.o
+  CC      fs/pstore/ram_core.o
+  AR      net/bridge/bridge.o
+  LD [M]  net/bridge/br_netfilter.o
+  AR      net/bridge/built-in.o
+  CC      net/core/sock.o
+  AR      fs/pstore/pstore.o
+  AR      fs/pstore/ramoops.o
+  AR      fs/pstore/built-in.o
+  CC      fs/quota/dquot.o
+  CC      drivers/dma-buf/dma-fence-array.o
+  CC      drivers/dma-buf/reservation.o
+  CC      kernel/stop_machine.o
+  CC      drivers/dma-buf/seqno-fence.o
+  CC      fs/quota/quota_v2.o
+  CC      kernel/audit.o
+  CC      drivers/dma-buf/sync_file.o
+  CC      fs/quota/quota_tree.o
+  CC      net/core/request_sock.o
+  CC      fs/quota/quota.o
+  AR      drivers/dma-buf/built-in.o
+  CC      drivers/extcon/extcon.o
+  CC      net/core/skbuff.o
+  CC      kernel/auditfilter.o
+  CC      fs/quota/kqid.o
+  CC      drivers/extcon/devres.o
+  CC      fs/quota/netlink.o
+  AR      drivers/extcon/extcon-core.o
+  AR      drivers/extcon/built-in.o
+  CC      drivers/fingerprint/fingerprint_common.o
+  CC      kernel/auditsc.o
+  CC      drivers/fingerprint/fingerprint_common_mtk.o
+  AR      fs/quota/built-in.o
+  CC      fs/ramfs/inode.o
+  CC      drivers/fingerprint/et7xx-spi.o
+  CC      fs/ramfs/file-mmu.o
+  AR      fs/ramfs/ramfs.o
+  AR      fs/ramfs/built-in.o
+  CC      fs/sdcardfs/dentry.o
+  CC      drivers/fingerprint/et7xx-spi_data_transfer.o
+  CC      kernel/audit_watch.o
+  CC      fs/sdcardfs/file.o
+  CC      net/core/datagram.o
+  CC      drivers/fingerprint/fingerprint_sysfs.o
+  CC      fs/sdcardfs/inode.o
+  CC      kernel/audit_fsnotify.o
+  AR      drivers/fingerprint/fingerprint.o
+  AR      drivers/fingerprint/built-in.o
+  AR      drivers/firewire/built-in.o
+  CC      drivers/firmware/psci.o
+  CC      fs/sdcardfs/main.o
+  CC      kernel/audit_tree.o
+  AR      drivers/firmware/broadcom/built-in.o
+  AR      drivers/firmware/meson/built-in.o
+  AR      drivers/firmware/tegra/built-in.o
+  CC      net/core/stream.o
+  AR      drivers/firmware/built-in.o
+  CC      drivers/gpio/devres.o
+  CC      fs/sdcardfs/super.o
+  CC      kernel/kprobes.o
+  CC      fs/sdcardfs/lookup.o
+  CC      drivers/gpio/gpiolib.o
+  CC      fs/sdcardfs/mmap.o
+  CC      net/core/scm.o
+  CC      fs/sdcardfs/packagelist.o
+  CC      kernel/seccomp.o
+  CC      kernel/utsname_sysctl.o
+  CC      net/core/gen_stats.o
+  CC      fs/sdcardfs/derived_perm.o
+  CC      drivers/gpio/gpiolib-legacy.o
+  CC      kernel/taskstats.o
+  AR      fs/sdcardfs/sdcardfs.o
+  AR      fs/sdcardfs/built-in.o
+  CC      drivers/gpio/gpiolib-devprop.o
+  CC      fs/sdfat/sdfat.o
+  CC      kernel/tsacct.o
+  CC      net/core/gen_estimator.o
+  CC      drivers/gpio/gpiolib-of.o
+  CC      kernel/tracepoint.o
+  AR      drivers/gpio/built-in.o
+  CC      kernel/irq_work.o
+  CC      fs/sdfat/core.o
+  AR      drivers/gpu/drm/bridge/synopsys/built-in.o
+  AR      drivers/gpu/drm/bridge/built-in.o
+  AR      drivers/gpu/drm/hisilicon/built-in.o
+  AR      drivers/gpu/drm/i2c/built-in.o
+  AR      drivers/gpu/drm/omapdrm/displays/built-in.o
+  AR      drivers/gpu/drm/omapdrm/dss/built-in.o
+  AR      drivers/gpu/drm/omapdrm/built-in.o
+  CC      net/core/net_namespace.o
+  AR      drivers/gpu/drm/panel/built-in.o
+  AR      drivers/gpu/drm/tilcdc/built-in.o
+  AR      drivers/gpu/drm/built-in.o
+  AR      drivers/gpu/vga/built-in.o
+  AR      drivers/gpu/built-in.o
+  CC      kernel/cpu_pm.o
+  CC      drivers/hid/hid-core.o
+  CC      kernel/memremap.o
+  CC      fs/sdfat/core_fat.o
+  CC      net/core/secure_seq.o
+  CC      drivers/hid/hid-input.o
+  CC      fs/sdfat/core_exfat.o
+  CHK     kernel/config_data.h
+  UPD     kernel/config_data.h
+  CC      kernel/kheaders.o
+  CC      kernel/configs.o
+  AR      kernel/built-in.o
+  CC      fs/sdfat/api.o
+  CC      net/core/flow_dissector.o
+  AS      arch/arm64/lib/bitops.o
+  AS      arch/arm64/lib/clear_page.o
+  AS      arch/arm64/lib/clear_user.o
+  AS      arch/arm64/lib/copy_from_user.o
+  AS      arch/arm64/lib/copy_in_user.o
+  CC      drivers/hid/hidraw.o
+  AS      arch/arm64/lib/copy_page.o
+  AS      arch/arm64/lib/copy_to_user.o
+  CC      arch/arm64/lib/delay.o
+  CC      fs/sdfat/blkdev.o
+  AS      arch/arm64/lib/memchr.o
+  AS      arch/arm64/lib/memcmp.o
+  AS      arch/arm64/lib/memcpy.o
+  AS      arch/arm64/lib/memmove.o
+  CC      drivers/hid/uhid.o
+  AS      arch/arm64/lib/memset.o
+  AS      arch/arm64/lib/strchr.o
+  AS      arch/arm64/lib/strcmp.o
+  CC      fs/sdfat/fatent.o
+  AS      arch/arm64/lib/strlen.o
+  AS      arch/arm64/lib/strncmp.o
+  AS      arch/arm64/lib/strnlen.o
+  AS      arch/arm64/lib/strrchr.o
+  AR      arch/arm64/lib/lib.a
+  EXPORTS arch/arm64/lib/lib-ksyms.o
+  AR      arch/arm64/lib/built-in.o
+  CC      net/ethernet/eth.o
+  CC      fs/sdfat/amap_smart.o
+  CC      net/core/sysctl_net_core.o
+  CC      drivers/hid/hid-generic.o
+  CC      drivers/hid/hid-a4tech.o
+  CC      fs/sdfat/cache.o
+  CC      net/core/dev.o
+  CC      drivers/hid/hid-axff.o
+  AR      net/ethernet/built-in.o
+  CC      fs/sysfs/file.o
+  CC      fs/sdfat/dfr.o
+  CC      drivers/hid/hid-apple.o
+  CC      fs/sdfat/nls.o
+  CC      drivers/hid/hid-belkin.o
+  CC      fs/sysfs/dir.o
+  CC      drivers/hid/hid-cherry.o
+  CC      fs/sdfat/misc.o
+  CC      fs/sysfs/symlink.o
+  CC      drivers/hid/hid-chicony.o
+  CC      drivers/hid/hid-cypress.o
+  CC      fs/sdfat/mpage.o
+  CC      fs/sysfs/mount.o
+  CC      drivers/hid/hid-dr.o
+  CC      fs/sysfs/group.o
+  CC      drivers/hid/hid-emsff.o
+  CC      fs/sdfat/extent.o
+  AR      fs/sysfs/built-in.o
+  CC      drivers/hwmon/hwmon.o
+  CC      drivers/hid/hid-elecom.o
+  CC      fs/sdfat/statistics.o
+  CC      drivers/hid/hid-ezkey.o
+  AR      fs/sdfat/sdfat_fs.o
+  AR      fs/sdfat/built-in.o
+  CC      fs/tracefs/inode.o
+  CC      drivers/hid/hid-gyration.o
+  AR      drivers/hwmon/built-in.o
+  CC      drivers/hid/hid-holtek-kbd.o
+  AR      fs/tracefs/tracefs.o
+  AR      fs/tracefs/built-in.o
+  SHIPPED fs/unicode/utf8data.h
+  CC      fs/unicode/utf8-core.o
+  CC      lib/lockref.o
+  CC      dr

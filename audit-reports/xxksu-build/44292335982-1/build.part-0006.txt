@@ -1,0 +1,321 @@
+mon/sec_event_sysfs.o
+  CC      sound/soc/mediatek/common/mtk-usip.o
+  CC      drivers/battery/common/sec_adc.o
+  CC      sound/soc/mediatek/common/mtk-btcvsd.o
+  CC      kernel/trace/trace_output.o
+  CC      drivers/battery/common/sec_cisd.o
+  CC      fs/jbd2/commit.o
+  AR      sound/soc/mediatek/common/snd-soc-mtk-common.o
+  AR      sound/soc/mediatek/common/snd-soc-mtk-sp-common.o
+  AR      sound/soc/mediatek/common/built-in.o
+  CC      sound/soc/mediatek/mt6768/mt6768-afe-pcm.o
+  CC      sound/soc/mediatek/mt6768/mt6768-afe-clk.o
+  CC      kernel/trace/trace_seq.o
+  CC      drivers/battery/common/sec_pd.o
+  CC      fs/jbd2/recovery.o
+  AR      drivers/battery/common/built-in.o
+  CC      drivers/battery/fuelgauge/sm5714_fuelgauge/sm5714_fuelgauge.o
+  CC      sound/soc/mediatek/mt6768/mt6768-afe-gpio.o
+  CC      kernel/trace/trace_stat.o
+  CC      fs/jbd2/checkpoint.o
+  CC      sound/soc/mediatek/mt6768/mt6768-dai-adda.o
+  CC      kernel/trace/trace_printk.o
+  CC      fs/jbd2/revoke.o
+  CC      sound/soc/mediatek/mt6768/mt6768-afe-control.o
+  AR      drivers/battery/fuelgauge/sm5714_fuelgauge/built-in.o
+  CC      drivers/block/brd.o
+  CC      fs/jbd2/journal.o
+  CC      kernel/trace/trace_sched_switch.o
+  CC      sound/soc/mediatek/mt6768/mt6768-dai-i2s.o
+  CC      drivers/block/loop.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/kernel/trace/trace_sched_switch.c:12:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched.h:1851:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+                TP_PROTO(struct hmp_statisic *hmp_stats),
+                                ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+                int task_load, struct clb_stats *B, struct clb_stats *L),
+                                      ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+12 warnings generated.
+  CC      kernel/trace/trace_nop.o
+  CC      sound/soc/mediatek/mt6768/mt6768-dai-hw-gain.o
+  CC      kernel/trace/blktrace.o
+  CC      sound/soc/mediatek/mt6768/mt6768-dai-pcm.o
+  CC      sound/soc/mediatek/mt6768/mt6768-dai-hostless.o
+  AR      fs/jbd2/jbd2.o
+  AR      fs/jbd2/built-in.o
+  CC      fs/kernfs/mount.o
+  CC      drivers/block/zram/zcomp.o
+  CC      kernel/trace/trace_events.o
+  CC      sound/soc/mediatek/mt6768/mt6768-misc-control.o
+  CC      drivers/block/zram/zram_drv.o
+  CC      fs/kernfs/inode.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/kernel/trace/trace_events.c:25:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched.h:1851:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+                TP_PROTO(struct hmp_statisic *hmp_stats),
+                                ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+                int task_load, struct clb_stats *B, struct clb_stats *L),
+                                      ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+  CC      fs/kernfs/dir.o
+  CC      sound/soc/mediatek/mt6768/mt6768-mt6358.o
+12 warnings generated.
+  AR      sound/soc/mediatek/mt6768/snd-soc-mt6768-afe.o
+  AR      sound/soc/mediatek/mt6768/built-in.o
+  AR      sound/soc/mediatek/built-in.o
+  CC      kernel/trace/trace_export.o
+  AR      sound/soc/mxs/built-in.o
+  AR      sound/soc/nuc900/built-in.o
+  AR      sound/soc/omap/built-in.o
+  CC      fs/kernfs/file.o
+  AR      drivers/block/zram/zram.o
+  AR      drivers/block/zram/built-in.o
+  AR      drivers/block/built-in.o
+  AR      sound/soc/pxa/built-in.o
+  AR      sound/soc/qcom/built-in.o
+  AR      drivers/bus/built-in.o
+  AR      sound/soc/rockchip/built-in.o
+  AR      drivers/cdrom/built-in.o
+  CC      sound/soc/samsung/sec_audio_sysfs.o
+  CC      drivers/char/mem.o
+  CC      kernel/trace/trace_event_perf.o
+  CC      drivers/char/random.o
+  CC      fs/kernfs/symlink.o
+  CC      sound/soc/samsung/jack_accdet_sysfs_cb.o
+  AR      sound/soc/samsung/snd-soc-sec-audio.o
+  AR      sound/soc/samsung/built-in.o
+  AR      sound/soc/sh/built-in.o
+  AR      sound/soc/sirf/built-in.o
+  AR      fs/kernfs/built-in.o
+  AR      sound/soc/spear/built-in.o
+  AR      sound/soc/sti/built-in.o
+  AR      sound/soc/stm/built-in.o
+  CC      fs/nls/nls_base.o
+  AR      sound/soc/sunxi/built-in.o
+  AR      sound/soc/tegra/built-in.o
+  CC      kernel/trace/trace_events_filter.o
+  AR      sound/soc/txx9/built-in.o
+  AR      sound/soc/ux500/built-in.o
+  AR      sound/soc/xtensa/built-in.o
+  AR      sound/soc/zte/built-in.o
+  AR      sound/soc/snd-soc-core.o
+  AR      sound/soc/built-in.o
+  AR      sound/sparc/built-in.o
+  CC      fs/nls/nls_cp437.o
+  AR      sound/spi/built-in.o
+  AR      sound/synth/emux/built-in.o
+  AR      sound/synth/built-in.o
+  CC      drivers/char/misc.o
+  CC      sound/usb/card.o
+  CC      fs/nls/nls_cp737.o
+  CC      fs/nls/nls_cp775.o
+  CC      fs/nls/nls_cp850.o
+  AR      drivers/char/agp/built-in.o
+  CC      drivers/char/hw_random/core.o
+  CC      sound/usb/clock.o
+  CC      kernel/trace/trace_events_trigger.o
+  CC      fs/nls/nls_cp852.o
+  CC      fs/nls/nls_cp855.o
+  CC      sound/usb/endpoint.o
+  CC      fs/nls/nls_cp857.o
+  CC      drivers/char/hw_random/mt67xx-rng.o
+  CC      fs/nls/nls_cp860.o
+  AR      drivers/char/hw_random/rng-core.o
+  AR      drivers/char/hw_random/built-in.o
+  CC      fs/nls/nls_cp861.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/tzdev/Makefile.include:2: "CONFIG_MTK_PLATFORM: "mt6768""
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/tzdev/Makefile.include:3: "CONFIG_TEEGRIS_VERSION_STRING: "4.2.0""
+  CC      drivers/char/rpmb/rpmb-mtk.o
+  CC      kernel/trace/bpf_trace.o
+  CC      sound/usb/format.o
+  CC      fs/nls/nls_cp862.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/char/rpmb/rpmb-mtk.c:101:9: warning: 'MAX_RPMB_TRANSFER_BLK' macro redefined [-Wmacro-redefined]
+#define MAX_RPMB_TRANSFER_BLK (32)
+        ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/mmc/host/mediatek/rpmb/drrpmb/public/drrpmb_Api.h:64:9: note: previous definition is here
+#define MAX_RPMB_TRANSFER_BLK (16)
+        ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/char/rpmb/rpmb-mtk.c:102:9: warning: 'MAX_RPMB_REQUEST_SIZE' macro redefined [-Wmacro-redefined]
+#define MAX_RPMB_REQUEST_SIZE (512 * MAX_RPMB_TRANSFER_BLK)
+        ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/mmc/host/mediatek/rpmb/drrpmb/public/drrpmb_Api.h:66:9: note: previous definition is here
+#define MAX_RPMB_REQUEST_SIZE (512*MAX_RPMB_TRANSFER_BLK)
+        ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/char/rpmb/rpmb-mtk.c:2989:19: warning: mixing declarations and code is a C99 extension [-Wdeclaration-after-statement]
+        struct rpmb_ctx *ctx;
+                         ^
+  CC      fs/nls/nls_cp863.o
+  CC      sound/usb/helper.o
+  CC      fs/nls/nls_cp864.o
+3 warnings generated.
+  CC      drivers/char/rpmb/core.o
+  CC      fs/nls/nls_cp865.o
+  CC      sound/usb/mixer.o
+  CC      fs/nls/nls_cp866.o
+  CC      fs/nls/nls_cp869.o
+  AR      drivers/char/rpmb/rpmb.o
+  AR      drivers/char/rpmb/built-in.o
+  AR      drivers/char/built-in.o
+  AR      drivers/char/ipmi/built-in.o
+  CC      kernel/trace/trace_kprobe.o
+  CC      drivers/clk/clk-devres.o
+  CC      fs/nls/nls_cp874.o
+  CC      fs/nls/nls_cp932.o
+  CC      sound/usb/mixer_quirks.o
+  CC      drivers/clk/clk-bulk.o
+  CC      fs/nls/nls_euc-jp.o
+  CC      kernel/trace/power-traces.o
+  CC      fs/nls/nls_cp936.o
+  CC      drivers/clk/clkdev.o
+  CC      sound/usb/mixer_scarlett.o
+  CC      fs/nls/nls_cp949.o
+  CC      sound/usb/mixer_us16x08.o
+  CC      drivers/clk/clk.o
+  CC      fs/nls/nls_cp950.o
+  CC      kernel/trace/rpm-traces.o
+  CC      fs/nls/nls_cp1250.o
+  CC      sound/usb/pcm.o
+  CC      fs/nls/nls_cp1251.o
+  CC      fs/nls/nls_ascii.o
+  CC      fs/nls/nls_iso8859-1.o
+  CC      kernel/trace/trace_probe.o
+  CC      sound/usb/proc.o
+  CC      fs/nls/nls_iso8859-2.o
+  CC      fs/nls/nls_iso8859-3.o
+  CC      sound/usb/quirks.o
+  CC      drivers/clk/clk-divider.o
+  CC      fs/nls/nls_iso8859-4.o
+  CC      kernel/trace/trace_uprobe.o
+  CC      fs/nls/nls_iso8859-5.o
+  CC      drivers/clk/clk-fixed-factor.o
+  CC      sound/usb/stream.o
+  CC      fs/nls/nls_iso8859-6.o
+  CC      fs/nls/nls_iso8859-7.o
+  CC      kernel/trace/mtk_trace.o
+  CC      fs/nls/nls_cp1255.o
+  CC      drivers/clk/clk-fixed-rate.o
+  CC      sound/usb/midi.o
+  CC      fs/nls/nls_iso8859-9.o
+  AR      kernel/trace/built-in.o
+  CC      fs/nls/nls_iso8859-13.o
+  CC      kernel/kmod.o
+  CC      drivers/clk/clk-gate.o
+  CC      fs/nls/nls_iso8859-14.o
+  CC      fs/nls/nls_iso8859-15.o
+  CC      drivers/clk/clk-multiplier.o
+  CC      fs/nls/nls_koi8-r.o
+  CC      kernel/groups.o
+  AR      sound/usb/6fire/built-in.o
+  AR      sound/usb/bcd2000/built-in.o
+  CC      fs/nls/nls_koi8-u.o
+  AR      sound/usb/caiaq/built-in.o
+  AR      sound/usb/hiface/built-in.o
+  AR      sound/usb/misc/built-in.o
+  CC      drivers/clk/clk-mux.o
+  AR      sound/usb/usx2y/built-in.o
+  AR      sound/usb/snd-usb-audio.o
+  AR      sound/usb/snd-usbmidi-lib.o
+  AR      sound/usb/built-in.o
+  CC      fs/nls/nls_koi8-ru.o
+  AR      sound/x86/built-in.o
+  CC      sound/last.o
+  CC      fs/nls/nls_utf8.o
+  CC      drivers/clk/clk-composite.o
+  AR      sound/soundcore.o
+  AR      sound/built-in.o
+  CC      fs/notify/fsnotify.o
+  CC      fs/nls/mac-celtic.o
+  CC      kernel/xxksu_setresuid_compat.o
+  CC      kernel/freezer.o
+  CC      drivers/clk/clk-fractional-divider.o
+  CC      fs/nls/mac-centeuro.o
+  CC      fs/nls/mac-croatian.o
+  CC      fs/notify/notification.o
+  CC      drivers/clk/clk-gpio.o
+  CC      fs/nls/mac-cyrillic.o
+  CC      fs/nls/mac-gaelic.o
+  CC      kernel/profile.o
+  CC      fs/nls/mac-greek.o
+  CC      fs/notify/group.o
+  CC      drivers/clk/clk-conf.o
+  CC      fs/nls/mac-iceland.o
+  CC      fs/notify/mark.o
+  CC      fs/nls/mac-inuit.o
+  CC      kernel/stacktrace.o
+  CC      drivers/clk/clk-xgene.o
+  CC      fs/nls/mac-romanian.o
+  CC      fs/nls/mac-roman.o
+  AR      drivers/clk/bcm/built-in.o
+  CC      fs/notify/fdinfo.o
+  AR      drivers/clk/imgtec/built-in.o
+  CC      kernel/futex.o
+  CC      drivers/clk/mediatek/clk-fixup-div.o
+  CC      fs/nls/mac-turkish.o
+  CC      drivers/clk/mediatek/clk-mtk.o
+  CC      fs/notify/dnotify/dnotify.o
+  AR      fs/nls/built-in.o
+  CC      drivers/clk/mediatek/clk-pll.o
+  AR      fs/notify/dnotify/built-in.o
+  AR      fs/notify/fanotify/built-in.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/firmware/Makefile:95: target 'firmware/melfas/melfas_mip4_ts.fw.gen.S' given more than once in the same rule
+  CC      fs/notify/inotify/inotify_fsnotify.o
+  MK_FW   firmware/melfas/melfas_mip4_ts.fw.gen.S
+  MK_FW   firmware/tsp_stm/fts5cu56a_a32.bin.gen.S
+  MK_FW   firmware/tsp_stm/fts5cu56a_a22.bin.gen.S
+  AS      firmware/melfas/melfas_mip4_ts.fw.gen.o
+  AS      firmware/tsp_stm/fts5cu56a_a32.bin.gen.o
+  AS      firmware/tsp_stm/fts5cu56a_a22.bin.gen.o
+  AR      firmware/built-in.o
+  CC      drivers/clk/mediatek/clk-gate.o
+  CC      fs/notify/inotify/inotify_user.o
+  CC      net/socket.o
+  CC      drivers/clk/mediatek/clk-apmixed.o
+  CC      kernel/smp.o
+  CC      drivers/clk/mediatek/clk-cpumux.o
+  AR      fs/notify/inotify/built-in.o
+  AR      fs/notify/built-in.o
+  CC      fs/ntfs/aops.o
+  CC      drivers/clk/mediatek/clk-mux.o
+  CC      kernel/uid16.o
+  CC      drivers/clk/mediatek/clkchk.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkchk.c:160:14: warning: mixing declarations and code is a C99 extension [-Wdeclaration-after-statement]
+        const char *clk_name = __clk_get_name(hw->clk);
+                    ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkchk.c:239:18: warning: mixing declarations and code is a C99 extension [-Wdeclaration-after-statement]
+                struct clk_hw *p_hw;
+                               ^
+  CC      fs/ntfs/attrib.o
+2 warnings generated.
+  CC      drivers/clk/mediatek/clk-mt6768.o
+  CC      kernel/module.o
+  CC      drivers/clk/mediatek/clk-mtk-v1.o
+  CC      fs/ntfs/collate.o
+  CC      drivers/clk/mediatek/clk-mt6768-pg.o
+  CC      fs/ntfs/compress.o
+  CC      drivers/clk/mediatek/clkdbg.o
+  CC      net/802/p8022.o
+  CC      fs/ntfs/debug.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/clk/mediatek/clkdbg.c:409:47: warning: unused variable 'pwr_sta_2nd' [-Wunused-variable]
+        static void __iomem *scpsys_base, *pwr_sta, *pwr_sta_2nd;
+                                       

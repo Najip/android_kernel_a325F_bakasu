@@ -1,10 +1,10 @@
 {
-  "status": "NOT_PASS",
-  "compile_outcome": "cancelled",
-  "exit_code": "",
-  "log_exit_code": "",
-  "package_outcome": "skipped",
-  "package_exit_code": "",
+  "status": "PASS",
+  "compile_outcome": "success",
+  "exit_code": "0",
+  "log_exit_code": "0",
+  "package_outcome": "success",
+  "package_exit_code": "0",
   "kernel_patches": {
     "source_branch": "nomount-lkm-sync-up-patch",
     "source_commit": "53fe38b470a927e590b89eace39b7a71e4b90ea1",
@@ -32,7 +32,7 @@
       }
     ]
   },
-  "source_commit": "47932e4152447c0726af7ca943aa594abaaf87c7",
+  "source_commit": "a77ffac4d19d4819f1f00bc40ebd519e9585b49d",
   "source_lock": {
     "sources": {
       "KernelSU": "1b8ce9e15a9402aa2192aed5d381366cf2150f0f",
@@ -70,15 +70,40 @@
         "sha256": "384a36300febf1aab5aec4c4544e4ee1a0a731ef5513f26061ef4cc7e6e4058a"
       }
     ],
-    "status": "Sequential application and reversal validated in Actions run 44254995433 (attempt 1); prebuild helper and compile/link not yet validated."
+    "status": "Manual-hook review port: parent integration materialized; KernelSU patches remain runtime-applied. Compile and device validation pending.",
+    "parent_patches_materialized": true,
+    "materialized_from": "8e229ae90e5f2499a0a26d3ed98fd7e0e2f52cb7"
   },
-  "run_id": "44288374825",
+  "run_id": "44292335982",
   "attempt": "1",
-  "run_url": "https://github.com/Najip/android_kernel_a325F_bakasu/actions/runs/44288374825",
+  "run_url": "https://github.com/Najip/android_kernel_a325F_bakasu/actions/runs/44292335982",
   "scope": "Experimental kernel ZIP. Compile/link and archive checks only. Boot, root, SUSFS runtime and LKM remain untested. No release or deployment.",
-  "warning_line_count": 0,
+  "warning_line_count": 363,
   "log_parts": [
-    "audit-reports/xxksu-build/44288374825-1/build.part-0001.txt",
-    "audit-reports/xxksu-build/44288374825-1/package.part-0001.txt"
+    "audit-reports/xxksu-build/44292335982-1/build.part-0001.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0002.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0003.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0004.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0005.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0006.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0007.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0008.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0009.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0010.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0011.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0012.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0013.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0014.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0015.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0016.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0017.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0018.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0019.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0020.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0021.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0022.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0023.txt",
+    "audit-reports/xxksu-build/44292335982-1/build.part-0024.txt",
+    "audit-reports/xxksu-build/44292335982-1/package.part-0001.txt"
   ]
 }

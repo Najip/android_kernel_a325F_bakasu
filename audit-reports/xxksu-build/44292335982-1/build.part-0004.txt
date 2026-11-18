@@ -1,0 +1,500 @@
+      mm/memory.o
+  CC      security/selinux/netport.o
+  CC      fs/sync.o
+  CC      security/selinux/ibpkey.o
+  CC      fs/utimes.o
+  CC      fs/stack.o
+  CC      security/selinux/ss/ebitmap.o
+  CC      fs/fs_struct.o
+  CC      mm/mincore.o
+  CC      security/selinux/ss/hashtab.o
+  CC      kernel/bpf/inode.o
+  CC      fs/statfs.o
+  CC      mm/mlock.o
+  CC      security/selinux/ss/symtab.o
+  CC      security/selinux/ss/sidtab.o
+  CC      fs/fs_pin.o
+  CC      mm/mmap.o
+  CC      fs/nsfs.o
+  CC      kernel/bpf/helpers.o
+  CC      security/selinux/ss/avtab.o
+  CC      fs/buffer.o
+  CC      kernel/bpf/tnum.o
+  CC      kernel/bpf/bpf_iter.o
+  CC      security/selinux/ss/policydb.o
+  CC      mm/mprotect.o
+  CC      mm/mremap.o
+  CC      kernel/bpf/map_iter.o
+  CC      security/selinux/ss/services.o
+  CC      mm/msync.o
+  CC      kernel/bpf/task_iter.o
+  CC      fs/block_dev.o
+  CC      mm/page_vma_mapped.o
+  CC      kernel/bpf/prog_iter.o
+  CC      mm/pagewalk.o
+  CC      security/selinux/ss/conditional.o
+  CC      kernel/bpf/hashtab.o
+  CC      mm/pgtable-generic.o
+  CC      fs/direct-io.o
+  CC      mm/rmap.o
+  CC      security/selinux/ss/mls.o
+  CC      kernel/bpf/arraymap.o
+  CC      security/selinux/ss/status.o
+  CC      mm/vmalloc.o
+  CC      fs/mpage.o
+  AR      security/selinux/selinux.o
+  AR      security/selinux/built-in.o
+  CC      security/commoncap.o
+  CC      kernel/bpf/percpu_freelist.o
+  CC      kernel/bpf/bpf_lru_list.o
+  CC      kernel/bpf/lpm_trie.o
+  CC      security/min_addr.o
+  CC      fs/susfs.o
+  CC      security/security.o
+  CC      mm/process_vm_access.o
+  CC      kernel/bpf/map_in_map.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/security/security.c:782:6: warning: mixing declarations and code is a C99 extension [-Wdeclaration-after-statement]
+        int ret;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/security/security.c:1214:6: warning: mixing declarations and code is a C99 extension [-Wdeclaration-after-statement]
+        int ret;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/security/security.c:1369:6: warning: mixing declarations and code is a C99 extension [-Wdeclaration-after-statement]
+        int ret;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/security/security.c:1912:29: warning: mixing declarations and code is a C99 extension [-Wdeclaration-after-statement]
+        struct security_hook_list *hp;
+                                   ^
+  CC      mm/mm_debug.o
+  CC      kernel/bpf/local_storage.o
+  CC      mm/init-mm.o
+  CC      mm/sec_mm/sec_mm_init.o
+  CC      fs/susfs_priority.o
+  CC      kernel/bpf/queue_stack_maps.o
+4 warnings generated.
+  CC      mm/sec_mm/lowfile_detect.o
+  CC      mm/sec_mm/panic_handler.o
+  CC      fs/susfs_ksu_glue.o
+  CC      kernel/bpf/ringbuf.o
+  CC      security/lsm_audit.o
+  CC      mm/sec_mm/show_mem.o
+  CC      fs/xxksu_susfs_lifecycle.o
+  CC      fs/ksun_compat.o
+  CC      fs/proc_namespace.o
+  CC      kernel/bpf/disasm.o
+  AR      mm/sec_mm/sec_mm.o
+  AR      mm/sec_mm/built-in.o
+  CC      mm/nobootmem.o
+  CC      security/device_cgroup.o
+  CC      kernel/bpf/trampoline.o
+  CC      fs/dlog_hook.o
+  CC      mm/fadvise.o
+  CC      fs/configfs/inode.o
+  AR      security/built-in.o
+  CC      kernel/bpf/btf.o
+  CC      mm/madvise.o
+  CC      fs/configfs/file.o
+  CC      crypto/api.o
+  CC      fs/configfs/dir.o
+  CC      mm/memblock.o
+  CC      crypto/cipher.o
+  CC      fs/configfs/symlink.o
+  CC      crypto/compress.o
+  CC      fs/configfs/mount.o
+  CC      mm/page_io.o
+  CC      kernel/bpf/dispatcher.o
+  CC      fs/configfs/item.o
+  CC      crypto/memneq.o
+  CC      mm/swap_state.o
+  CC      kernel/bpf/devmap.o
+  AR      fs/configfs/configfs.o
+  AR      fs/configfs/built-in.o
+  CC      fs/crypto/crypto.o
+  CC      crypto/crypto_wq.o
+  CC      mm/swapfile.o
+  CC      fs/crypto/fname.o
+  CC      kernel/bpf/cpumap.o
+  CC      crypto/algapi.o
+  CC      fs/crypto/hkdf.o
+  CC      kernel/bpf/bpf_local_storage.o
+  CC      fs/crypto/hooks.o
+  CC      crypto/scatterwalk.o
+  CC      mm/dmapool.o
+  CC      kernel/bpf/offload.o
+  CC      fs/crypto/keyring.o
+  CC      crypto/proc.o
+  CC      mm/sparse.o
+  CC      fs/crypto/keysetup.o
+  CC      crypto/aead.o
+  CC      mm/sparse-vmemmap.o
+  CC      kernel/bpf/net_namespace.o
+  CC      fs/crypto/keysetup_v1.o
+  CC      mm/slub.o
+  CC      crypto/ablkcipher.o
+  CC      kernel/bpf/stackmap.o
+  CC      fs/crypto/policy.o
+  CC      kernel/bpf/cgroup.o
+  CC      fs/crypto/bio.o
+  CC      crypto/blkcipher.o
+  CC      fs/crypto/inline_crypt.o
+  CC      mm/migrate.o
+  CC      crypto/skcipher.o
+  AR      fs/crypto/fscrypto.o
+  AR      fs/crypto/built-in.o
+  CC      fs/devpts/inode.o
+  AR      fs/devpts/devpts.o
+  AR      fs/devpts/built-in.o
+  CC      mm/page_counter.o
+  CC      fs/erofs/super.o
+  CC      kernel/bpf/reuseport_array.o
+  CC      crypto/seqiv.o
+  CC      mm/memcontrol.o
+  CC      crypto/echainiv.o
+  CC      kernel/bpf/sysfs_btf.o
+  CC      fs/erofs/inode.o
+  CC      kernel/bpf/bpf_struct_ops.o
+  CC      crypto/ahash.o
+  CC      fs/erofs/data.o
+  AR      kernel/bpf/built-in.o
+  CC      fs/erofs/namei.o
+  CC      kernel/cgroup/cgroup.o
+  CC      crypto/shash.o
+  CC      fs/erofs/dir.o
+  CC      fs/erofs/utils.o
+  CC      crypto/akcipher.o
+  CC      mm/vmpressure.o
+  CC      fs/erofs/xattr.o
+  CC      mm/swap_cgroup.o
+  CC      crypto/kpp.o
+  CC      fs/erofs/decompressor.o
+  CC      mm/cleancache.o
+  CC      fs/erofs/zmap.o
+  ASN.1   crypto/rsapubkey-asn1.c
+  ASN.1   crypto/rsaprivkey-asn1.c
+  CC      crypto/rsa.o
+  CC      mm/rbinregion.o
+  CC      fs/erofs/zdata.o
+  CC      crypto/rsa_helper.o
+  CC      crypto/rsa-pkcs1pad.o
+  CC      kernel/cgroup/namespace.o
+  CC      mm/rbincache.o
+  CC      crypto/acompress.o
+  CC      mm/page_isolation.o
+  CC      kernel/cgroup/cgroup-v1.o
+  AR      fs/erofs/erofs.o
+  AR      fs/erofs/built-in.o
+  CC      fs/exfat/inode.o
+  CC      mm/zsmalloc.o
+  CC      crypto/scompress.o
+  CC      fs/exfat/namei.o
+  CC      kernel/cgroup/freezer.o
+  CC      fs/exfat/dir.o
+  CC      crypto/algboss.o
+  CC      kernel/cgroup/legacy_freezer.o
+  CC      mm/early_ioremap.o
+  CC      kernel/cgroup/pids.o
+  CC      crypto/testmgr.o
+  CC      mm/cma.o
+  CC      fs/exfat/super.o
+  CC      kernel/cgroup/rdma.o
+  CC      fs/exfat/fatent.o
+  CC      crypto/cmac.o
+  CC      mm/frame_vector.o
+  CC      kernel/cgroup/cpuset.o
+  CC      fs/exfat/cache.o
+  CC      crypto/hmac.o
+  CC      mm/usercopy.o
+  CC      fs/exfat/nls.o
+  CC      crypto/xcbc.o
+  CC      mm/io_record.o
+  CC      crypto/crypto_null.o
+  CC      fs/exfat/misc.o
+  AR      mm/built-in.o
+  AR      fs/exofs/built-in.o
+  CC      kernel/cgroup/debug.o
+  CC      fs/exportfs/expfs.o
+  CC      fs/exfat/file.o
+  CC      crypto/md5.o
+  AR      kernel/cgroup/built-in.o
+  CC      kernel/events/core.o
+  AR      fs/exportfs/exportfs.o
+  AR      fs/exportfs/built-in.o
+  CC      fs/exfat/balloc.o
+  CC      block/bio.o
+  CC      crypto/sha1_generic.o
+  AR      fs/exfat/exfat.o
+  AR      fs/exfat/built-in.o
+  CC      fs/ext4/balloc.o
+  CC      crypto/sha256_generic.o
+  CC      fs/ext4/bitmap.o
+  CC      block/elevator.o
+  CC      fs/ext4/block_validity.o
+  CC      crypto/sha512_generic.o
+  CC      fs/ext4/dir.o
+  CC      crypto/gf128mul.o
+  CC      block/blk-core.o
+  CC      fs/ext4/ext4_jbd2.o
+  CC      crypto/ecb.o
+  CC      kernel/events/ring_buffer.o
+  CC      fs/ext4/extents.o
+  CC      crypto/cbc.o
+  CC      crypto/cts.o
+  CC      kernel/events/callchain.o
+  CC      crypto/xts.o
+  CC      kernel/events/hw_breakpoint.o
+  CC      block/blk-tag.o
+  CC      crypto/ctr.o
+  CC      kernel/events/uprobes.o
+  CC      block/blk-sysfs.o
+  CC      fs/ext4/extents_status.o
+  CC      crypto/gcm.o
+  CC      block/blk-flush.o
+  CC      crypto/ccm.o
+  CC      fs/ext4/file.o
+  AR      kernel/events/built-in.o
+  CC      kernel/irq/irqdesc.o
+  CC      block/blk-settings.o
+  CC      crypto/chacha20poly1305.o
+  CC      fs/ext4/fsmap.o
+  CC      kernel/irq/handle.o
+  CC      block/blk-ioc.o
+  CC      crypto/cryptd.o
+  CC      fs/ext4/fsync.o
+  CC      kernel/irq/manage.o
+  CC      block/blk-map.o
+  CC      fs/ext4/hash.o
+  CC      crypto/des_generic.o
+  CC      block/blk-exec.o
+  CC      kernel/irq/spurious.o
+  CC      fs/ext4/ialloc.o
+  CC      crypto/blowfish_generic.o
+  CC      kernel/irq/resend.o
+  CC      block/blk-merge.o
+  CC      crypto/blowfish_common.o
+  CC      kernel/irq/chip.o
+  CC      fs/ext4/indirect.o
+  CC      crypto/twofish_generic.o
+  CC      crypto/twofish_common.o
+  CC      block/blk-softirq.o
+  CC      kernel/irq/dummychip.o
+  CC      crypto/aes_generic.o
+  CC      fs/ext4/inline.o
+  CC      kernel/irq/devres.o
+  CC      block/blk-timeout.o
+  CC      crypto/arc4.o
+  CC      kernel/irq/autoprobe.o
+  CC      fs/ext4/inode.o
+  CC      block/blk-lib.o
+  CC      crypto/chacha_generic.o
+  CC      kernel/irq/irqdomain.o
+  CC      block/blk-mq.o
+  CC      crypto/poly1305_generic.o
+  CC      kernel/irq/proc.o
+  CC      crypto/deflate.o
+  CC      kernel/irq/cpuhotplug.o
+  CC      crypto/crc32c_generic.o
+  CC      kernel/irq/pm.o
+  CC      crypto/crc32_generic.o
+  CC      block/blk-mq-tag.o
+  CC      fs/ext4/ioctl.o
+  CC      crypto/authenc.o
+  CC      kernel/irq/affinity.o
+  CC      block/blk-stat.o
+  AR      kernel/irq/built-in.o
+  AR      kernel/livepatch/built-in.o
+  CC      kernel/locking/mutex.o
+  CC      fs/ext4/mballoc.o
+  CC      crypto/authencesn.o
+  CC      block/blk-mq-sysfs.o
+  CC      kernel/locking/semaphore.o
+  CC      crypto/lzo.o
+  CC      crypto/lzo-rle.o
+  CC      block/blk-mq-cpumap.o
+  CC      kernel/locking/rwsem.o
+  CC      crypto/lz4.o
+  CC      kernel/locking/percpu-rwsem.o
+  CC      crypto/rng.o
+  CC      block/blk-mq-sched.o
+  CC      kernel/locking/spinlock.o
+  CC      fs/ext4/migrate.o
+  CC      crypto/drbg.o
+  CC      kernel/locking/osq_lock.o
+  CC      kernel/locking/rtmutex.o
+  CC      fs/ext4/mmp.o
+  CC      block/ioctl.o
+  CC      crypto/jitterentropy.o
+  CC      crypto/jitterentropy-kcapi.o
+  CC      kernel/locking/rwsem-xadd.o
+  CC      fs/ext4/move_extent.o
+  CC      crypto/tcrypt_procfs.o
+  CC      block/genhd.o
+  AR      kernel/locking/built-in.o
+  CC      kernel/power/qos.o
+  CC      fs/ext4/namei.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/crypto/tcrypt_procfs.c:811:5: warning: misleading indentation; statement is not part of the previous 'else' [-Wmisleading-indentation]
+                                if( !ret && ( !strcmp(alg_name, "sha1") || !strcmp(alg_name, "sha256") || !strcmp(alg_name, "sha512") ) )
+                                ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/crypto/tcrypt_procfs.c:809:4: note: previous statement is here
+                        else
+                        ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/crypto/tcrypt_procfs.c:975:6: warning: incompatible integer to pointer conversion assigning to 'char *' from 'int' [-Wint-conversion]
+                        p = ENOENT; break;
+                          ^ ~~~~~~
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/crypto/tcrypt_procfs.c:89:14: warning: unused variable 'alg' [-Wunused-variable]
+static char *alg = NULL;
+             ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/crypto/tcrypt_procfs.c:90:12: warning: unused variable 'type' [-Wunused-variable]
+static u32 type;
+           ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/crypto/tcrypt_procfs.c:91:12: warning: unused variable 'mask' [-Wunused-variable]
+static u32 mask;
+           ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/crypto/tcrypt_procfs.c:92:12: warning: unused variable 'mode' [-Wunused-variable]
+static int mode;
+           ^
+6 warnings generated.
+  CC      crypto/ghash-generic.o
+  CC      kernel/power/main.o
+  CC      block/partition-generic.o
+  CC      crypto/zstd.o
+  CC      crypto/asymmetric_keys/asymmetric_type.o
+  CC      kernel/power/process.o
+  CC      fs/ext4/page-io.o
+  CC      block/ioprio.o
+  CC      crypto/asymmetric_keys/restrict.o
+  CC      kernel/power/suspend.o
+  CC      crypto/asymmetric_keys/signature.o
+  CC      fs/ext4/readpage.o
+  CC      block/badblocks.o
+  CC      crypto/asymmetric_keys/public_key.o
+  CC      fs/ext4/resize.o
+  CC      kernel/power/wakelock.o
+  ASN.1   crypto/asymmetric_keys/x509-asn1.c
+  ASN.1   crypto/asymmetric_keys/x509_akid-asn1.c
+  CC      crypto/asymmetric_keys/x509_public_key.o
+  CC      block/partitions/check.o
+  ASN.1   crypto/asymmetric_keys/pkcs7-asn1.c
+  CC      crypto/asymmetric_keys/pkcs7_trust.o
+  CC      block/partitions/msdos.o
+  CC      kernel/power/poweroff.o
+  CC      kernel/power/wakeup_reason.o
+  CC      crypto/asymmetric_keys/pkcs7_verify.o
+  CC      fs/ext4/super.o
+  CC      block/partitions/efi.o
+  AR      crypto/asymmetric_keys/asymmetric_keys.o
+  CC      crypto/asymmetric_keys/x509-asn1.o
+  CC      crypto/asymmetric_keys/x509_akid-asn1.o
+  CC      crypto/asymmetric_keys/x509_cert_parser.o
+  AR      kernel/power/built-in.o
+  CC      kernel/printk/printk.o
+  AR      block/partitions/built-in.o
+  CC      block/scsi_ioctl.o
+  CC      crypto/asymmetric_keys/pkcs7-asn1.o
+  CC      crypto/asymmetric_keys/pkcs7_parser.o
+  AR      crypto/asymmetric_keys/x509_key_parser.o
+  AR      crypto/asymmetric_keys/pkcs7_message.o
+  AR      crypto/asymmetric_keys/built-in.o
+  CC      crypto/hash_info.o
+  CC      crypto/simd.o
+  CC      block/blk-cgroup.o
+  CC      kernel/printk/printk_safe.o
+  AR      crypto/crypto.o
+  AR      crypto/crypto_algapi.o
+  AR      crypto/crypto_blkcipher.o
+  AR      crypto/crypto_hash.o
+  CC      crypto/rsapubkey-asn1.o
+  CC      crypto/rsaprivkey-asn1.o
+  AR      crypto/crypto_acompress.o
+  AR      crypto/cryptomgr.o
+  AR      crypto/jitterentropy_rng.o
+  AR      crypto/crypto_simd.o
+  AR      crypto/rsa_generic.o
+  AR      crypto/built-in.o
+  AR      kernel/printk/built-in.o
+  CC      block/noop-iosched.o
+  CC      kernel/rcu/update.o
+  CC      fs/f2fs/dir.o
+  CC      block/deadline-iosched.o
+  CC      kernel/rcu/sync.o
+  CC      block/cfq-iosched.o
+  CC      kernel/rcu/srcutree.o
+  CC      fs/ext4/symlink.o
+  CC      fs/f2fs/file.o
+  CC      kernel/rcu/tree.o
+  CC      fs/ext4/sysfs.o
+  CC      block/mq-deadline.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/fs/f2fs/file.c:3627:6: warning: unused variable 'node_count' [-Wunused-variable]
+        u32 node_count = (u32)valid_node_count(sbi);
+            ^
+  CC      fs/ext4/xattr.o
+  CC      block/kyber-iosched.o
+  CC      block/compat_ioctl.o
+  CC      fs/ext4/xattr_trusted.o
+1 warning generated.
+  CC      block/blk-mq-virtio.o
+  CC      kernel/rcu/rcu_segcblist.o
+  CC      fs/f2fs/inode.o
+  AR      kernel/rcu/built-in.o
+  CC      fs/ext4/xattr_user.o
+  CC      kernel/sched/core.o
+  CC      block/keyslot-manager.o
+  CC      fs/ext4/acl.o
+  CC      fs/f2fs/namei.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/kernel/sched/core.c:4651:6: warning: unused variable 'i' [-Wunused-variable]
+        int i = 0;
+            ^
+  CC      fs/ext4/xattr_security.o
+  CC      block/bio-crypt-ctx.o
+  CC      fs/ext4/verity.o
+  CC      block/blk-crypto.o
+  CC      fs/f2fs/hash.o
+  AR      fs/ext4/ext4.o
+  AR      fs/ext4/built-in.o
+  CC      block/blk-crypto-fallback.o
+  CC      fs/f2fs/super.o
+  CC      drivers/amba/bus.o
+  AR      block/built-in.o
+  AR      drivers/amba/built-in.o
+  CC      drivers/android/binderfs.o
+  CC      sound/sound_core.o
+  CC      drivers/android/binder.o
+1 warning generated.
+  AR      sound/arm/built-in.o
+  AR      sound/atmel/built-in.o
+  CC      sound/core/sound.o
+  CC      sound/core/init.o
+  CC      kernel/sched/loadavg.o
+  CC      fs/f2fs/inline.o
+  CC      sound/core/memory.o
+  CC      kernel/sched/clock.o
+  CC      sound/core/control.o
+  CC      fs/f2fs/checkpoint.o
+  CC      kernel/sched/cputime.o
+  CC      drivers/android/binder_alloc.o
+  CC      kernel/sched/idle_task.o
+  AR      drivers/android/built-in.o
+  CC      sound/core/misc.o
+  AR      drivers/auxdisplay/built-in.o
+  CC      drivers/base/component.o
+  CC      kernel/sched/fair.o
+  CC      sound/core/device.o
+  CC      fs/f2fs/gc.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/kernel/sched/fair.c:11305:8: warning: mixing declarations and code is a C99 extension [-Wdeclaration-after-statement]
+                        int cpu = env.dst_cpu;
+                            ^
+  CC      drivers/base/core.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/kernel/sched/fair.c:12874:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/kernel/sched/eas_plus.c:918:28: warning: unused variable 'sg' [-Wunused-variable]
+        const struct sched_group *sg;
+                                  ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/kernel/sched/eas_plus.c:917:23: warning: unused variable 'sd' [-Wunused-variable]
+        struct sched_domain *sd;
+                             ^
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/kernel/sched/fair.c:12875:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/kernel/sched/hmp.c:1417:6: warning: ordered comparison between pointer and integer ('int *' and 'unsigned int')
+                                !task_low_priority(&task_of(se)->prio) &&
+                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/kernel/sched/hmp.h:63:40: note: expanded from macro 'task_low_priority'
+#define task_low_priority(prio) ((prio >= hmp_up_prio)?1:0)
+                                  ~~~~ ^  ~~~~~~~~~~~
+  C
