@@ -8,6 +8,8 @@ struct inode;
 struct dentry;
 struct file;
 struct linux_binprm;
+struct stat;
+struct stat64;
 #ifdef CONFIG_XXKSU_MANUAL_HOOKS
 int ksu_handle_sys_execve(const char __user **filename, void *argv, void *envp);
 int ksu_handle_sys_execveat(int *fd, const char __user **filename, void *argv, void *envp, int *flags);
@@ -17,5 +19,7 @@ int ksu_bprm_check(struct linux_binprm *bprm);
 int ksu_file_permission(struct file *file, int mask);
 int ksu_hide_setprocattr(const char *name, void *value, size_t size);
 int ksu_hide_inode_setxattr(struct dentry *dentry, const char *name, void *value, size_t *size, int *flags);
+void ksu_handle_newfstat_ret(unsigned int *fd, struct stat __user **statbuf_ptr);
+void ksu_handle_fstat64_ret(unsigned long *fd, struct stat64 __user **statbuf_ptr);
 #endif
 #endif

@@ -20,6 +20,7 @@
 
 #include <linux/uaccess.h>
 #include <asm/unistd.h>
+#include <linux/xxksu_manual_hooks.h>
 #ifdef CONFIG_KSU_SUSFS
 #include <linux/susfs_def.h>
 #include "mount.h"
@@ -434,6 +435,10 @@ SYSCALL_DEFINE2(newfstat, unsigned int, fd, struct stat __user *, statbuf)
 
 	if (!error)
 		error = cp_new_stat(&stat, statbuf);
+#ifdef CONFIG_XXKSU_MANUAL_HOOKS
+	/* xxKSU: report init.rc size including the injected KernelSU rc lines. */
+	ksu_handle_newfstat_ret(&fd, &statbuf);
+#endif
 	return error;
 }
 
@@ -553,6 +558,10 @@ SYSCALL_DEFINE2(fstat64, unsigned long, fd, struct stat64 __user *, statbuf)
 
 	if (!error)
 		error = cp_new_stat64(&stat, statbuf);
+#ifdef CONFIG_XXKSU_MANUAL_HOOKS
+	/* xxKSU: same init.rc size fix for a 32-bit init. */
+	ksu_handle_fstat64_ret(&fd, &statbuf);
+#endif
 	return error;
 }
 
