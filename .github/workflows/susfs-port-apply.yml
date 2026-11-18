@@ -27,6 +27,7 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v7
+        id: checkout
         with:
           fetch-depth: 0
           submodules: recursive
@@ -94,3 +95,54 @@ jobs:
             .susfs-port/
           if-no-files-found: warn
           retention-days: 14
+      - name: Publish failed port diagnostics to repository
+        if: failure() && steps.checkout.outcome == 'success'
+        env:
+          TARGET_BRANCH: ${{ inputs.target_branch }}
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          set -euo pipefail
+          branch="xxksu-susfs-failure-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          scratch=$(mktemp -d "$RUNNER_TEMP/xxksu-failure-publish.XXXXXX")
+          trap 'rm -rf -- "$scratch"' EXIT
+          publish="$scratch/tree"
+          export DIAGNOSTICS_DIR="$publish/susfs-port-failure"
+          mkdir -p "$DIAGNOSTICS_DIR/hunks"
+          python3 - <<'PY'
+          import json, os, pathlib, shutil, subprocess
+          out = pathlib.Path(os.environ['DIAGNOSTICS_DIR'])
+          report = pathlib.Path('.susfs-port')
+          if report.is_dir():
+              for name in ('jack-source.json', 'PORT_NOTES.md'):
+                  source = report / name
+                  if source.is_file() and not source.is_symlink():
+                      shutil.copyfile(source, out / name)
+              for source in sorted(report.glob('*.hunk-*.patch')):
+                  if source.is_file() and not source.is_symlink():
+                      shutil.copyfile(source, out / 'hunks' / source.name)
+          for name in ('xxksu-manual-port.log', 'jack-susfs-port.log'):
+              source = pathlib.Path(os.environ['RUNNER_TEMP']) / name
+              if source.is_file():
+                  shutil.copyfile(source, out / name)
+          actual = subprocess.run(['git', '-C', 'NonGKI_Kernel_Build_2nd', 'rev-parse', 'HEAD'], capture_output=True, text=True)
+          metadata = {'run_url': os.environ['GITHUB_SERVER_URL'] + '/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID'], 'run_id': os.environ['GITHUB_RUN_ID'], 'attempt': os.environ['GITHUB_RUN_ATTEMPT'], 'workflow_commit': os.environ['GITHUB_SHA'], 'source_ref': os.environ['GITHUB_REF'], 'target_branch': os.environ['TARGET_BRANCH'], 'intended_jack_commit': os.environ['JACK_COMMIT'], 'checked_out_jack_commit': actual.stdout.strip() if actual.returncode == 0 else None, 'rejected_hunk_count': len(list((out / 'hunks').glob('*.patch'))), 'status': 'FAILED; diagnostics only, not a usable kernel target'}
+          (out / 'RUN.json').write_text(json.dumps(metadata, indent=2) + '\n')
+          PY
+          git diff --binary HEAD -- fs include kernel block mm security drivers/input/input.c Kconfig arch/arm64/configs/ksu-a325n-common.config patches/xxksu/source-lock.json > "$DIAGNOSTICS_DIR/partial-source.diff"
+          printf '%s\n' '# Failed xxKSU / Jack SUSFS port diagnostics' '' 'This branch contains diagnostics only, not a kernel source tree.' 'See susfs-port-failure/RUN.json, jack-source.json, hunks/, logs and partial-source.diff.' > "$publish/README.md"
+          export GIT_INDEX_FILE="$scratch/index"
+          git read-tree --empty
+          git --work-tree="$publish" add -f -- README.md susfs-port-failure
+          tree=$(git write-tree)
+          commit=$(printf 'diagnostics: failed SUSFS port run %s attempt %s\n' "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" | git commit-tree "$tree")
+          git push --force-with-lease="refs/heads/$branch:" origin "$commit:refs/heads/$branch"
+          {
+            echo '### Failed-port diagnostics published'
+            echo "Branch: $branch"
+            echo 'Directory: susfs-port-failure/'
+            echo "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/tree/$branch/susfs-port-failure"
+            echo 'The port remains failed; no partial kernel target was approved by this diagnostics step.'
+          } >> "$GITHUB_STEP_SUMMARY"
