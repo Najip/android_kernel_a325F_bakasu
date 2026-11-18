@@ -1,0 +1,509 @@
+{
+  "status": "PASS",
+  "scope": "Complete-series forward/reverse application only; no compile, boot, root, SUSFS-runtime, or LKM validation.",
+  "source_commit": "a4a5cc5f27c1dad571741ca8a56fd9fc322afde3",
+  "run_id": "44256779053",
+  "attempt": "1",
+  "run_url": "https://github.com/Najip/android_kernel_a325F_bakasu/actions/runs/44256779053",
+  "report_directory": "audit-reports/xxksu-validation/44256779053-1",
+  "sources": {
+    "KernelSU": "1b8ce9e15a9402aa2192aed5d381366cf2150f0f",
+    "NonGKI_Kernel_Build_2nd": "bbe032eb06c50d24a9207bf2ece5e25cf2460bd0"
+  },
+  "patches": [
+    {
+      "name": "0001-parent-bridge-api.patch",
+      "target": ".",
+      "sha256": "8b93787a84ff4e78004643d4242c88249fe4eb383c6533a3c941fa95f1393c4c"
+    },
+    {
+      "name": "0002-xxksu-native-wrappers.patch",
+      "target": "KernelSU",
+      "sha256": "8f5346c1ede95e8cb27b8f7389d2bbcbcc0a8109f6414b5ac1f58cfdc8aca333"
+    },
+    {
+      "name": "0003-parent-access-stat-adapter.patch",
+      "target": ".",
+      "sha256": "031b270764d99564d41b872c31d3da216a817b129abee9ef4c9d52e078d16433"
+    },
+    {
+      "name": "0004-parent-native-hook-transition.patch",
+      "target": ".",
+      "sha256": "f875fea67a4e97620e828b796534de2225661da521cbf5e5175c77a979c6ad7a"
+    },
+    {
+      "name": "0005-parent-susfs-lifecycle.patch",
+      "target": ".",
+      "sha256": "8d6466ddec9a0568ac22944f85ab5fc7d16551315bdcc50530f37f943ed7fab2"
+    },
+    {
+      "name": "0006-xxksu-susfs-lifecycle-calls.patch",
+      "target": "KernelSU",
+      "sha256": "384a36300febf1aab5aec4c4544e4ee1a0a731ef5513f26061ef4cc7e6e4058a"
+    }
+  ],
+  "steps": [
+    {
+      "command": [
+        "git",
+        "-C",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/KernelSU",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu",
+        "ls-tree",
+        "HEAD",
+        "--",
+        "KernelSU"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/NonGKI_Kernel_Build_2nd",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu",
+        "ls-tree",
+        "HEAD",
+        "--",
+        "NonGKI_Kernel_Build_2nd"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu",
+        "clone",
+        "--shared",
+        "--no-checkout",
+        "--",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu",
+        "/tmp/xxksu-validate-fdvtif92/parent"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/parent",
+        "checkout",
+        "--detach",
+        "a4a5cc5f27c1dad571741ca8a56fd9fc322afde3"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/parent",
+        "status",
+        "--porcelain",
+        "--untracked-files=all",
+        "--ignore-submodules=all"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu",
+        "clone",
+        "--shared",
+        "--no-checkout",
+        "--",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/KernelSU",
+        "/tmp/xxksu-validate-fdvtif92/KernelSU"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/KernelSU",
+        "checkout",
+        "--detach",
+        "1b8ce9e15a9402aa2192aed5d381366cf2150f0f"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/KernelSU",
+        "status",
+        "--porcelain",
+        "--untracked-files=all",
+        "--ignore-submodules=all"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/parent",
+        "apply",
+        "--check",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0001-parent-bridge-api.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/parent",
+        "apply",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0001-parent-bridge-api.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/KernelSU",
+        "apply",
+        "--check",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0002-xxksu-native-wrappers.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/KernelSU",
+        "apply",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0002-xxksu-native-wrappers.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/parent",
+        "apply",
+        "--check",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0003-parent-access-stat-adapter.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/parent",
+        "apply",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0003-parent-access-stat-adapter.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/parent",
+        "apply",
+        "--check",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0004-parent-native-hook-transition.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/parent",
+        "apply",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0004-parent-native-hook-transition.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/parent",
+        "apply",
+        "--check",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0005-parent-susfs-lifecycle.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/parent",
+        "apply",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0005-parent-susfs-lifecycle.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/KernelSU",
+        "apply",
+        "--check",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0006-xxksu-susfs-lifecycle-calls.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/KernelSU",
+        "apply",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0006-xxksu-susfs-lifecycle-calls.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/parent",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/parent",
+        "diff",
+        "--stat"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/KernelSU",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/KernelSU",
+        "diff",
+        "--stat"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/KernelSU",
+        "apply",
+        "--reverse",
+        "--check",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0006-xxksu-susfs-lifecycle-calls.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/KernelSU",
+        "apply",
+        "--reverse",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0006-xxksu-susfs-lifecycle-calls.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/parent",
+        "apply",
+        "--reverse",
+        "--check",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0005-parent-susfs-lifecycle.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/parent",
+        "apply",
+        "--reverse",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0005-parent-susfs-lifecycle.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/parent",
+        "apply",
+        "--reverse",
+        "--check",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0004-parent-native-hook-transition.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/parent",
+        "apply",
+        "--reverse",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0004-parent-native-hook-transition.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/parent",
+        "apply",
+        "--reverse",
+        "--check",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0003-parent-access-stat-adapter.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/parent",
+        "apply",
+        "--reverse",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0003-parent-access-stat-adapter.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/KernelSU",
+        "apply",
+        "--reverse",
+        "--check",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0002-xxksu-native-wrappers.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/KernelSU",
+        "apply",
+        "--reverse",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0002-xxksu-native-wrappers.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/parent",
+        "apply",
+        "--reverse",
+        "--check",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0001-parent-bridge-api.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/parent",
+        "apply",
+        "--reverse",
+        "/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/patches/xxksu/0001-parent-bridge-api.patch"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/parent",
+        "status",
+        "--porcelain",
+        "--untracked-files=all",
+        "--ignore-submodules=all"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/tmp/xxksu-validate-fdvtif92/KernelSU",
+        "status",
+        "--porcelain",
+        "--untracked-files=all",
+        "--ignore-submodules=all"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "log_parts": [
+    "audit-reports/xxksu-validation/44256779053-1/commands.part-0001.txt"
+  ],
+  "forward_application": "PASS",
+  "reverse_application": "PASS",
+  "clean_restoration": "PASS"
+}
