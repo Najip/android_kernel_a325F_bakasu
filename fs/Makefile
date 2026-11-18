@@ -21,7 +21,10 @@ else
 obj-y += no-block.o
 endif
 
-obj-$(CONFIG_KSU_SUSFS) += susfs.o susfs_priority.o susfs_ksu_glue.o
+obj-$(CONFIG_KSU_SUSFS) += susfs.o susfs_ksu_glue.o
+ifeq ($(shell grep -q "ssize_t kernel_read" $(srctree)/fs/read_write.c $(srctree)/fs/exec.c 2>/dev/null; echo $$?),0)
+CFLAGS_susfs.o += -DSUSFS_KERNEL_READ_NEW
+endif
 obj-$(CONFIG_KSU_SUSFS) += xxksu_susfs_lifecycle.o
 obj-$(CONFIG_KSU) += ksun_compat.o
 obj-$(CONFIG_NOMOUNT) += nomount/

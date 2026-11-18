@@ -32,3 +32,18 @@ void xxksu_parent_post_fs_data(void)
 	/* Called from xxKSU's existing once-only post-fs-data path. */
 	susfs_start_sdcard_monitor_fn();
 }
+
+void xxksu_parent_packages_changed(void)
+{
+	/*
+	 * Called from xxKSU's throne tracker thread after packages.list has
+	 * settled. Jack's UID filters store package names; an install or
+	 * reinstall changes the UID, so both bitmaps are resolved again.
+	 */
+#ifdef CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER
+	susfs_parse_priority_app_strings();
+#endif
+#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+	susfs_parse_sus_path_app_strings();
+#endif
+}

@@ -12,5 +12,6 @@ void xxksu_parent_reset_task(void);
 void xxksu_parent_deny_task(void);
 void xxksu_parent_finish_umount(void);
 void xxksu_parent_post_fs_data(void);
+void xxksu_parent_packages_changed(void);
 
 #endif

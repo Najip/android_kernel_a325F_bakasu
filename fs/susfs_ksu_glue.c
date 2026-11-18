@@ -37,9 +37,13 @@ bool __weak susfs_is_current_ksu_domain(void)
 static int susfs_ksu_handle_cmd(unsigned int cmd, void __user **arg)
 {
     switch (cmd) {
+#ifdef CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER
+    case CMD_SUSFS_SET_PRIORITY_UID_FILTER: susfs_set_priority_uid_filter(arg); break;
+#endif
 #ifdef CONFIG_KSU_SUSFS_SUS_PATH
     case CMD_SUSFS_ADD_SUS_PATH: susfs_add_sus_path(arg); break;
     case CMD_SUSFS_ADD_SUS_PATH_LOOP: susfs_add_sus_path_loop(arg); break;
+    case CMD_SUSFS_SET_SUS_PATH_UID_FILTER: susfs_set_sus_path_uid_filter(arg); break;
 #endif
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
     case CMD_SUSFS_HIDE_SUS_MNTS_FOR_NON_SU_PROCS: susfs_set_hide_sus_mnts_for_non_su_procs(arg); break;

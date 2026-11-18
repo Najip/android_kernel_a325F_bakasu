@@ -32,6 +32,14 @@ adding private bits to the user-visible statx result mask, including FD queries.
 
 ## Priority UID filter
 
+> xxKSU manual-hook branches with the Jack SUSFS v2.4.0 core: the text below
+> describes the earlier standalone `fs/susfs_priority.c` filter and no longer
+> applies. That file is removed there. The filter is Jack's implementation in
+> `fs/susfs.c` (`void susfs_set_priority_uid_filter(void __user **)`), package
+> UIDs come from `/data/system/packages.list`, and the refresh after a package
+> install is requested by xxKSU's throne tracker through
+> `xxksu_parent_packages_changed()`. See `.susfs-port/PORT_NOTES.md`.
+
 Use a `ksu_susfs` tool containing command `0x60030` from the upstream revision
 above. As root, after Android's data directories are ready:
 

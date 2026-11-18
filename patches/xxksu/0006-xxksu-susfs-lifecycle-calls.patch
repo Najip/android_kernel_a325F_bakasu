@@ -61,3 +61,16 @@ diff --git a/kernel/runtime/boot_event.c b/kernel/runtime/boot_event.c
  
  	// Sanity check for safe mode only needs early-boot input samples.
  	ksu_stop_input_hook_runtime();
+diff --git a/kernel/manager/throne_tracker.c b/kernel/manager/throne_tracker.c
+--- a/kernel/manager/throne_tracker.c
++++ b/kernel/manager/throne_tracker.c
+@@ -403,6 +403,9 @@ start_tt:
+ 	// this in exchange of override creds, we escape this whole thread.
+ 	escape_to_root_forced();
+ 	throne_tracker_fn(prune_only);
++#ifdef CONFIG_KSU_SUSFS
++	xxksu_parent_packages_changed();
++#endif
+ 
+ 	pr_info("throne_tracker: pid: %d exit!\n", current->pid);
+ 	return 0;

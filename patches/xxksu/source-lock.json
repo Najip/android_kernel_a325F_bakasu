@@ -32,10 +32,10 @@
     {
       "target": "KernelSU",
       "path": "patches/xxksu/0006-xxksu-susfs-lifecycle-calls.patch",
-      "sha256": "384a36300febf1aab5aec4c4544e4ee1a0a731ef5513f26061ef4cc7e6e4058a"
+      "sha256": "c4f70fb4ef510bbf06e9fc215e64aababe751573f0b8c851d93881cd322990bf"
     }
   ],
-  "status": "Jack 2.4.0 pin reviewed against existing xxKSU adaptations. Core, priority filter and hook files were not replaced. Compile and runtime pending.",
+  "status": "Jack SUSFS v2.4.0 core (pin 26f2313) ported: fs/susfs.c, susfs.h and susfs_def.h replaced, standalone priority filter removed, Jack priority and sus_path UID filters dispatched, logs enabled. Compile-checked per object; full build by CI; device runtime pending.",
   "parent_patches_materialized": true,
   "materialized_from": "56b3615c93b416c8f96813b2cea2e13215e1734f",
   "jack_susfs": {
@@ -43,7 +43,7 @@
     "baseline": "bbe032eb06c50d24a9207bf2ece5e25cf2460bd0",
     "patch": "Patches/Patch/susfs_patch_to_4.14.patch",
     "sha256": "453875308fbb6dcfb1058fe7ac2bdde3d8280b266a0a6386b9ab8ed42749d1f0",
-    "decision": "retain existing core; istate delta not reapplied",
+    "decision": "core replaced with Jack v2.4.0 at the pinned commit, including the sus_path i_state fix; local additions limited to susfs_get_data_path() and disabled-log ratelimit stubs",
     "audit": ".susfs-port/jack-source.json"
   }
 }
