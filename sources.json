@@ -1,0 +1,16 @@
+{
+  "_comment": "Pinned upstream sources. The updater workflow edits this file; there is normally no need to edit it by hand.",
+  "kernelsu": {
+    "name": "KernelSU-Next",
+    "repo": "https://github.com/KernelSU-Next/KernelSU-Next.git",
+    "branch": "legacy",
+    "commit": "e5f5ec998de88b9fc43c62cff8f7ae12d3f4800a",
+    "full_history": true
+  },
+  "susfs": {
+    "repo": "https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd.git",
+    "branch": "mainline",
+    "commit": "bbe032eb06c50d24a9207bf2ece5e25cf2460bd0",
+    "patch": "Patches/Patch/susfs_patch_to_4.14.patch"
+  }
+}

@@ -1,16 +1,38 @@
 name: A325X Kernel
+run-name: A325X KSUN kernel (${{ github.ref_name }})
 
+# KSUN (KernelSU-Next) variant. Builds the flashable AnyKernel3 ZIP.
+# - Runs by itself after every change on the ksun branch (GitHub runner).
+# - Run it by hand: Actions -> A325X Kernel -> Run workflow -> branch "ksun".
+#   Tick "Publish a GitHub Release" to put the ZIP on the Releases page.
 on:
   push:
-    branches:
-      - common
-    tags:
-      - 'v*'
+    branches: [ksun]
+    paths:
+      - '.github/workflows/kernel.yml'
+      - 'build_ksun.sh'
+      - 'package_ksun.sh'
+      - 'sources.json'
+      - 'anykernel/**'
+      - 'scripts/**'
+      - 'patches/**'
+      - 'arch/arm64/**'
+      - 'block/**'
+      - 'drivers/**'
+      - 'fs/**'
+      - 'include/**'
+      - 'kernel/**'
+      - 'mm/**'
+      - 'net/**'
+      - 'security/**'
   workflow_dispatch:
     inputs:
+      self_hosted:
+        description: 'Run on your own PC runner (untick to use a GitHub runner)'
+        type: boolean
+        default: true
       publish_release:
-        description: 'Publish the build as a GitHub Release'
-        required: false
+        description: 'Publish a GitHub Release with the ZIP'
         type: boolean
         default: false
 
@@ -18,335 +40,167 @@ permissions:
   contents: read
 
 concurrency:
-  group: a325n-kernel-${{ github.ref }}
-  cancel-in-progress: true
+  group: a325x-kernel-${{ github.ref }}
+  cancel-in-progress: false
 
 env:
-  OUT_DIR: ${{ github.workspace }}/out-ci
-  PACKAGE_DIR: ${{ github.workspace }}/package-ci
-  ANYKERNEL_REPO: https://github.com/osm0sis/AnyKernel3.git
-  ANYKERNEL_COMMIT: af770f7b16cf8f8eb7c68614b2a693b3b361c90c
+  SELF_HOSTED: ${{ github.event_name == 'workflow_dispatch' && inputs.self_hosted }}
 
 jobs:
   build:
-    name: Build A325X kernel
+    name: Build KSUN + SUSFS kernel
+    runs-on: ${{ github.event_name == 'workflow_dispatch' && inputs.self_hosted && 'self-hosted' || 'ubuntu-latest' }}
+    timeout-minutes: 120
     outputs:
-      release_tag: ${{ steps.version.outputs.release_tag }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
-
+      release_tag: ${{ steps.package.outputs.release_tag }}
+      artifact: ${{ steps.package.outputs.artifact }}
+    defaults:
+      run:
+        shell: bash
     steps:
-      - name: Checkout kernel and submodules
+      - name: Checkout
         uses: actions/checkout@v7
         with:
-          fetch-depth: 0
-          submodules: recursive
+          fetch-depth: 1
 
-      - name: Restore full submodule history and tags
-        shell: bash
+      - name: Prepare build folders
         run: |
           set -euo pipefail
-          git submodule foreach --recursive '
-            if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
-              git fetch --unshallow --tags --force
-            else
-              git fetch --tags --force
-            fi
-          '
-
-      - name: Resolve BakaSU version and release tag
-        id: version
-        shell: bash
-        run: |
-          set -euo pipefail
-          base_tag="$(git -C KernelSU describe --tags --abbrev=0)"
-          count="$(git -C KernelSU rev-list --count HEAD)"
-          code="$((30700 + count))"
-          . scripts/aosp_clang14.conf
-          tag="${base_tag}-${code}-aosp${AOSP_CLANG_VERSION%%.*}"
-          # Preserve the source association of a previously published tag.
-          tagged_commit="$(git rev-parse --verify "refs/tags/$tag^{commit}" 2>/dev/null || true)"
-          kernel_commit="$(git rev-parse HEAD)"
-          if [ -n "$tagged_commit" ] && [ "$tagged_commit" != "$kernel_commit" ]; then
-            tag="${tag}-$(git rev-parse --short=10 HEAD)"
-          fi
-          echo "release_tag=$tag" >> "$GITHUB_OUTPUT"
-          echo "BakaSU release tag: $tag"
-
-      - name: Install build dependencies
-        shell: bash
-        run: |
-          set -euo pipefail
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            bc binutils-aarch64-linux-gnu bison build-essential ca-certificates curl file flex git \
-            libelf-dev libssl-dev libncurses-dev jq lz4 pahole python3 unzip xz-utils zip zlib1g-dev zstd
-
-          echo "pahole: $(command -v pahole)"
-          pahole --version
-
-      - name: Install pinned AOSP Clang 14
-        id: toolchain
-        shell: bash
-        run: |
-          set -euo pipefail
-          toolchain="$RUNNER_TEMP/aosp-clang14"
-          sh scripts/fetch_aosp_clang.sh "$toolchain"
-          echo "TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
-          echo "toolchain=$toolchain" >> "$GITHUB_OUTPUT"
-          echo "$toolchain/bin" >> "$GITHUB_PATH"
-
-      - name: Clone pinned upstream AnyKernel3
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          parent="$(mktemp -d "$RUNNER_TEMP/AnyKernel3-A325N.XXXXXX")"
-          ak3="$parent/repository"
-
-          git clone --filter=blob:none "$ANYKERNEL_REPO" "$ak3"
-          git -C "$ak3" checkout --detach "$ANYKERNEL_COMMIT"
-
-          resolved="$(git -C "$ak3" rev-parse HEAD)"
-          if [ "$resolved" != "$ANYKERNEL_COMMIT" ]; then
-            echo "::error::Unexpected AnyKernel3 commit: $resolved"
-            exit 1
-          fi
-
-          test -s "$GITHUB_WORKSPACE/anykernel/a325n-anykernel.sh"
-
-          echo "AK3_DIR=$ak3" >> "$GITHUB_ENV"
-          echo "ANYKERNEL_RESOLVED_COMMIT=$resolved" >> "$GITHUB_ENV"
-
-      - name: Check unmodified BakaSU source
-        shell: bash
-        run: sh scripts/prepare_bakasu.sh --check
-
-      - name: Show build metadata
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "Kernel commit : $(git rev-parse HEAD)"
-          echo "Kernel branch : ${GITHUB_REF_NAME}"
-          echo "BakaSU SHA  : $(git -C KernelSU rev-parse HEAD)"
-          echo "BakaSU desc : $(git -C KernelSU describe --tags --always --dirty)"
-          echo "AnyKernel SHA : $ANYKERNEL_RESOLVED_COMMIT"
-          echo "Disk before build:"
+          work=$(mktemp -d "$RUNNER_TEMP/a325x-build.XXXXXX")
+          {
+            echo "BUILD_WORK=$work"
+            echo "OUT_DIR=$work/out"
+            echo "PACKAGE_DIR=$work/package"
+            echo "TOOLCHAIN=$RUNNER_TEMP/aosp-clang14"
+            echo "BUILD_LOG=$work/build.log"
+            echo "PACKAGE_LOG=$work/package.log"
+          } >> "$GITHUB_ENV"
           df -h "$GITHUB_WORKSPACE" "$RUNNER_TEMP"
 
-      - name: Build kernel
-        shell: bash
+      - name: Install build dependencies
         run: |
           set -euo pipefail
-          chmod +x ./build_a325n.sh ./package_anykernel.sh
-          TOOLCHAIN="$TOOLCHAIN" \
-          OUT_DIR="$OUT_DIR" \
-          ./build_a325n.sh 2>&1 | tee "$RUNNER_TEMP/a325n-build.log"
-
-      - name: Verify kernel outputs
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -s "$OUT_DIR/arch/arm64/boot/Image"
-          test -s "$OUT_DIR/arch/arm64/boot/Image.gz"
-          test -s "$OUT_DIR/drivers/kernelsu/preinit/runner.elf"
-          "$TOOLCHAIN/bin/llvm-readelf" -h "$OUT_DIR/drivers/kernelsu/preinit/runner.elf" \
-            > "$OUT_DIR/runner-elf-header.txt"
-          grep -q 'AArch64' "$OUT_DIR/runner-elf-header.txt"
-          sh scripts/prepare_bakasu.sh --check
-          test -s "$OUT_DIR/drivers/kernelsu/feature/.module_blacklist.o.cmd"
-          if grep -q 'KSU_COMPAT_HAS_INSMOD_HOOK' \
-            "$OUT_DIR/drivers/kernelsu/feature/.module_blacklist.o.cmd"; then
-            echo '::error::Unexpected BakaSU kernel-module blacklist integration'
-            exit 1
+          packages=(bc binutils-aarch64-linux-gnu bison build-essential ca-certificates curl file flex git libelf-dev libssl-dev libncurses-dev jq lz4 pahole python3 unzip xz-utils zip zlib1g-dev zstd util-linux)
+          if [[ "$SELF_HOSTED" != true ]]; then
+            sudo apt-get update
+            sudo apt-get install -y --no-install-recommends "${packages[@]}"
+            exit 0
           fi
-          "$TOOLCHAIN/bin/llvm-nm" --defined-only "$OUT_DIR/vmlinux" \
-            > "$OUT_DIR/bakasu-symbols.txt"
-          for symbol in ksu_setup_preinit_file ksu_preinit_runner_start ksu_preinit_runner_end \
-                        susfs_set_priority_uid_filter susfs_is_priority_uid_filtered; do
-            grep -q " $symbol$" "$OUT_DIR/bakasu-symbols.txt"
+          fail() { echo "::error::$*" >&2; exit 1; }
+          . /etc/os-release
+          [[ "$ID" == ubuntu ]] || fail 'Automatic dependency setup supports Ubuntu only.'
+          [[ "$(uname -m)" == x86_64 ]] || fail 'The AOSP Clang prebuilt requires x86_64 Linux.'
+          missing=()
+          for package in "${packages[@]}"; do
+            status=$(dpkg-query -W -f='${Status}' "$package" 2>/dev/null || true)
+            [[ "$status" == 'install ok installed' ]] || missing+=("$package")
           done
-          grep -q 'KSU_COMPAT_HAS_SUSFS_FEATURE_SELINUX_HIDE' \
-            "$OUT_DIR/drivers/kernelsu/feature/.selinux_hide.o.cmd"
-          "$TOOLCHAIN/bin/llvm-nm" --extern-only --defined-only "$OUT_DIR/vmlinux" \
-            > "$OUT_DIR/bakasu-global-symbols.txt"
-          for symbol in my_write_context my_write_access my_setprocattr \
-                        ksu_selinux_hide_running fake_status initialize_fake_status; do
-            grep -q " $symbol$" "$OUT_DIR/bakasu-global-symbols.txt"
-          done
-          if grep -q ' my_sel_open_handle_status$' "$OUT_DIR/bakasu-symbols.txt"; then
-            echo '::error::Unexpected duplicate BakaSU dynamic SELinux hook'
-            exit 1
+          if ((${#missing[@]})); then
+            privilege=()
+            if ((EUID != 0)); then
+              sudo -n true || fail "Missing packages need non-interactive sudo: ${missing[*]}"
+              privilege=(sudo -n)
+            fi
+            "${privilege[@]}" env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 update
+            "${privilege[@]}" env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 install -y --no-install-recommends --no-remove "${missing[@]}"
+          else
+            echo 'All build dependencies are already installed.'
           fi
-          "$TOOLCHAIN/bin/llvm-strings" "$OUT_DIR/arch/arm64/boot/Image" \
-            > "$OUT_DIR/kernel-strings.txt"
-          ksu_version="$(git -C KernelSU describe --tags --abbrev=0)-$(git -C KernelSU rev-parse --short=8 HEAD)"
-          grep -Fx -- "$ksu_version" "$OUT_DIR/kernel-strings.txt"
-          if grep -Fx -- "$ksu_version-dirty" \
-            "$OUT_DIR/kernel-strings.txt"; then
-            echo '::error::BakaSU version unexpectedly contains -dirty'
-            exit 1
-          fi
-          grep -q '^CONFIG_NOMOUNT=y$' "$OUT_DIR/.config"
-          grep -q '^CONFIG_ALWAYS_ENFORCE=y$' "$OUT_DIR/.config"
-          cat "$OUT_DIR/include/config/kernel.release"
-          sha256sum \
-            "$OUT_DIR/arch/arm64/boot/Image" \
-            "$OUT_DIR/arch/arm64/boot/Image.gz"
 
-      - name: Package AnyKernel ZIP
-        env:
-          BAKASU_RELEASE_TAG: ${{ steps.version.outputs.release_tag }}
-        shell: bash
+      - name: Use cached AOSP Clang 14 (own PC runner)
+        if: env.SELF_HOSTED == 'true'
         run: |
           set -euo pipefail
-          rm -rf "$PACKAGE_DIR"
-          mkdir -p "$PACKAGE_DIR"
+          cache="${XDG_CACHE_HOME:-$HOME/.cache}/a325-kernel/ksun"
+          mkdir -p "$cache"
+          exec 9>"$cache/.lock"
+          flock 9
+          key=$(sha256sum scripts/fetch_aosp_clang.sh scripts/aosp_clang14.conf | sha256sum | cut -c1-16)
+          toolchain="$cache/aosp-clang14-$key"
+          AOSP_CLANG_CACHE="$cache/archives" sh scripts/fetch_aosp_clang.sh "$toolchain"
+          echo "TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
 
-          TOOLCHAIN="$TOOLCHAIN" \
-          OUT_DIR="$OUT_DIR" \
-          AK3_DIR="$AK3_DIR" \
-          AK3_CONFIG="$GITHUB_WORKSPACE/anykernel/a325n-anykernel.sh" \
-          ZIP_OUT_DIR="$PACKAGE_DIR" \
-          ./package_anykernel.sh | tee "$RUNNER_TEMP/a325n-package.log"
+      - name: Download KernelSU-Next, apply patches and compile
+        id: compile
+        run: |
+          set -euo pipefail
+          sh build_ksun.sh 2>&1 | tee "$BUILD_LOG"
 
-          zip_path="$(find "$PACKAGE_DIR" -maxdepth 1 -type f -name '*.zip' -print -quit)"
-          if [ -z "$zip_path" ] || [ ! -s "$zip_path" ]; then
-            echo '::error::Flashable ZIP was not created.'
-            exit 1
-          fi
+      - name: Package AnyKernel3 ZIP
+        id: package
+        run: |
+          set -euo pipefail
+          sh package_ksun.sh 2>&1 | tee "$PACKAGE_LOG"
+          echo "Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> "$PACKAGE_DIR/build-info.txt"
+          zip=$(basename "$(ls "$PACKAGE_DIR"/*.zip)")
+          name="${zip%.zip}"
+          echo "artifact=$name" >> "$GITHUB_OUTPUT"
+          echo "release_tag=${name#A325X-}" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Kernel ZIP ready: \`$name\`"
+            echo '```'
+            cat "$PACKAGE_DIR/build-info.txt"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
-          unzip -tq "$zip_path"
-          packaged_anykernel="$RUNNER_TEMP/packaged-anykernel.sh"
-          unzip -p "$zip_path" anykernel.sh > "$packaged_anykernel"
-
-          grep -q '^device\.name1=a32$' "$packaged_anykernel" || {
-            echo '::error::A325N device configuration is missing from the ZIP.'
-            exit 1
-          }
-          grep -Eq '^BLOCK=/dev/block/by-name/boot;?$' "$packaged_anykernel" || {
-            echo '::error::A325N boot partition configuration is missing from the ZIP.'
-            exit 1
-          }
-          if grep -Eq 'maguro|toro|toroplus|tuna|omap_hsmmc' "$packaged_anykernel"; then
-            echo '::error::Stock Galaxy Nexus AnyKernel configuration was packaged.'
-            exit 1
-          fi
-
-          echo 'Packaged AnyKernel configuration:'
-          grep -E '^(kernel\.string|do\.devicecheck|device\.name[0-9]+|BLOCK)=' \
-            "$packaged_anykernel"
-
-          kernel_sha="$(git rev-parse HEAD)"
-          kernel_short="$(git rev-parse --short=10 HEAD)"
-          ksu_sha="$(git -C KernelSU rev-parse HEAD)"
-          ksu_desc="$(git -C KernelSU describe --tags --always)"
-          ksu_count="$(git -C KernelSU rev-list --count HEAD)"
-          ksu_code="$((30700 + ksu_count))"
-          susfs="$(sed -n 's/^#define SUSFS_VERSION "\([^"]*\)"/\1/p' include/linux/susfs.h | head -n1)"
-          kernel_release="$(cat "$OUT_DIR/include/config/kernel.release")"
-
-          sha256sum "$zip_path" > "$PACKAGE_DIR/SHA256SUMS.txt"
-          sha256sum \
-            "$OUT_DIR/arch/arm64/boot/Image" \
-            "$OUT_DIR/arch/arm64/boot/Image.gz" \
-            >> "$PACKAGE_DIR/SHA256SUMS.txt"
-
-          cat > "$PACKAGE_DIR/build-info.txt" <<EOF
-          Kernel commit: $kernel_sha
-          Kernel short: $kernel_short
-          Kernel release: $kernel_release
-          BakaSU release tag: $BAKASU_RELEASE_TAG
-          BakaSU commit: $ksu_sha
-          BakaSU describe: $ksu_desc
-          BakaSU version code: $ksu_code
-          BakaSU source: unmodified upstream; parent-kernel preinit and SELinux adapters
-          SUSFS priority UID source: simonpunk gki-android12-5.10 eb95da0; parent command and package watcher
-          Preinit: runner linked; device execution requires boot verification
-          SUSFS: $susfs
-          Toolchain: pinned AOSP Clang 14
-          AnyKernel upstream: $ANYKERNEL_REPO@$ANYKERNEL_RESOLVED_COMMIT
-          Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
-          EOF
-          cat "$OUT_DIR/toolchain-source.txt" >> "$PACKAGE_DIR/build-info.txt"
-
-          cp "$OUT_DIR/bakasu-source.txt" "$PACKAGE_DIR/bakasu-source.txt"
-          cp "$OUT_DIR/toolchain-source.txt" "$PACKAGE_DIR/toolchain-source.txt"
-
-          echo "ARTIFACT_NAME=A325N-BakaSU-$kernel_short" >> "$GITHUB_ENV"
-          echo "ZIP_NAME=$(basename "$zip_path")" >> "$GITHUB_ENV"
-
-          echo '--- build-info.txt ---'
-          cat "$PACKAGE_DIR/build-info.txt"
-          echo '--- SHA256SUMS.txt ---'
-          cat "$PACKAGE_DIR/SHA256SUMS.txt"
-
-      - name: Upload build artifact
+      - name: Upload kernel ZIP
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ env.ARTIFACT_NAME }}
-          path: |
-            ${{ env.PACKAGE_DIR }}/*.zip
-            ${{ env.PACKAGE_DIR }}/SHA256SUMS.txt
-            ${{ env.PACKAGE_DIR }}/build-info.txt
-            ${{ env.PACKAGE_DIR }}/bakasu-source.txt
-            ${{ env.PACKAGE_DIR }}/toolchain-source.txt
+          name: ${{ steps.package.outputs.artifact }}
+          path: ${{ env.PACKAGE_DIR }}/
           if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload logs for troubleshooting
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: build-logs-${{ github.run_id }}-${{ github.run_attempt }}
+          include-hidden-files: true
+          path: |
+            ${{ env.BUILD_LOG }}
+            ${{ env.PACKAGE_LOG }}
+            ${{ env.OUT_DIR }}/.config
+            ${{ env.OUT_DIR }}/System.map
+            ${{ env.OUT_DIR }}/kernelsu-source.json
+            ${{ env.OUT_DIR }}/applied-patches.txt
+            ${{ env.OUT_DIR }}/toolchain-source.txt
+          if-no-files-found: warn
           retention-days: 14
+
+      - name: Clean build folder (own PC runner)
+        if: always() && env.SELF_HOSTED == 'true'
+        run: |
+          if [[ -n "${BUILD_WORK:-}" && "$BUILD_WORK" == "$RUNNER_TEMP"/a325x-build.* ]]; then
+            rm -rf -- "$BUILD_WORK"
+          fi
+          rm -rf -- KernelSU
 
   release:
     name: Publish GitHub Release
     needs: build
-    if: >-
-      startsWith(github.ref, 'refs/tags/v') ||
-      (github.event_name == 'workflow_dispatch' && inputs.publish_release == true)
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_release
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
     steps:
-      - name: Download build artifact
+      - name: Download kernel ZIP
         uses: actions/download-artifact@v7
         with:
-          pattern: A325N-BakaSU-*
+          name: ${{ needs.build.outputs.artifact }}
           path: release
-          merge-multiple: true
-
-      - name: Resolve release tag
-        id: tag
-        env:
-          AUTO_RELEASE_TAG: ${{ needs.build.outputs.release_tag }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
-            tag="$GITHUB_REF_NAME"
-          else
-            tag="${AUTO_RELEASE_TAG:?BakaSU release tag is missing from the build output}"
-          fi
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ steps.tag.outputs.tag }}
+          TAG: ${{ needs.build.outputs.release_tag }}
         shell: bash
         run: |
           set -euo pipefail
-          shopt -s nullglob
-          assets=(release/*.zip release/SHA256SUMS.txt release/build-info.txt release/bakasu-source.txt release/toolchain-source.txt)
-          if [ "${#assets[@]}" -eq 0 ]; then
-            echo '::error::No release assets found.'
-            exit 1
-          fi
-
-          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release upload "$RELEASE_TAG" "${assets[@]}" \
-              --repo "$GITHUB_REPOSITORY" --clobber
+          assets=(release/*.zip release/SHA256SUMS.txt release/build-info.txt)
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" "${assets[@]}" --repo "$GITHUB_REPOSITORY" --clobber
           else
-            gh release create "$RELEASE_TAG" "${assets[@]}" \
-              --repo "$GITHUB_REPOSITORY" \
-              --target "$GITHUB_SHA" \
-              --title "A325X BakaSU $RELEASE_TAG" \
-              --generate-notes
+            gh release create "$TAG" "${assets[@]}" --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" --title "A325X $TAG" --notes-file release/build-info.txt
           fi

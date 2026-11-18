@@ -1,3 +1,8 @@
 out/
 .toolchains/
 arch/arm64/configs/compiled_defconfig
+
+# KernelSU-Next source, downloaded at build time (see sources.json)
+/KernelSU/
+/out-ksun/
+__pycache__/

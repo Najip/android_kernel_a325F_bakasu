@@ -1,42 +1,26 @@
 #!/bin/sh
-# KernelSU-Next (legacy) build of the A325F/N 4.14 kernel.
-# Same toolchain and config fragments as build_a325n.sh, without the BakaSU checks.
-# NO_NOMOUNT=1 appends "# CONFIG_NOMOUNT is not set" as the last config fragment.
+# KernelSU-Next (legacy) + SUSFS build of the A325X 4.14 kernel.
+#  1. downloads KernelSU-Next at the commit pinned in sources.json into KernelSU/
+#     and applies patches/kernelsu/ (scripts/setup_sources.py);
+#  2. applies every patches/kernel/*.patch in file-name order;
+#  3. compiles with the pinned AOSP Clang 14.
+# The names of applied kernel patches go to $OUT/applied-patches.txt.
 #
-# Kernel patches are always applied:
-#   1. every patches/kernel/*.patch on this branch, in file-name order;
-#   2. if there are none, the perf patch (a file named NNNN-*perf-1100mhz*.patch)
-#      is looked up anywhere in the tree of PERF_PATCH_REF
-#      (default nomount-lkm-sync-up-patch) and applied.
-# The names of applied patches go to $OUT/applied-patches.txt.
-# NO_KERNEL_PATCHES=1 skips all of it (local experiments only).
-#
-# Manager signature: KSU_NEXT_MANAGER_SIZE and KSU_NEXT_MANAGER_HASH (environment,
-# or ksun-manager-signature.env) select the manager signing certificate the kernel
-# accepts. Both empty keeps the official KernelSU-Next key.
+# Manager signature: KSU_NEXT_MANAGER_SIZE and KSU_NEXT_MANAGER_HASH (environment)
+# select the manager signing certificate the kernel accepts. Leave both unset to
+# keep the official KernelSU-Next key.
 set -eu
 
 ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 # shellcheck source=scripts/aosp_clang14.conf
 . "$ROOT/scripts/aosp_clang14.conf"
-OUT=${OUT_DIR:-"$ROOT/out"}
+OUT=${OUT_DIR:-"$ROOT/out-ksun"}
+case "$OUT" in /*) ;; *) OUT="$ROOT/$OUT" ;; esac
 TOOLCHAIN=${TOOLCHAIN:-"$ROOT/.toolchains/$AOSP_CLANG_DIRECTORY"}
 JOBS=${JOBS:-$(nproc)}
 
-if [ ! -f "$ROOT/KernelSU/kernel/Kconfig" ]; then
-  echo "KernelSU submodule is empty; run the setup-ksun-submodules workflow first" >&2
-  exit 1
-fi
-if ! git -C "$ROOT" config -f .gitmodules --get submodule.KernelSU.url | grep -qi 'KernelSU-Next'; then
-  echo "KernelSU submodule is not KernelSU-Next; run the setup-ksun-submodules workflow first" >&2
-  exit 1
-fi
+python3 "$ROOT/scripts/setup_sources.py" "$OUT"
 
-SIG_FILE="$ROOT/ksun-manager-signature.env"
-if [ -z "${KSU_NEXT_MANAGER_SIZE:-}${KSU_NEXT_MANAGER_HASH:-}" ] && [ -f "$SIG_FILE" ]; then
-  # shellcheck disable=SC1090
-  . "$SIG_FILE"
-fi
 KSU_NEXT_MANAGER_SIZE=${KSU_NEXT_MANAGER_SIZE:-}
 KSU_NEXT_MANAGER_HASH=${KSU_NEXT_MANAGER_HASH:-}
 if [ -n "$KSU_NEXT_MANAGER_SIZE" ] || [ -n "$KSU_NEXT_MANAGER_HASH" ]; then
@@ -121,30 +105,9 @@ apply_one() {
 }
 
 apply_kernel_patches() {
-  found=0
-  if [ -d "$ROOT/patches/kernel" ]; then
-    for p in $(find "$ROOT/patches/kernel" -maxdepth 1 -type f -name '*.patch' | sort); do
-      found=1
-      apply_one "$p"
-    done
-  fi
-  if [ "$found" = 1 ]; then
-    return 0
-  fi
-
-  src_ref=${PERF_PATCH_REF:-nomount-lkm-sync-up-patch}
-  echo "No patches/kernel/*.patch on this branch; looking for the perf patch on $src_ref"
-  git -C "$ROOT" fetch --no-tags --depth=1 origin "$src_ref"
-  path=$(git -C "$ROOT" ls-tree -r --name-only FETCH_HEAD \
-    | grep -E '(^|/)[0-9]{4}-.*perf-1100mhz.*\.patch$' | sort | tail -n1 || true)
-  if [ -z "$path" ]; then
-    echo "::error::No *perf-1100mhz*.patch found on $src_ref. Add patches/kernel/0001-*.patch to this branch." >&2
-    exit 1
-  fi
-  echo "Using $path from $src_ref"
-  git -C "$ROOT" show "FETCH_HEAD:$path" > "$OUT/$(basename "$path")"
-  test -s "$OUT/$(basename "$path")"
-  apply_one "$OUT/$(basename "$path")"
+  for p in $(find "$ROOT/patches/kernel" -maxdepth 1 -type f -name '*.patch' | sort); do
+    apply_one "$p"
+  done
 }
 
 if [ "${NO_KERNEL_PATCHES:-0}" = 1 ]; then
@@ -160,12 +123,10 @@ cat "$OUT/clang-version.txt" "$OUT/lld-version.txt" >> "$OUT/toolchain-source.tx
 "$AS" --version >> "$OUT/toolchain-source.txt"
 
 {
-  echo "KernelSU-Next commit: $(git -C "$ROOT/KernelSU" rev-parse HEAD)"
-  echo "KernelSU-Next describe: $(git -C "$ROOT/KernelSU" describe --tags --always 2>/dev/null || echo unknown)"
   echo "Manager signature size: ${KSU_NEXT_MANAGER_SIZE:-default (official key)}"
   echo "Manager signature hash: ${KSU_NEXT_MANAGER_HASH:-default (official key)}"
-} > "$OUT/ksun-source.txt"
-cat "$OUT/ksun-source.txt"
+} > "$OUT/manager-signature.txt"
+cat "$OUT/manager-signature.txt"
 
 set -- \
   "$ROOT/arch/arm64/configs/mt6768_slm_defconfig" \
@@ -173,10 +134,6 @@ set -- \
   "$ROOT/arch/arm64/configs/battery.config" \
   "$ROOT/arch/arm64/configs/ksu-a325n-common.config" \
   "$ROOT/arch/arm64/configs/a325n-release.config"
-if [ "${NO_NOMOUNT:-0}" = 1 ]; then
-  printf '# CONFIG_NOMOUNT is not set\n' > "$OUT/no-nomount.config"
-  set -- "$@" "$OUT/no-nomount.config"
-fi
 "$ROOT/scripts/kconfig/merge_config.sh" -m -O "$OUT" "$@"
 
 make -C "$ROOT" O="$OUT" olddefconfig

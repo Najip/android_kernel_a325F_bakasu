@@ -26,7 +26,6 @@ ifeq ($(shell grep -q "ssize_t kernel_read" $(srctree)/fs/read_write.c $(srctree
 CFLAGS_susfs.o += -DSUSFS_KERNEL_READ_NEW
 endif
 obj-$(CONFIG_KSU) += ksun_compat.o
-obj-$(CONFIG_NOMOUNT) += nomount/
 
 ifdef CONFIG_KSU_SUSFS
 CFLAGS_exec.o += -include $(srctree)/include/linux/susfs_ksun.h

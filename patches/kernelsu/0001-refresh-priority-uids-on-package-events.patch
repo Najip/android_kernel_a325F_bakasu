@@ -1,6 +1,6 @@
-diff --git a/KernelSU/kernel/manager/pkg_observer.c b/KernelSU/kernel/manager/pkg_observer.c
---- a/KernelSU/kernel/manager/pkg_observer.c
-+++ b/KernelSU/kernel/manager/pkg_observer.c
+diff --git a/kernel/manager/pkg_observer.c b/kernel/manager/pkg_observer.c
+--- a/kernel/manager/pkg_observer.c
++++ b/kernel/manager/pkg_observer.c
 @@ -12,6 +12,10 @@
  #include "throne_tracker.h"
  #include "runtime/ksud_boot.h"
