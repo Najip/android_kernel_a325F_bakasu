@@ -1,0 +1,95 @@
+diff --git a/fs/exec.c b/fs/exec.c
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1908,4 +1908,4 @@
+-#ifdef CONFIG_KSU_SUSFS
++#if defined(CONFIG_KSU_SUSFS) && !defined(CONFIG_KSU_HACK_ARM64_BRANCH_LINK)
+ extern struct static_key_true ksu_su_compat_enabled;
+ extern struct static_key_true susfs_is_sdcard_android_data_not_decrypted;
+ extern int ksu_handle_execveat(int *fd, struct filename **filename_ptr, void *argv,
+@@ -1929,4 +1929,4 @@
+-#ifdef CONFIG_KSU_SUSFS
++#if defined(CONFIG_KSU_SUSFS) && !defined(CONFIG_KSU_HACK_ARM64_BRANCH_LINK)
+ 	bool is_su_session = false;
+ 	struct filename *preinit_filename = NULL;
+ 	struct user_arg_ptr preinit_argv, preinit_envp;
+@@ -1939,4 +1939,4 @@
+-#ifdef CONFIG_KSU_SUSFS
++#if defined(CONFIG_KSU_SUSFS) && !defined(CONFIG_KSU_HACK_ARM64_BRANCH_LINK)
+ 	if (!file && filename && current->pid == 1) {
+ 		struct filename *runner;
+ 
+@@ -1958,4 +1958,4 @@
+-#ifdef CONFIG_KSU_SUSFS
++#if defined(CONFIG_KSU_SUSFS) && !defined(CONFIG_KSU_HACK_ARM64_BRANCH_LINK)
+ 	if (!filename || likely(susfs_is_current_proc_no_su()))
+ 		goto orig_flow;
+ 	if (static_branch_likely(&ksu_su_compat_enabled)) {
+@@ -2083,4 +2083,4 @@
+-#ifdef CONFIG_KSU_SUSFS
++#if defined(CONFIG_KSU_SUSFS) && !defined(CONFIG_KSU_HACK_ARM64_BRANCH_LINK)
+ 	/* flush_old_exec() has replaced the old mm: retry is no longer safe. */
+ 	if (preinit_filename && retval < 0 && !bprm->mm)
+ 		preinit_committed = true;
+@@ -2091,4 +2091,4 @@
+-#ifdef CONFIG_KSU_SUSFS
++#if defined(CONFIG_KSU_SUSFS) && !defined(CONFIG_KSU_HACK_ARM64_BRANCH_LINK)
+ 	if (unlikely(is_su_session))
+ 		(void)ksu_handle_post_execveat_sucompat(&fd, &filename, &argv, &envp, &flags, &retval);
+ #endif // #ifdef CONFIG_KSU_SUSFS
+@@ -2106,4 +2106,4 @@
+-#ifdef CONFIG_KSU_SUSFS
++#if defined(CONFIG_KSU_SUSFS) && !defined(CONFIG_KSU_HACK_ARM64_BRANCH_LINK)
+ 	if (preinit_filename)
+ 		putname(preinit_filename);
+ #endif
+@@ -2133,4 +2133,4 @@
+-#ifdef CONFIG_KSU_SUSFS
++#if defined(CONFIG_KSU_SUSFS) && !defined(CONFIG_KSU_HACK_ARM64_BRANCH_LINK)
+ 	if (preinit_filename) {
+ 		/* reset_files_struct() must restore the table owning the fd first. */
+ 		bakasu_preinit_close(&preinit_fd);
+diff --git a/fs/read_write.c b/fs/read_write.c
+--- a/fs/read_write.c
++++ b/fs/read_write.c
+@@ -620,4 +620,4 @@
+-#ifdef CONFIG_KSU
++#if defined(CONFIG_KSU) && !defined(CONFIG_KSU_HACK_ARM64_BRANCH_LINK)
+ #include <linux/susfs_ksu.h>
+ extern struct static_key_true ksu_is_init_rc_hook_enabled;
+ #endif
+@@ -632,4 +632,4 @@
+-#ifdef CONFIG_KSU
++#if defined(CONFIG_KSU) && !defined(CONFIG_KSU_HACK_ARM64_BRANCH_LINK)
+ 	if (static_branch_unlikely(&ksu_is_init_rc_hook_enabled))
+ 		ksu_handle_sys_read(fd, &buf, &count);
+ #endif
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -388,4 +388,4 @@
+-#ifdef CONFIG_KSU_SUSFS
++#if defined(CONFIG_KSU_SUSFS) && !defined(CONFIG_KSU_HACK_ARM64_BRANCH_LINK)
+ 	if (static_branch_unlikely(&ksu_is_input_hook_enabled))
+ 		ksu_handle_input_handle_event(&type, &code, &value);
+ #endif
+diff --git a/fs/susfs_ksu_glue.c b/fs/susfs_ksu_glue.c
+--- a/fs/susfs_ksu_glue.c
++++ b/fs/susfs_ksu_glue.c
+@@ -23,4 +23,6 @@
+ #include <linux/xxksu_parent_bridge.h>
++#if !defined(CONFIG_KSU_HACK_ARM64_BRANCH_LINK)
+ extern int ksu_handle_execveat_ksud(int *fd, struct filename **filename_ptr, void *argv, void *envp, int *flags);
+ extern int ksu_handle_execveat_sucompat(int *fd, struct filename **filename_ptr, void *argv, void *envp, int *flags);
++#endif
+ extern const size_t ksu_rc_len __weak;
+@@ -122,7 +122,9 @@
++#if !defined(CONFIG_KSU_HACK_ARM64_BRANCH_LINK)
+ int susfs_ksun_handle_execveat(int *fd, struct filename **filename_ptr, void *argv, void *envp, int *flags)
+ {
+     ksu_handle_execveat_ksud(fd, filename_ptr, argv, envp, flags);
+     return ksu_handle_execveat_sucompat(fd, filename_ptr, argv, envp, flags);
+ }
++#endif
+ 
+ static bool susfs_ksun_is_init_rc(struct file *fp)
