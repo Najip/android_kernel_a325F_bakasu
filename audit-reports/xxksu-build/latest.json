@@ -1,38 +1,14 @@
 {
-  "status": "PASS",
-  "compile_outcome": "success",
-  "exit_code": "0",
-  "log_exit_code": "0",
-  "package_outcome": "success",
-  "package_exit_code": "0",
+  "status": "NOT_PASS",
+  "compile_outcome": "skipped",
+  "exit_code": "",
+  "log_exit_code": "",
+  "package_outcome": "skipped",
+  "package_exit_code": "",
   "kernel_patches": {
-    "source_branch": "nomount-lkm-sync-up-patch",
-    "source_commit": "53fe38b470a927e590b89eace39b7a71e4b90ea1",
-    "network_fixes": true,
-    "perf_tuning": false,
-    "original_gpu_voltages_restored_last": true,
-    "sequential_preflight": "PASS",
-    "reverse_restoration": "PASS",
-    "patches": [
-      {
-        "name": "0003-net-udp-gso-qdisc-juan.patch",
-        "kind": "network",
-        "source_git_blob": "7caa413200b57fdd865ef663e1095caa1241b494",
-        "source_sha256": "fd7eda4e97f635a670cf49ea9b17fc81c6fd58d2715aeb6c383101f82e629254",
-        "applied_sha256": "fd7eda4e97f635a670cf49ea9b17fc81c6fd58d2715aeb6c383101f82e629254",
-        "gpu_preimage_adapted": false
-      },
-      {
-        "name": "0006-restore-original-gpu-voltages.patch",
-        "kind": "restore",
-        "source_git_blob": "486a70ed37093833a0d533cc46bf69a672964015",
-        "source_sha256": "486c8aca9a27f7fa746c378463bdca4585ece599da5470c30289de2ec077936f",
-        "applied_sha256": "486c8aca9a27f7fa746c378463bdca4585ece599da5470c30289de2ec077936f",
-        "gpu_preimage_adapted": false
-      }
-    ]
+    "status": "not_completed"
   },
-  "source_commit": "a84e27a473b6023a7a0a173ff03b9bb3a1610dfd",
+  "source_commit": "17f0d7922d2717b839a3140a29c68fff306203b1",
   "source_lock": {
     "sources": {
       "KernelSU": "1b8ce9e15a9402aa2192aed5d381366cf2150f0f",
@@ -72,36 +48,13 @@
     ],
     "status": "Sequential application and reversal validated in Actions run 44254995433 (attempt 1); prebuild helper and compile/link not yet validated."
   },
-  "run_id": "44292754902",
+  "run_id": "44301633090",
   "attempt": "1",
-  "run_url": "https://github.com/Najip/android_kernel_a325F_bakasu/actions/runs/44292754902",
+  "run_url": "https://github.com/Najip/android_kernel_a325F_bakasu/actions/runs/44301633090",
   "scope": "Experimental kernel ZIP. Compile/link and archive checks only. Boot, root, SUSFS runtime and LKM remain untested. No release or deployment.",
-  "warning_line_count": 357,
+  "warning_line_count": 0,
   "log_parts": [
-    "audit-reports/xxksu-build/44292754902-1/build.part-0001.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0002.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0003.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0004.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0005.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0006.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0007.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0008.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0009.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0010.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0011.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0012.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0013.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0014.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0015.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0016.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0017.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0018.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0019.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0020.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0021.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0022.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0023.txt",
-    "audit-reports/xxksu-build/44292754902-1/build.part-0024.txt",
-    "audit-reports/xxksu-build/44292754902-1/package.part-0001.txt"
+    "audit-reports/xxksu-build/44301633090-1/build.part-0001.txt",
+    "audit-reports/xxksu-build/44301633090-1/package.part-0001.txt"
   ]
 }
