@@ -75,7 +75,9 @@ jobs:
           git diff --cached --exit-code -- .github/workflows/ KernelSU
           test "$(git ls-files --stage NonGKI_Kernel_Build_2nd | awk '{print $1}')" = 160000
           test "$(git ls-files --stage NonGKI_Kernel_Build_2nd | awk '{print $2}')" = "$JACK_COMMIT"
-          git commit -m 'SUSFS: import pinned Jack 2.4.0 core and audited hooks for xxKSU'
+          subject=$(head -n 1 .susfs-port/COMMIT_SUBJECT)
+          test -n "$subject"
+          git commit -m "$subject"
           git push --force-with-lease="refs/heads/$TARGET_BRANCH:" origin "HEAD:refs/heads/$TARGET_BRANCH"
           {
             echo "### Generated target: $TARGET_BRANCH"
