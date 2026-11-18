@@ -1,0 +1,26 @@
+diff --git a/kernel/ksu.c b/kernel/ksu.c
+--- a/kernel/ksu.c
++++ b/kernel/ksu.c
+@@ -300,3 +300,22 @@
++#ifdef CONFIG_KSU_SUSFS
++#include <linux/xxksu_parent_bridge.h>
++
++bool xxksu_parent_sucompat_enabled(void)
++{
++	return READ_ONCE(ksu_su_compat_enabled);
++}
++
++bool xxksu_parent_uid_allowed(uid_t uid)
++{
++	return ksu_is_allow_uid_for_current(uid);
++}
++
++void xxksu_parent_read_fd(unsigned int fd)
++{
++	ksu_handle_sys_read_fd(fd);
++}
++#endif
++
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("weishu");
+ MODULE_DESCRIPTION("Android KernelSU");
