@@ -45,7 +45,12 @@ sh "$ROOT/scripts/kconfig/merge_config.sh" -m -O "$OUT" \
   "$ROOT/arch/arm64/configs/ksu-a325n-common.config" \
   "$ROOT/arch/arm64/configs/a325n-release.config"
 make -C "$ROOT" O="$OUT" olddefconfig
-for option in CONFIG_KSU CONFIG_KSU_SUSFS CONFIG_KSU_LSM_SECURITY_HOOKS CONFIG_KSU_HACK_ARM64_BRANCH_LINK; do
+for disabled in CONFIG_KSU_LSM_SECURITY_HOOKS CONFIG_KSU_HACK_ARM64_BRANCH_LINK CONFIG_KSU_TAMPER_SYSCALL_TABLE; do
+  if grep -q "^$disabled=" "$OUT/.config"; then
+    echo "Automated hook mode unexpectedly enabled: $disabled" >&2; exit 1
+  fi
+done
+for option in CONFIG_KSU CONFIG_KSU_SUSFS CONFIG_XXKSU_MANUAL_HOOKS; do
   grep -qx "$option=y" "$OUT/.config" || { echo "Required option missing: $option" >&2; exit 1; }
 done
 make -C "$ROOT" O="$OUT" headers_install INSTALL_HDR_PATH="$OUT/usr"

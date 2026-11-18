@@ -9,7 +9,12 @@ case "$PACKAGE_DIR" in /*) ;; *) echo 'PACKAGE_DIR must be absolute' >&2; exit 1
 IMAGE="$OUT_DIR/arch/arm64/boot/Image"
 test -s "$IMAGE"
 test -s "$OUT_DIR/vmlinux"
-for option in CONFIG_KSU CONFIG_KSU_SUSFS CONFIG_KSU_LSM_SECURITY_HOOKS CONFIG_KSU_HACK_ARM64_BRANCH_LINK; do
+for disabled in CONFIG_KSU_LSM_SECURITY_HOOKS CONFIG_KSU_HACK_ARM64_BRANCH_LINK CONFIG_KSU_TAMPER_SYSCALL_TABLE; do
+  if grep -q "^$disabled=" "$OUT_DIR/.config"; then
+    echo "Automated hook mode unexpectedly enabled: $disabled" >&2; exit 1
+  fi
+done
+for option in CONFIG_KSU CONFIG_KSU_SUSFS CONFIG_XXKSU_MANUAL_HOOKS; do
   grep -qx "$option=y" "$OUT_DIR/.config"
 done
 "$TOOLCHAIN/bin/llvm-nm" --defined-only "$OUT_DIR/vmlinux" > "$OUT_DIR/xxksu-symbols.txt"
