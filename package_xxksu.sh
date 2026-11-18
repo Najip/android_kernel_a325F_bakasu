@@ -58,7 +58,7 @@ unzip -p "$zip_path" anykernel.sh > "$work/anykernel.sh"
 grep -q '^kernel.string=A325X xxKSU SUSFS ' "$work/anykernel.sh"
 grep -q '^device\.name1=a32$' "$work/anykernel.sh"
 grep -Eq '^BLOCK=/dev/block/by-name/boot;?$' "$work/anykernel.sh"
-cp "$OUT_DIR/xxksu-source.json" "$OUT_DIR/toolchain-source.txt" "$PACKAGE_DIR/"
+cp "$OUT_DIR/kernelsu-source.json" "$OUT_DIR/toolchain-source.txt" "$PACKAGE_DIR/"
 {
   echo "Kernel source: $(git -C "$ROOT" rev-parse HEAD)"
   echo "KernelSU source: $(git -C "$ROOT/KernelSU" rev-parse HEAD)"

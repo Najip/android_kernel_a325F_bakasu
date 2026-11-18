@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Download xxKSU at the commit pinned in sources.json and apply patches/xxksu/.
+"""Download KernelSU at the commit pinned in sources.json and apply patches/kernelsu/.
 
 Run from anywhere:  python3 scripts/setup_sources.py [OUT_DIR]
-The xxKSU source goes to ./KernelSU (ignored by git). Running it again is safe.
+The source goes to ./KernelSU (ignored by git). Running it again is safe.
 """
 import hashlib
 import json
@@ -24,26 +24,39 @@ def fail(message):
     sys.exit(1)
 
 
+def download(pin):
+    KSU.mkdir(exist_ok=True)
+    git(KSU, 'init', '-q')
+    git(KSU, 'remote', 'add', 'origin', pin['repo'])
+    print('Downloading %s %s' % (pin['name'], pin['commit']))
+    if pin.get('full_history'):
+        # The version number is computed from the commit count, so fetch the whole
+        # history (commits and trees only; file contents are fetched on checkout).
+        fetch = ['fetch', '-q', '--filter=blob:none', '--tags', 'origin',
+                 '+refs/heads/%s:refs/remotes/origin/%s' % (pin['branch'], pin['branch'])]
+    else:
+        fetch = ['fetch', '-q', '--depth=1', 'origin', pin['commit']]
+    for _ in range(3):
+        if git(KSU, *fetch, check=False).returncode == 0:
+            break
+    else:
+        fail('could not download %s from %s' % (pin['name'], pin['repo']))
+    target = pin['commit'] if pin.get('full_history') else 'FETCH_HEAD'
+    if git(KSU, 'checkout', '-q', '--detach', target, check=False).returncode:
+        fail('commit %s is not on branch %s of %s' % (pin['commit'], pin['branch'], pin['repo']))
+
+
 def main():
-    pin = json.loads((ROOT / 'sources.json').read_text())['xxksu']
+    pin = json.loads((ROOT / 'sources.json').read_text())['kernelsu']
     if not (KSU / '.git').exists():
-        KSU.mkdir(exist_ok=True)
-        git(KSU, 'init', '-q')
-        git(KSU, 'remote', 'add', 'origin', pin['repo'])
-        print('Downloading xxKSU ' + pin['commit'])
-        for attempt in range(3):
-            if git(KSU, 'fetch', '-q', '--depth=1', 'origin', pin['commit'], check=False).returncode == 0:
-                break
-        else:
-            fail('could not download xxKSU commit ' + pin['commit'])
-        git(KSU, 'checkout', '-q', '--detach', 'FETCH_HEAD')
+        download(pin)
     head = git(KSU, 'rev-parse', 'HEAD').stdout.strip()
     if head != pin['commit']:
         fail('KernelSU/ is at %s, sources.json wants %s. Delete the KernelSU folder and run again.'
              % (head, pin['commit']))
 
-    patches = sorted((ROOT / 'patches/xxksu').glob('*.patch'))
-    stamp = KSU / '.git' / 'xxksu-applied-patches'
+    patches = sorted((ROOT / 'patches/kernelsu').glob('*.patch'))
+    stamp = KSU / '.git' / 'applied-patches'
     wanted = ''.join('%s %s\n' % (hashlib.sha256(p.read_bytes()).hexdigest(), p.name) for p in patches)
     results = []
     if stamp.is_file() and stamp.read_text() == wanted:
@@ -53,18 +66,21 @@ def main():
             fail('KernelSU/ has changes from an older setup. Delete the KernelSU folder and run again.')
         for patch in patches:
             if git(KSU, 'apply', '--check', str(patch), check=False).returncode:
-                fail(patch.name + ' does not apply to xxKSU ' + pin['commit'])
+                fail('%s does not apply to %s %s' % (patch.name, pin['name'], pin['commit']))
             git(KSU, 'apply', str(patch))
             results.append({'patch': patch.name, 'result': 'applied'})
         stamp.write_text(wanted)
-    git(KSU, 'diff', '--check')
 
-    summary = {'xxksu_repo': pin['repo'], 'xxksu_commit': head, 'xxksu_patches': results}
+    describe = git(KSU, 'describe', '--tags', '--always', check=False).stdout.strip()
+    summary = {'name': pin['name'], 'repo': pin['repo'], 'commit': head,
+               'describe': describe, 'patches': results}
+    if pin.get('full_history'):
+        summary['commit_count'] = int(git(KSU, 'rev-list', '--count', 'HEAD').stdout)
     text = json.dumps(summary, indent=2) + '\n'
     if len(sys.argv) > 1:
         out = Path(sys.argv[1])
         out.mkdir(parents=True, exist_ok=True)
-        (out / 'xxksu-source.json').write_text(text)
+        (out / 'kernelsu-source.json').write_text(text)
     print(text, end='')
 
 

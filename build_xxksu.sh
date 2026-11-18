@@ -5,7 +5,7 @@ cd "$ROOT"
 . "$ROOT/scripts/aosp_clang14.conf"
 OUT=${OUT_DIR:-"$ROOT/out-xxksu"}
 case "$OUT" in /*) ;; *) OUT="$ROOT/$OUT" ;; esac
-# 1. Download xxKSU at the pinned commit (sources.json) and apply patches/xxksu/.
+# 1. Download xxKSU at the pinned commit (sources.json) and apply patches/kernelsu/.
 python3 "$ROOT/scripts/setup_sources.py" "$OUT"
 # 2. Device patches: network fix always, tuning only if PERF_TUNING=true,
 #    original GPU voltages restored last.

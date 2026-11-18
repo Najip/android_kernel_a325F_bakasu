@@ -1,5 +1,8 @@
 # Samsung Galaxy A32 4G xxKSU + SUSFS Kernel
 
+This is the **xxksu** branch. The repository has three variants, one branch each:
+`common` (BakaSU), `ksun` (KernelSU-Next) and `xxksu` (this one).
+
 Custom kernel for the **Samsung Galaxy A32 4G (SM-A325 series, MediaTek MT6768, Linux 4.14)** with
 **xxKSU** (backslashxx KernelSU, manual hooks) and **SUSFS v2.4.0** from JackA1ltman's non-GKI patch set.
 
@@ -21,7 +24,7 @@ The exact upstream commits used are in [`sources.json`](sources.json).
 ## Download and flash
 
 1. Open **Actions -> A325X Kernel**, or the **Releases** page.
-2. Open the newest green run and download the artifact named `A325X-xxKSU-SUSFS-...`.
+2. Open the newest green run for branch `xxksu` and download the artifact named `A325X-xxKSU-SUSFS-...`.
 3. Unzip it once. Inside is the flashable `A325X-xxKSU-SUSFS-<version>-<commit>.zip`.
 4. Flash that ZIP in your recovery or with a kernel flasher app, then reboot.
 5. Install the KernelSU manager from backslashxx/KernelSU if you do not have it yet.
@@ -30,15 +33,15 @@ The exact upstream commits used are in [`sources.json`](sources.json).
 
 Builds run on GitHub; you do not need a PC.
 
-- **Automatic:** every change on the `common` branch builds a ZIP on a GitHub runner.
-- **By hand:** Actions -> **A325X Kernel** -> **Run workflow** -> choose the branch.
+- **Automatic:** every change on the `xxksu` branch builds a ZIP on a GitHub runner.
+- **By hand:** Actions -> **A325X Kernel** -> **Run workflow** -> branch `xxksu`.
   - `self_hosted`: on = your own PC runner (faster, cached compiler); off = GitHub runner.
   - `perf_tuning`: applies the optional tuning patch.
   - `publish_release`: also puts the ZIP on the Releases page.
 
 What the build does (`build_xxksu.sh`, then `package_xxksu.sh`):
 
-1. Downloads xxKSU at the commit in `sources.json` into `KernelSU/` and applies `patches/xxksu/`.
+1. Downloads xxKSU at the commit in `sources.json` into `KernelSU/` and applies `patches/kernelsu/`.
 2. Applies the device patches in `patches/kernel/`.
 3. Downloads the pinned AOSP Clang 14.0.6 (`clang-r450784d`) and compiles.
 4. Checks that the root hooks and SUSFS functions are linked, then packages the AnyKernel3 ZIP.
@@ -48,17 +51,18 @@ To build on your own Linux PC: `git clone` this repository, then run `sh build_x
 
 ## Updating xxKSU and SUSFS
 
-The **Update xxKSU and SUSFS** workflow runs every day at 08:23 WIB (you can also start it by hand).
+The **Update sources** workflow runs every day at 08:23 WIB (started from the `common` branch).
+To run it by hand: Actions -> **Update sources** -> **Run workflow** -> branch `xxksu`.
 
 1. It checks xxKSU and Jack's SUSFS for new commits.
-2. If there is something new, it opens a pull request named **Update xxKSU / SUSFS** and starts a
+2. If there is something new, it opens a pull request named **Update xxksu: xxKSU / SUSFS update** and starts a
    test build of it.
 3. Open the pull request, download the test ZIP from its **A325X Kernel** run and flash it.
-4. If it works, press **Merge pull request**. The merge builds the final ZIP on `common`.
+4. If it works, press **Merge pull request**. The merge builds the final ZIP on `xxksu`.
 
 The updater never applies risky changes silently:
 
-- An xxKSU update is only taken if every patch in `patches/xxksu/` still applies.
+- An xxKSU update is only taken if every patch in `patches/kernelsu/` still applies.
 - A SUSFS core update (`fs/susfs.c`, `susfs.h`, `susfs_def.h`) is taken from Jack's patch, with
   our small local additions in `patches/susfs/` applied on top.
 - If Jack changes the kernel hook part of his patch, the pull request is titled
@@ -70,7 +74,7 @@ The updater never applies risky changes silently:
 | Path | Purpose |
 |---|---|
 | `sources.json` | Pinned xxKSU and SUSFS upstream commits |
-| `patches/xxksu/` | Small patches applied to xxKSU at build time |
+| `patches/kernelsu/` | Small patches applied to xxKSU at build time |
 | `patches/susfs/` | Local additions on top of Jack's SUSFS core |
 | `patches/kernel/` | Device patches: network fix, optional tuning, original GPU voltages |
 | `fs/susfs.c`, `include/linux/susfs*.h` | SUSFS v2.4.0 core |

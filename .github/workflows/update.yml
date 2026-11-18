@@ -1,16 +1,15 @@
-name: Update xxKSU and SUSFS
-run-name: Check for xxKSU / SUSFS updates
+name: Update sources
+run-name: Check for KernelSU / SUSFS updates (${{ github.ref_name }})
 
-# Once a day (and whenever you press "Run workflow") this checks
-# backslashxx/KernelSU (xxKSU) and JackA1ltman's SUSFS for new commits.
-# If there is something new it:
+# KSUN / xxKSU variant. The daily schedule lives on the common branch; it starts
+# this workflow on the ksun and xxksu branches. You can also run it by hand:
+# Actions -> Update sources -> Run workflow -> pick the branch.
+# If KernelSU or Jack's SUSFS has new commits it:
 #   1. updates sources.json (and the SUSFS core files if Jack changed them),
-#   2. opens or refreshes the pull request "Update xxKSU / SUSFS",
+#   2. opens or refreshes the pull request "Update <variant>: KernelSU / SUSFS",
 #   3. starts a test build of that pull request on a GitHub runner.
 # Flash the test ZIP; if it works, press "Merge" on the pull request.
 on:
-  schedule:
-    - cron: '23 1 * * *'   # 08:23 WIB every day
   workflow_dispatch:
 
 permissions:
@@ -19,11 +18,11 @@ permissions:
   actions: write
 
 concurrency:
-  group: update-sources
+  group: update-sources-${{ github.ref_name }}
   cancel-in-progress: false
 
 env:
-  UPDATE_BRANCH: auto-update
+  UPDATE_BRANCH: auto-update/${{ github.ref_name }}
 
 jobs:
   update:
@@ -33,10 +32,9 @@ jobs:
       run:
         shell: bash
     steps:
-      - name: Checkout default branch
+      - name: Checkout
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.repository.default_branch }}
           fetch-depth: 1
 
       - name: Look for new commits
@@ -51,7 +49,7 @@ jobs:
         if: steps.check.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          BASE: ${{ github.event.repository.default_branch }}
+          BASE: ${{ github.ref_name }}
           NEEDS_REVIEW: ${{ steps.check.outputs.needs_review }}
         run: |
           set -euo pipefail
@@ -59,10 +57,10 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git switch -c "$UPDATE_BRANCH"
           git add -A sources.json fs/susfs.c include/linux/susfs.h include/linux/susfs_def.h
-          { echo 'Update xxKSU / SUSFS'; echo; cat "$RUNNER_TEMP/update.md"; } > "$RUNNER_TEMP/message.txt"
+          title="Update $BASE: $(head -n1 "$RUNNER_TEMP/update.md" | sed 's/^## //')"
+          { echo "$title"; echo; cat "$RUNNER_TEMP/update.md"; } > "$RUNNER_TEMP/message.txt"
           git commit -q -F "$RUNNER_TEMP/message.txt"
           git push --force origin "HEAD:refs/heads/$UPDATE_BRANCH"
-          title='Update xxKSU / SUSFS'
           [[ "$NEEDS_REVIEW" == true ]] && title="$title (needs review)"
           number=$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$UPDATE_BRANCH" --state open --json number -q '.[0].number')
           if [[ -n "$number" ]]; then

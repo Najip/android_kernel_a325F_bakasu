@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Check xxKSU and Jack's SUSFS for new commits and update this tree.
+"""Check KernelSU and Jack's SUSFS for new commits and update this tree.
 
 What it does:
-  xxKSU  - moves the pin in sources.json to the newest commit, but only if
-           every patch in patches/xxksu/ still applies to it.
+  KernelSU - moves the pin in sources.json to the newest commit, but only if
+           every patch in patches/kernelsu/ still applies to it.
   SUSFS  - moves the pin to Jack's newest commit. If Jack changed the SUSFS
            core (fs/susfs.c, susfs.h, susfs_def.h), the new core files are
            copied in and patches/susfs/ (our small local additions) is applied
@@ -59,25 +59,26 @@ def sections(patch):
     return result
 
 
-def update_xxksu(pin, notes):
+def update_kernelsu(pin, notes):
+    name = pin['name']
     latest = latest_commit(pin['repo'], pin['branch'])
     if latest == pin['commit']:
-        notes.append('- xxKSU: already up to date (`%s`).' % latest[:12])
+        notes.append('- %s: already up to date (`%s`).' % (name, latest[:12]))
         return False, True
     with tempfile.TemporaryDirectory() as temporary:
         tree = Path(temporary) / 'KernelSU'
         fetch(pin['repo'], [latest], tree)
         run('git', '-C', str(tree), 'checkout', '-q', '--detach', 'FETCH_HEAD')
-        for patch in sorted((ROOT / 'patches/xxksu').glob('*.patch')):
+        for patch in sorted((ROOT / 'patches/kernelsu').glob('*.patch')):
             check = run('git', '-C', str(tree), 'apply', '--check', str(patch), check=False)
             if check.returncode:
-                notes.append('- xxKSU: update to `%s` BLOCKED. `patches/xxksu/%s` no longer applies:\n'
-                             '  ```\n  %s\n  ```' % (latest[:12], patch.name,
+                notes.append('- %s: update to `%s` BLOCKED. `patches/kernelsu/%s` no longer applies:\n'
+                             '  ```\n  %s\n  ```' % (name, latest[:12], patch.name,
                                                    check.stderr.decode(errors='replace').strip()[:1500]))
                 return False, False
             run('git', '-C', str(tree), 'apply', str(patch))
-    notes.append('- xxKSU: `%s` -> `%s` ([changes](%s/compare/%s...%s)). All xxKSU patches apply.'
-                 % (pin['commit'][:12], latest[:12], web(pin['repo']), pin['commit'], latest))
+    notes.append('- %s: `%s` -> `%s` ([changes](%s/compare/%s...%s)). All %s patches apply.'
+                 % (name, pin['commit'][:12], latest[:12], web(pin['repo']), pin['commit'], latest, name))
     pin['commit'] = latest
     return True, True
 
@@ -148,12 +149,13 @@ def main():
     path = ROOT / 'sources.json'
     sources = json.loads(path.read_text())
     notes, review = [], []
-    xxksu_changed, xxksu_ok = update_xxksu(sources['xxksu'], notes)
+    name = sources['kernelsu']['name']
+    ksu_changed, ksu_ok = update_kernelsu(sources['kernelsu'], notes)
     susfs_changed, susfs_ok = update_susfs(sources['susfs'], notes, review)
-    changed = xxksu_changed or susfs_changed
+    changed = ksu_changed or susfs_changed
     if changed:
         path.write_text(json.dumps(sources, indent=2) + '\n')
-    lines = ['## xxKSU / SUSFS update', ''] + notes
+    lines = ['## %s / SUSFS update' % name, ''] + notes
     if review:
         lines += ['', '## Needs review', ''] + review
     if changed:
@@ -167,7 +169,7 @@ def main():
     if output:
         with open(output, 'a') as stream:
             stream.write('changed=%s\nneeds_review=%s\n' % (str(changed).lower(), str(bool(review)).lower()))
-    return 0 if xxksu_ok and susfs_ok else 1
+    return 0 if ksu_ok and susfs_ok else 1
 
 
 if __name__ == '__main__':
