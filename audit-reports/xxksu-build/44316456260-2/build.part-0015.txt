@@ -1,0 +1,177 @@
+inux/gl_p2p_init.o
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/device/mali_kbase_device.o
+  CC      drivers/sensorhub/sensor/light.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/device/mali_kbase_device.c:38:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase.h:57:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_defs.h:76:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/include/linux/memory_group_manager.h:31:13: warning: redefinition of typedef 'vm_fault_t' is a C11 feature [-Wtypedef-redefinition]
+typedef int vm_fault_t;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/mm_types.h:25:13: note: previous definition is here
+typedef int vm_fault_t;
+            ^
+1 warning generated.
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_cache_policy.o
+  CC      drivers/sensorhub/sensor/light_cct.o
+  CC      drivers/misc/mediatek/imgsensor/src/mt6768/../common/sysfs/imgsensor_vendor.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_cache_policy.c:29:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_cache_policy.h:32:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase.h:57:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_defs.h:76:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/include/linux/memory_group_manager.h:31:13: warning: redefinition of typedef 'vm_fault_t' is a C11 feature [-Wtypedef-redefinition]
+typedef int vm_fault_t;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/mm_types.h:25:13: note: previous definition is here
+typedef int vm_fault_t;
+            ^
+1 warning generated.
+  CC      drivers/sensorhub/sensor/light_autobrightness.o
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_ccswe.o
+  CC      drivers/misc/mediatek/imgsensor/src/mt6768/../common/sysfs/crc32.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/gl_p2p_kal.o
+  CC      drivers/misc/mediatek/imgsensor/src/mt6768/../common/sysfs/imgsensor_vendor_rom_config.o
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_mem.o
+  CC      drivers/misc/mediatek/imgsensor/src/mt6768/../common/sysfs/aau_v32/imgsensor_eeprom_front_hi2021q.o
+  CC      drivers/sensorhub/sensor/light_seamless.o
+  CC      drivers/misc/mediatek/imgsensor/src/mt6768/../common/sysfs/aau_v32/imgsensor_eeprom_rear_gw3.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_mem.c:37:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase.h:57:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_defs.h:76:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/include/linux/memory_group_manager.h:31:13: warning: redefinition of typedef 'vm_fault_t' is a C11 feature [-Wtypedef-redefinition]
+typedef int vm_fault_t;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/mm_types.h:25:13: note: previous definition is here
+typedef int vm_fault_t;
+            ^
+  CC      drivers/sensorhub/sensor/led_cover_event.o
+  CC      drivers/misc/mediatek/imgsensor/src/mt6768/../common/sysfs/aau_v32/imgsensor_otp_rear2_sr846d.o
+  CC      drivers/sensorhub/sensor/pressure.o
+  CC      drivers/misc/mediatek/imgsensor/src/mt6768/../common/sysfs/aau_v32/imgsensor_otp_rear3_gc5035b.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/hif/common/hal_pdma.o
+  CC      drivers/misc/mediatek/imgsensor/src/mt6768/../common/sysfs/aau_v32/imgsensor_otp_rear4_gc5035.o
+  CC      drivers/sensorhub/sensor/scontext.o
+  CC      drivers/misc/mediatek/imgsensor/src/mt6768/../common/sysfs/aau_v32/imgsensor_vendor_rom_config_aau_v32.o
+1 warning generated.
+  CC      drivers/sensorhub/sensor/step.o
+  AR      drivers/misc/mediatek/imgsensor/src/mt6768/../common/sysfs/built-in.o
+  CC      drivers/misc/mediatek/imgsensor/src/mt6768/../common/v1/gc02m1_mipi_raw/gc02m1mipiraw_Sensor.o
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_mem_pool_group.o
+  CC      drivers/sensorhub/sensor/proximity.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_mem_pool_group.c:23:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase.h:57:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_defs.h:76:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/include/linux/memory_group_manager.h:31:13: warning: redefinition of typedef 'vm_fault_t' is a C11 feature [-Wtypedef-redefinition]
+typedef int vm_fault_t;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/mm_types.h:25:13: note: previous definition is here
+typedef int vm_fault_t;
+            ^
+1 warning generated.
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_native_mgm.o
+  AR      drivers/misc/mediatek/imgsensor/src/mt6768/../common/v1/gc02m1_mipi_raw/built-in.o
+  CC      drivers/sensorhub/sensor/proximity_raw.o
+gc02m1_mipi_raw device driver is already in use
+  CC      drivers/misc/mediatek/imgsensor/src/mt6768/../common/v1/gc02m1b_mipi_raw/gc02m1b_dummy.o
+  AR      drivers/misc/mediatek/imgsensor/src/mt6768/../common/v1/gc02m1b_mipi_raw/built-in.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_native_mgm.c:25:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/include/linux/memory_group_manager.h:31:13: warning: redefinition of typedef 'vm_fault_t' is a C11 feature [-Wtypedef-redefinition]
+typedef int vm_fault_t;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/mm_types.h:25:13: note: previous definition is here
+typedef int vm_fault_t;
+            ^
+  CC      drivers/misc/mediatek/imgsensor/src/mt6768/../common/v1/gc5035_mipi_raw/gc5035mipiraw_Sensor.o
+1 warning generated.
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_ctx_sched.o
+  CC      drivers/sensorhub/sensor/proximity_calibration.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/hif/common/kal_pdma.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_ctx_sched.c:23:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase.h:57:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_defs.h:76:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/include/linux/memory_group_manager.h:31:13: warning: redefinition of typedef 'vm_fault_t' is a C11 feature [-Wtypedef-redefinition]
+typedef int vm_fault_t;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/mm_types.h:25:13: note: previous definition is here
+typedef int vm_fault_t;
+            ^
+  CC      drivers/sensorhub/sensor/motion.o
+1 warning generated.
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_jm.o
+  AR      drivers/misc/mediatek/imgsensor/src/mt6768/../common/v1/gc5035_mipi_raw/built-in.o
+  CC      drivers/misc/mediatek/imgsensor/src/mt6768/../common/v1/gc5035b_mipi_raw/gc5035bmipiraw_Sensor.o
+  CC      drivers/sensorhub/sensor/super.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_jm.c:28:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase.h:57:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_defs.h:76:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/include/linux/memory_group_manager.h:31:13: warning: redefinition of typedef 'vm_fault_t' is a C11 feature [-Wtypedef-redefinition]
+typedef int vm_fault_t;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/mm_types.h:25:13: note: previous definition is here
+typedef int vm_fault_t;
+            ^
+1 warning generated.
+  CC      drivers/sensorhub/sensor/hub_debugger.o
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_gpuprops.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/hif/common/dbg_pdma.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_gpuprops.c:30:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase.h:57:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_defs.h:76:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/include/linux/memory_group_manager.h:31:13: warning: redefinition of typedef 'vm_fault_t' is a C11 feature [-Wtypedef-redefinition]
+typedef int vm_fault_t;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/mm_types.h:25:13: note: previous definition is here
+typedef int vm_fault_t;
+            ^
+  CC      drivers/sensorhub/sensor/pocket_mode.o
+1 warning generated.
+  AR      drivers/misc/mediatek/imgsensor/src/mt6768/../common/v1/gc5035b_mipi_raw/built-in.o
+  CC      drivers/misc/mediatek/imgsensor/src/mt6768/../common/v1/hi2021q_mipi_raw/hi2021qmipiraw_Sensor.o
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_pm.o
+  CC      drivers/sensorhub/sensor/device_orientation.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/imgsensor/src/mt6768/../common/v1/hi2021q_mipi_raw/hi2021qmipiraw_Sensor.c:2743:29: warning: this old-style function definition is not preceded by a prototype [-Wstrict-prototypes]
+void hi2021q_otp_off_setting()
+                            ^
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_pm.c:30:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase.h:57:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_defs.h:76:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/include/linux/memory_group_manager.h:31:13: warning: redefinition of typedef 'vm_fault_t' is a C11 feature [-Wtypedef-redefinition]
+typedef int vm_fault_t;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/mm_types.h:25:13: note: previous definition is here
+typedef int vm_fault_t;
+            ^
+  CC      drivers/sensorhub/sensor/sar_backoff_motion.o
+1 warning generated.
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_config.o
+1 warning generated.
+  AR      drivers/misc/mediatek/imgsensor/src/mt6768/../common/v1/hi2021q_mipi_raw/built-in.o
+  CC      drivers/misc/mediatek/imgsensor/src/mt6768/../common/v1/imx355_mipi_raw/imx355mipiraw_Sensor.o
+  CC      drivers/sensorhub/sensor/pogo_request_handler.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_config.c:25:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase.h:57:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_defs.h:76:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/include/linux/memory_group_manager.h:31:13: warning: redefinition of typedef 'vm_fault_t' is a C11 feature [-Wtypedef-redefinition]
+typedef int vm_fault_t;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/mm_types.h:25:13: note: previous definition is here
+typedef int vm_fault_t;
+            ^
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/hif/axi/axi.o
+1 warning generated.
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_vinstr.o
+  CC      drivers/sensorhub/sensor/aois.o
+  AR      drivers/misc/mediatek/imgsensor/src/mt6768/../common/v1/imx355_mipi_raw/built-in.o
+  CC      drivers/misc/mediatek/imgsensor/src/mt6768/../common/v1/sr846d_mipi_raw/sr846dmipiraw_Sensor.o
+  CC      drivers/sensorhub/sensor/rotation_vector.o
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_hwcnt.o
+  CC      drivers/sensorhub/sensor/game_rotation_vector.o
+  AR      drivers/misc/mediatek/imgsensor/src/mt6768/../common/v1/sr846d_mipi_raw/built-in.o
+imgsensor drv by project s5kgw3_mipi_raw/
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_hwcnt_backend_jm.o
+  CC      drivers/misc/mediatek/imgsensor/src/mt6768/camera_project/aau_v32/camera_hw/gpio/gpio.o
+  CC      drivers/sensorhub/sensor/physical_sensor/accelerometer/accelerometer_icm42605m.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/mgmt/ais_fsm.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_hwcnt_backend_jm.c:26:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase.h:57:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_defs.h:76:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/
