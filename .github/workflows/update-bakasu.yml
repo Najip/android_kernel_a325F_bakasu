@@ -1,4 +1,4 @@
-name: Update BakaSU - selectable branch
+name: Update BakaSU
 
 # Manual copy of update-bakasu.yml.
 # - Runs on the branch chosen in "Use workflow from" and commits back to it.
