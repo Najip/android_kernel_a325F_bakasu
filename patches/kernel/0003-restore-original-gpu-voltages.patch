@@ -1,0 +1,77 @@
+--- a/drivers/misc/mediatek/base/power/mt6768/mtk_gpufreq_core.h
++++ b/drivers/misc/mediatek/base/power/mt6768/mtk_gpufreq_core.h
+@@ -226,6 +226,74 @@
+ #endif
+ 
++#ifdef CONFIG_SLM_OC_GPU
++/* Restore the pre-tuning OC voltage table; leave frequencies unchanged. */
++#undef SEG_GPU_DVFS_VOLT0
++#undef SEG_GPU_DVFS_VOLT1
++#undef SEG_GPU_DVFS_VOLT2
++#undef SEG_GPU_DVFS_VOLT3
++#undef SEG_GPU_DVFS_VOLT4
++#undef SEG_GPU_DVFS_VOLT5
++#undef SEG_GPU_DVFS_VOLT6
++#undef SEG_GPU_DVFS_VOLT7
++#undef SEG_GPU_DVFS_VOLT8
++#undef SEG_GPU_DVFS_VOLT9
++#undef SEG_GPU_DVFS_VOLT10
++#undef SEG_GPU_DVFS_VOLT11
++#undef SEG_GPU_DVFS_VOLT12
++#undef SEG_GPU_DVFS_VOLT13
++#undef SEG_GPU_DVFS_VOLT14
++#undef SEG_GPU_DVFS_VOLT15
++#undef SEG_GPU_DVFS_VOLT16
++#undef SEG_GPU_DVFS_VOLT17
++#undef SEG_GPU_DVFS_VOLT18
++#undef SEG_GPU_DVFS_VOLT19
++#undef SEG_GPU_DVFS_VOLT20
++#undef SEG_GPU_DVFS_VOLT21
++#undef SEG_GPU_DVFS_VOLT22
++#undef SEG_GPU_DVFS_VOLT23
++#undef SEG_GPU_DVFS_VOLT24
++#undef SEG_GPU_DVFS_VOLT25
++#undef SEG_GPU_DVFS_VOLT26
++#undef SEG_GPU_DVFS_VOLT27
++#undef SEG_GPU_DVFS_VOLT28
++#undef SEG_GPU_DVFS_VOLT29
++#undef SEG_GPU_DVFS_VOLT30
++#undef SEG_GPU_DVFS_VOLT31
++#define SEG_GPU_DVFS_VOLT0 (123500)
++#define SEG_GPU_DVFS_VOLT1 (120000)
++#define SEG_GPU_DVFS_VOLT2 (117500)
++#define SEG_GPU_DVFS_VOLT3 (115000)
++#define SEG_GPU_DVFS_VOLT4 (112500)
++#define SEG_GPU_DVFS_VOLT5 (110000)
++#define SEG_GPU_DVFS_VOLT6 (107500)
++#define SEG_GPU_DVFS_VOLT7 (105000)
++#define SEG_GPU_DVFS_VOLT8 (102500)
++#define SEG_GPU_DVFS_VOLT9 (100000)
++#define SEG_GPU_DVFS_VOLT10 (97500)
++#define SEG_GPU_DVFS_VOLT11 (95000)
++#define SEG_GPU_DVFS_VOLT12 (92500)
++#define SEG_GPU_DVFS_VOLT13 (90000)
++#define SEG_GPU_DVFS_VOLT14 (87500)
++#define SEG_GPU_DVFS_VOLT15 (85000)
++#define SEG_GPU_DVFS_VOLT16 (82500)
++#define SEG_GPU_DVFS_VOLT17 (80000)
++#define SEG_GPU_DVFS_VOLT18 (79375)
++#define SEG_GPU_DVFS_VOLT19 (78125)
++#define SEG_GPU_DVFS_VOLT20 (76875)
++#define SEG_GPU_DVFS_VOLT21 (75625)
++#define SEG_GPU_DVFS_VOLT22 (75000)
++#define SEG_GPU_DVFS_VOLT23 (73750)
++#define SEG_GPU_DVFS_VOLT24 (72500)
++#define SEG_GPU_DVFS_VOLT25 (71250)
++#define SEG_GPU_DVFS_VOLT26 (70625)
++#define SEG_GPU_DVFS_VOLT27 (70000)
++#define SEG_GPU_DVFS_VOLT28 (69375)
++#define SEG_GPU_DVFS_VOLT29 (68750)
++#define SEG_GPU_DVFS_VOLT30 (68125)
++#define SEG_GPU_DVFS_VOLT31 (67500)
++#endif
++
+ #define FIXED_VSRAM_VOLT			(85000)		/* mV x 100 */
+ #define FIXED_VSRAM_VOLT_THSRESHOLD	(75000)		/* mV x 100 */
+ 
+ /**************************************************

@@ -1,0 +1,413 @@
+diff --git a/drivers/battery/common/sec_event_sysfs.c b/drivers/battery/common/sec_event_sysfs.c
+index fe907d4a0..ab4fd510c 100644
+--- a/drivers/battery/common/sec_event_sysfs.c
++++ b/drivers/battery/common/sec_event_sysfs.c
+@@ -256,6 +256,11 @@ ssize_t sysfs_event_store_attrs(
+ 					"%s: skip same siop level: %d\n", __func__, x);
+ 				return count;
+ 			} else if (x >= 0 && x <= 100 && battery->pdata->temp_check_type) {
++				/* Keep fast charging with the screen on: ignore the framework's mild
++				 * (screen-on/skin comfort) levels, still honor its emergency steps
++				 * (<= 10). Battery/charger temperature limits are unchanged. */
++				if (x > 10 && x < 100)
++					x = 100;
+ 				battery->siop_level = x;
+ 				if (battery->siop_level == 0)
+ 					sec_bat_set_current_event(battery, SEC_BAT_CURRENT_EVENT_SIOP_LIMIT,
+diff --git a/drivers/block/zram/zram_drv.c b/drivers/block/zram/zram_drv.c
+index 1461d5872..1acf049bf 100644
+--- a/drivers/block/zram/zram_drv.c
++++ b/drivers/block/zram/zram_drv.c
+@@ -66,7 +66,7 @@ static DEFINE_MUTEX(zram_index_mutex);
+ 
+ static int zram_major;
+ static struct zram *zram_devices;
+-static const char *default_compressor = "lz4";
++static const char *default_compressor = "zstd";
+ 
+ /* Module params (documentation at end) */
+ static unsigned int num_devices = 1;
+diff --git a/drivers/misc/mediatek/base/power/cpufreq_v1/src/mach/mt6768/mtk_cpufreq_opp_pv_table.h b/drivers/misc/mediatek/base/power/cpufreq_v1/src/mach/mt6768/mtk_cpufreq_opp_pv_table.h
+index 271fdc1b1..7e9e601c6 100644
+--- a/drivers/misc/mediatek/base/power/cpufreq_v1/src/mach/mt6768/mtk_cpufreq_opp_pv_table.h
++++ b/drivers/misc/mediatek/base/power/cpufreq_v1/src/mach/mt6768/mtk_cpufreq_opp_pv_table.h
+@@ -422,75 +422,75 @@ static unsigned int FY_G75Tbl[NR_FREQ * NR_MT_CPU_DVFS][ARRAY_COL_SIZE] = {
+ 
+ 	/* L */
+ #ifdef CONFIG_SLM_OC_CCI
+-	{ 1800, 90, 1, 1 },
++	{ 1800, 78, 1, 1 },
+ #else
+ 	{ 1800, 81, 1, 1 },
+ #endif
+-	{ 1625, 69, 2, 1 },
+-	{ 1500, 63, 2, 1 },
+-	{ 1450, 61, 2, 1 },
+-	{ 1375, 57, 2, 1 },
+-	{ 1325, 55, 2, 1 },
+-	{ 1275, 53, 2, 1 },
+-	{ 1175, 48, 2, 1 },
+-	{ 1100, 44, 2, 1 },
+-	{ 1050, 42, 2, 1 },
+-	{ 999, 39, 2, 1 },
+-	{ 950, 37, 2, 1 },
+-	{ 900, 35, 2, 1 },
+-	{ 850, 32, 4, 1 },
+-	{ 774, 28, 4, 1 },
++	{ 1625, 57, 2, 1 },
++	{ 1500, 51, 2, 1 },
++	{ 1450, 49, 2, 1 },
++	{ 1375, 45, 2, 1 },
++	{ 1325, 43, 2, 1 },
++	{ 1275, 41, 2, 1 },
++	{ 1175, 36, 2, 1 },
++	{ 1100, 32, 2, 1 },
++	{ 1050, 30, 2, 1 },
++	{ 999, 27, 2, 1 },
++	{ 950, 25, 2, 1 },
++	{ 900, 24, 2, 1 },
++	{ 850, 24, 4, 1 },
++	{ 774, 24, 4, 1 },
+ 	{ 500, 24, 4, 1 },
+ 
+ 
+ 
+     /* B */
+ #ifdef CONFIG_SLM_UV
+-    { 2000, 92, 1, 1 },
+-    { 1950, 90, 1, 1 },
+-    { 1900, 88, 1, 1 },
+-    { 1850, 86, 1, 1 },
+-    { 1800, 83, 1, 1 },
++    { 2000, 78, 1, 1 },
++    { 1950, 76, 1, 1 },
++    { 1900, 74, 1, 1 },
++    { 1850, 72, 1, 1 },
++    { 1800, 69, 1, 1 },
+ #else
+-    { 2000, 94, 1, 1 },
+-    { 1950, 92, 1, 1 },
+-    { 1900, 90, 1, 1 },
+-    { 1850, 88, 1, 1 },
+-    { 1800, 85, 1, 1 },
++    { 2000, 82, 1, 1 },
++    { 1950, 80, 1, 1 },
++    { 1900, 78, 1, 1 },
++    { 1850, 76, 1, 1 },
++    { 1800, 73, 1, 1 },
+ #endif
+-	{ 1710, 80, 1, 1 },
+-	{ 1621, 75, 1, 1 },
+-	{ 1532, 69, 2, 1 },
+-	{ 1443, 64, 2, 1 },
+-	{ 1354, 59, 2, 1 },
+-	{ 1295, 55, 2, 1 },
+-	{ 1176, 48, 2, 1 },
+-	{ 1087, 43, 2, 1 },
+-	{ 998, 37, 2, 1 },
+-	{ 909, 32, 2, 1 },
+-	{ 850, 28, 2, 1 },
++	{ 1710, 68, 1, 1 },
++	{ 1621, 63, 1, 1 },
++	{ 1532, 57, 2, 1 },
++	{ 1443, 52, 2, 1 },
++	{ 1354, 47, 2, 1 },
++	{ 1295, 43, 2, 1 },
++	{ 1176, 36, 2, 1 },
++	{ 1087, 31, 2, 1 },
++	{ 998, 25, 2, 1 },
++	{ 909, 24, 2, 1 },
++	{ 850, 24, 2, 1 },
+ 
+ 
+ 	/* CCI */
+ #ifdef CONFIG_SLM_OC_CCI
+-	{ 1460, 90, 2, 1 },
++	{ 1460, 78, 2, 1 },
+ #else
+ 	{ 1277, 81, 2, 1 },
+ #endif
+-	{ 1120, 64, 2, 1 },
+-	{ 1049, 60, 2, 1 },
+-	{ 1014, 58, 2, 1 },
+-	{ 961, 54, 2, 1 },
+-	{ 909, 51, 2, 1 },
+-	{ 856, 48, 2, 1 },
+-	{ 821, 45, 2, 1 },
+-	{ 768, 42, 2, 1 },
+-	{ 733, 42, 2, 1 },
+-	{ 698, 37, 2, 1 },
+-	{ 663, 35, 2, 1 },
+-	{ 628, 33, 4, 1 },
+-	{ 593, 31, 4, 1 },
+-	{ 558, 28, 4, 1 },
++	{ 1120, 52, 2, 1 },
++	{ 1049, 48, 2, 1 },
++	{ 1014, 46, 2, 1 },
++	{ 961, 42, 2, 1 },
++	{ 909, 39, 2, 1 },
++	{ 856, 36, 2, 1 },
++	{ 821, 33, 2, 1 },
++	{ 768, 30, 2, 1 },
++	{ 733, 30, 2, 1 },
++	{ 698, 25, 2, 1 },
++	{ 663, 24, 2, 1 },
++	{ 628, 24, 4, 1 },
++	{ 593, 24, 4, 1 },
++	{ 558, 24, 4, 1 },
+ 	{ 500, 24, 4, 1 },
+ 
+ 
+@@ -744,23 +744,23 @@ static unsigned char CCI_proTbl_v7[NR_FREQ * NR_CCI_TBL][NR_FREQ] = {
+ };
+ 
+ static unsigned char CCI_G75Tbl[NR_FREQ * NR_CCI_TBL][NR_FREQ] = {
+-	/* Normal CCI Map */
+-	{ 3, 4, 4, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6},
+-	{ 3, 4, 4, 5, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7},
+-	{ 3, 4, 4, 5, 5, 6, 7, 8, 9, 9, 9, 9, 9, 9, 9, 9},
+-	{ 3, 4, 4, 5, 5, 6, 7, 8, 9, 9, 9, 9, 9, 9, 9, 9},
+-	{ 3, 4, 4, 5, 5, 6, 7, 8, 9, 10, 10, 10, 10, 10, 10, 10},
+-	{ 3, 4, 4, 5, 5, 6, 7, 8, 9, 11, 11, 11, 11, 11, 11, 11},
+-	{ 3, 4, 4, 5, 5, 6, 7, 8, 9, 11, 11, 12, 12, 12, 12, 12},
+-	{ 3, 4, 4, 5, 5, 6, 7, 8, 9, 11, 11, 13, 13, 13, 13, 13},
+-	{ 3, 4, 4, 5, 5, 6, 7, 8, 9, 11, 11, 13, 14, 14, 14, 14},
+-	{ 3, 4, 4, 5, 5, 6, 7, 8, 9, 11, 11, 13, 14, 15, 15, 15},
+-	{ 3, 4, 4, 5, 5, 6, 7, 8, 9, 11, 11, 13, 14, 15, 15, 15},
+-	{ 3, 4, 4, 5, 5, 6, 7, 8, 9, 11, 11, 13, 14, 15, 15, 15},
+-	{ 3, 4, 4, 5, 5, 6, 7, 8, 9, 11, 11, 13, 14, 15, 15, 15},
+-	{ 3, 4, 4, 5, 5, 6, 7, 8, 9, 11, 11, 13, 14, 15, 15, 15},
+-	{ 3, 4, 4, 5, 5, 6, 7, 8, 9, 11, 11, 13, 14, 15, 15, 15},
+-	{ 3, 4, 4, 5, 5, 6, 7, 8, 9, 11, 11, 13, 14, 15, 15, 15},
++	/* Normal CCI Map (OC: same as Perf, CCI follows CPU load up to OPP0) */
++	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
++	{ 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
++	{ 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2},
++	{ 0, 0, 0, 0, 0, 0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3},
++	{ 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 4, 4, 4, 4, 4, 4},
++	{ 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 5, 5, 5, 5, 5},
++	{ 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 5, 5, 5, 5, 5},
++	{ 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 7, 7, 7, 7, 7},
++	{ 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 7, 8, 8, 8, 8},
++	{ 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 7, 8, 9, 9, 9},
++	{ 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 7, 8, 10, 10, 10},
++	{ 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 7, 8, 10, 11, 11},
++	{ 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 7, 8, 10, 12, 12},
++	{ 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 7, 8, 10, 12, 13},
++	{ 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 7, 8, 10, 12, 13},
++	{ 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 7, 8, 10, 12, 13},
+ 
+ 	/* Perf CCI Map */
+ 	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+diff --git a/drivers/misc/mediatek/base/power/cpufreq_v1/src/mach/mt6768/mtk_cpufreq_opp_table.h b/drivers/misc/mediatek/base/power/cpufreq_v1/src/mach/mt6768/mtk_cpufreq_opp_table.h
+index 818bbac42..bf5335d81 100644
+--- a/drivers/misc/mediatek/base/power/cpufreq_v1/src/mach/mt6768/mtk_cpufreq_opp_table.h
++++ b/drivers/misc/mediatek/base/power/cpufreq_v1/src/mach/mt6768/mtk_cpufreq_opp_table.h
+@@ -751,11 +751,12 @@
+ 
+ /* for DVFS OPP table B */
+ #ifdef CONFIG_SLM_UV
+-#define CPU_DVFS_VOLT0_VPROC2_G75	107500		/* 10uV */
+-#define CPU_DVFS_VOLT1_VPROC2_G75	106250		/* 10uV */
+-#define CPU_DVFS_VOLT2_VPROC2_G75	105000		/* 10uV */
+-#define CPU_DVFS_VOLT3_VPROC2_G75	103750		/* 10uV */
+-#define CPU_DVFS_VOLT4_VPROC2_G75	101875		/* 10uV */
++/* uv2: one more -12.5 mV step on the top 5 B-cluster OPPs */
++#define CPU_DVFS_VOLT0_VPROC2_G75	106250		/* 10uV */
++#define CPU_DVFS_VOLT1_VPROC2_G75	105000		/* 10uV */
++#define CPU_DVFS_VOLT2_VPROC2_G75	103750		/* 10uV */
++#define CPU_DVFS_VOLT3_VPROC2_G75	102500		/* 10uV */
++#define CPU_DVFS_VOLT4_VPROC2_G75	100625		/* 10uV */
+ #else
+ #define CPU_DVFS_VOLT0_VPROC2_G75	108750		/* 10uV */
+ #define CPU_DVFS_VOLT1_VPROC2_G75	107500		/* 10uV */
+diff --git a/drivers/misc/mediatek/base/power/mt6768/mtk_gpufreq_core.h b/drivers/misc/mediatek/base/power/mt6768/mtk_gpufreq_core.h
+index e7449fb2c..c66d41cbf 100644
+--- a/drivers/misc/mediatek/base/power/mt6768/mtk_gpufreq_core.h
++++ b/drivers/misc/mediatek/base/power/mt6768/mtk_gpufreq_core.h
+@@ -18,9 +18,9 @@
+  * MT6768/MT6767 : GPU DVFS OPP table Setting
+  **************************************************/
+ #ifdef CONFIG_SLM_OC_GPU
+-/* slm oc 1.175ghz 1.235v */
+-#define SEG_GPU_DVFS_FREQ0			(1175000)	/* KHz */
+-#define SEG_GPU_DVFS_FREQ1			(1125000)	/* KHz */
++/* slm oc 1.175ghz 1.235v; OPPs <= 950MHz use stock MT6769 voltages */
++#define SEG_GPU_DVFS_FREQ0			(1100000)	/* KHz */
++#define SEG_GPU_DVFS_FREQ1			(1100000)	/* KHz */
+ #define SEG_GPU_DVFS_FREQ2			(1100000)	/* KHz */
+ #define SEG_GPU_DVFS_FREQ3			(1075000)	/* KHz */
+ #define SEG_GPU_DVFS_FREQ4			(1050000)	/* KHz */
+@@ -52,38 +52,38 @@
+ #define SEG_GPU_DVFS_FREQ30			(417000)	/* KHz */
+ #define SEG_GPU_DVFS_FREQ31			(400000)	/* KHz */
+ 
+-#define SEG_GPU_DVFS_VOLT0		(123500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT1		(120000)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT2		(117500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT3		(115000)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT4		(112500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT5		(110000)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT6		(107500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT7		(105000)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT8		(102500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT9		(100000)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT10		(97500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT11		(95000)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT12		(92500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT13		(90000)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT14		(87500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT15		(85000)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT16		(82500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT17		(80000)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT18		(77500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT19		(75000)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT20		(72500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT21		(70000)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT22		(67500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT23		(65000)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT24		(62500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT25		(60000)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT26		(57500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT27		(55000)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT28		(52500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT29		(50000)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT30		(47500)		/* mV x 100 */
+-#define SEG_GPU_DVFS_VOLT31		(45000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT0		(103500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT1		(103500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT2		(103500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT3		(101000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT4		(98500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT5		(96000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT6		(93500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT7		(91000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT8		(90000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT9		(87500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT10		(85000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT11		(82500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT12		(80000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT13		(77500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT14		(75000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT15		(72500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT16		(70000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT17		(67500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT18		(65000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT19		(62500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT20		(60000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT21		(57500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT22		(55000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT23		(52500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT24		(50000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT25		(47500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT26		(45000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT27		(42500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT28		(40000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT29		(37500)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT30		(35000)		/* mV x 100 */
++#define SEG_GPU_DVFS_VOLT31		(32500)		/* mV x 100 */
+ 
+ #define SEG_GPU_DVFS_VSRAM0		(112500)	/* mV x 100 */
+ #define SEG_GPU_DVFS_VSRAM1		(110000)	/* mV x 100 */
+diff --git a/drivers/misc/mediatek/gpu/ged/src/ged_ski.c b/drivers/misc/mediatek/gpu/ged/src/ged_ski.c
+index e0909b050..6525620d0 100644
+--- a/drivers/misc/mediatek/gpu/ged/src/ged_ski.c
++++ b/drivers/misc/mediatek/gpu/ged/src/ged_ski.c
+@@ -11,6 +11,8 @@
+  * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
+  */
+ 
++#include <linux/mutex.h>
++#include <linux/regulator/consumer.h>
+ #include <mt-plat/mtk_gpu_utility.h>
+ #include <mtk_gpufreq.h>
+ #include "ged_ski.h"
+@@ -225,6 +227,54 @@ ssize_t gpu_tmu_show(struct kobject *kobj,
+ 
+ static KOBJ_ATTR_RO(gpu_tmu);
+ 
++/* Real clocks from the on-chip frequency meter (kHz) and CPU rail
++ * voltages read back from the PMIC (mV).  Field names kept as in the
++ * first build: "big" is ABIST 21 (ARMPLL_L, little cluster) and
++ * "little" is ABIST 22 (ARMPLL, big cluster).  vproc11 feeds the big
++ * cluster, vproc12 the little cluster and CCI.
++ */
++extern unsigned int mt_get_ckgen_freq(unsigned int ID);
++extern unsigned int mt_get_abist_freq(unsigned int ID);
++static DEFINE_MUTEX(gpu_fmeter_lock);
++static struct regulator *fm_vproc11, *fm_vproc12;
++
++static unsigned int fm_rail_mv(struct regulator **reg, const char *name)
++{
++	int uv;
++
++	if (IS_ERR_OR_NULL(*reg))
++		*reg = regulator_get_optional(NULL, name);
++	if (IS_ERR_OR_NULL(*reg))
++		return 0;
++	uv = regulator_get_voltage(*reg);
++	return uv > 0 ? uv / 1000 : 0;
++}
++
++ssize_t gpu_fmeter_show(struct kobject *kobj,
++		struct kobj_attribute *attr, char *buf)
++{
++	unsigned int gpu = 0, mfgpll = 0, big, little, cci, v11, v12;
++
++	mutex_lock(&gpu_fmeter_lock);
++	if (mt_gpufreq_get_cur_volt()) {
++		gpu = mt_get_ckgen_freq(5);
++		mfgpll = mt_get_abist_freq(25);
++	}
++	big = mt_get_abist_freq(21);
++	little = mt_get_abist_freq(22);
++	cci = mt_get_abist_freq(49);
++	v11 = fm_rail_mv(&fm_vproc11, "vproc11");
++	v12 = fm_rail_mv(&fm_vproc12, "vproc12");
++	mutex_unlock(&gpu_fmeter_lock);
++
++	return scnprintf(buf, PAGE_SIZE,
++		"gpu %u mfgpll %u big %u little %u cci %u vproc11 %u vproc12 %u\n",
++		gpu, mfgpll, big, little, cci, v11, v12);
++}
++
++static struct kobj_attribute kobj_attr_gpu_fmeter =
++	__ATTR(gpu_fmeter, 0444, gpu_fmeter_show, NULL);
++
+ GED_ERROR ged_ski_init(void)
+ {
+ 	int ret = GED_OK;
+@@ -290,6 +340,12 @@ GED_ERROR ged_ski_init(void)
+ 		GED_LOGE("ged: failed to create gpu_tmu!\n");
+ 		goto EXIT;
+ 	}
++	ret = ged_sysfs_create_file(gpu_kobj, &kobj_attr_gpu_fmeter);
++	if (ret) {
++		ret = GED_ERROR_OOM;
++		GED_LOGE("ged: failed to create gpu_fmeter!\n");
++		goto EXIT;
++	}
+ 
+ 	return ret;
+ 
+@@ -309,6 +365,7 @@ void ged_ski_exit(void)
+ 	ged_sysfs_remove_file(gpu_kobj, &kobj_attr_gpu_min_clock);
+ 	ged_sysfs_remove_file(gpu_kobj, &kobj_attr_gpu_model);
+ 	ged_sysfs_remove_file(gpu_kobj, &kobj_attr_gpu_tmu);
++	ged_sysfs_remove_file(gpu_kobj, &kobj_attr_gpu_fmeter);
+ 	kobject_put(gpu_kobj);
+ 	gpu_kobj = NULL;
+ }
+diff --git a/drivers/usb/core/usb.c b/drivers/usb/core/usb.c
+index 90c89411e..c4f0f3b4f 100644
+--- a/drivers/usb/core/usb.c
++++ b/drivers/usb/core/usb.c
+@@ -65,7 +65,7 @@ int usb_disabled(void)
+ EXPORT_SYMBOL_GPL(usb_disabled);
+ 
+ #ifdef	CONFIG_PM
+-static int usb_autosuspend_delay = 2;		/* Default delay value,
++static int usb_autosuspend_delay = -1;		/* Default delay value,
+ 						 * in seconds */
+ module_param_named(autosuspend, usb_autosuspend_delay, int, 0644);
+ MODULE_PARM_DESC(autosuspend, "default autosuspend delay");

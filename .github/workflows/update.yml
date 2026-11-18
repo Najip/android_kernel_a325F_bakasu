@@ -14,6 +14,11 @@ on:
     - cron: '23 1 * * *'     # ksun + xxksu (08:23 WIB)
   workflow_dispatch:
     inputs:
+      self_hosted:
+        description: 'Run on your own PC runner, and build updates there too (untick to use GitHub runners)'
+        required: false
+        type: boolean
+        default: false
       publish_release:
         description: 'BakaSU: publish a kernel Release after updating'
         required: false
@@ -37,7 +42,7 @@ jobs:
   nomount:
     name: Update vendored NoMount (fs/nomount) and README
     if: github.event_name == 'workflow_dispatch' || github.event.schedule == '17 */6 * * *'
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.self_hosted && 'self-hosted' || 'ubuntu-latest' }}
     timeout-minutes: 15
 
     steps:
@@ -214,7 +219,7 @@ jobs:
     name: Update BakaSU submodule and README
     needs: nomount
     if: ${{ !cancelled() && needs.nomount.result != 'skipped' }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.self_hosted && 'self-hosted' || 'ubuntu-latest' }}
     timeout-minutes: 15
 
     steps:
@@ -318,12 +323,13 @@ jobs:
           gh workflow run kernel.yml \
             --repo "$GITHUB_REPOSITORY" \
             --ref common \
+            -f self_hosted="${{ inputs.self_hosted == true }}" \
             -f publish_release="$publish"
 
   variants:
     name: Start the ksun and xxksu updaters
     if: github.event_name == 'workflow_dispatch' || github.event.schedule == '23 1 * * *'
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.self_hosted && 'self-hosted' || 'ubuntu-latest' }}
     timeout-minutes: 5
     steps:
       - name: Start update.yml on ksun and xxksu
@@ -334,5 +340,6 @@ jobs:
           set -euo pipefail
           for branch in ksun xxksu; do
             echo "Starting Update sources on $branch"
-            gh workflow run update.yml --repo "$GITHUB_REPOSITORY" --ref "$branch"
+            gh workflow run update.yml --repo "$GITHUB_REPOSITORY" --ref "$branch" \
+              -f self_hosted="${{ inputs.self_hosted == true }}"
           done

@@ -6,6 +6,16 @@ on:
       - 'v*'
   workflow_dispatch:
     inputs:
+      self_hosted:
+        description: 'Run on your own PC runner (untick to use a GitHub runner)'
+        required: false
+        type: boolean
+        default: true
+      perf_tuning:
+        description: 'Apply the optional performance tuning patch (the network fix is always applied)'
+        required: false
+        type: boolean
+        default: false
       publish_release:
         description: 'Publish the build as a GitHub Release'
         required: false
@@ -24,14 +34,16 @@ env:
   PACKAGE_DIR: ${{ github.workspace }}/package-ci
   ANYKERNEL_REPO: https://github.com/osm0sis/AnyKernel3.git
   ANYKERNEL_COMMIT: af770f7b16cf8f8eb7c68614b2a693b3b361c90c
+  SELF_HOSTED: ${{ github.event_name == 'workflow_dispatch' && inputs.self_hosted }}
+  PERF_TUNING: ${{ github.event_name == 'workflow_dispatch' && inputs.perf_tuning }}
 
 jobs:
   build:
     name: Build A325X kernel
     outputs:
       release_tag: ${{ steps.version.outputs.release_tag }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
+    runs-on: ${{ github.event_name == 'workflow_dispatch' && inputs.self_hosted && 'self-hosted' || 'ubuntu-latest' }}
+    timeout-minutes: 120
 
     steps:
       - name: Checkout kernel and submodules
@@ -68,6 +80,7 @@ jobs:
           if [ -n "$tagged_commit" ] && [ "$tagged_commit" != "$kernel_commit" ]; then
             tag="${tag}-$(git rev-parse --short=10 HEAD)"
           fi
+          [[ "$PERF_TUNING" == true ]] && tag="${tag}-tuning"
           echo "release_tag=$tag" >> "$GITHUB_OUTPUT"
           echo "BakaSU release tag: $tag"
 
@@ -75,10 +88,32 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            bc binutils-aarch64-linux-gnu bison build-essential ca-certificates curl file flex git \
-            libelf-dev libssl-dev libncurses-dev jq lz4 pahole python3 unzip xz-utils zip zlib1g-dev zstd
+          packages=(bc binutils-aarch64-linux-gnu bison build-essential ca-certificates curl file flex git libelf-dev libssl-dev libncurses-dev jq lz4 pahole python3 unzip xz-utils zip zlib1g-dev zstd util-linux)
+          if [[ "$SELF_HOSTED" != true ]]; then
+            sudo apt-get update
+            sudo apt-get install -y --no-install-recommends "${packages[@]}"
+          else
+            fail() { echo "::error::$*" >&2; exit 1; }
+            . /etc/os-release
+            [[ "$ID" == ubuntu ]] || fail 'Automatic dependency setup supports Ubuntu only.'
+            [[ "$(uname -m)" == x86_64 ]] || fail 'The AOSP Clang prebuilt requires x86_64 Linux.'
+            missing=()
+            for package in "${packages[@]}"; do
+              status=$(dpkg-query -W -f='${Status}' "$package" 2>/dev/null || true)
+              [[ "$status" == 'install ok installed' ]] || missing+=("$package")
+            done
+            if ((${#missing[@]})); then
+              privilege=()
+              if ((EUID != 0)); then
+                sudo -n true || fail "Missing packages need non-interactive sudo: ${missing[*]}"
+                privilege=(sudo -n)
+              fi
+              "${privilege[@]}" env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 update
+              "${privilege[@]}" env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 install -y --no-install-recommends --no-remove "${missing[@]}"
+            else
+              echo 'All build dependencies are already installed.'
+            fi
+          fi
 
           echo "pahole: $(command -v pahole)"
           pahole --version
@@ -88,8 +123,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          toolchain="$RUNNER_TEMP/aosp-clang14"
-          sh scripts/fetch_aosp_clang.sh "$toolchain"
+          if [[ "$SELF_HOSTED" == true ]]; then
+            # Own PC runner: keep the toolchain in a cache folder between runs.
+            cache="${XDG_CACHE_HOME:-$HOME/.cache}/a325-kernel/bakasu"
+            mkdir -p "$cache"
+            exec 9>"$cache/.lock"
+            flock 9
+            key=$(sha256sum scripts/fetch_aosp_clang.sh scripts/aosp_clang14.conf | sha256sum | cut -c1-16)
+            toolchain="$cache/aosp-clang14-$key"
+            AOSP_CLANG_CACHE="$cache/archives" sh scripts/fetch_aosp_clang.sh "$toolchain"
+          else
+            toolchain="$RUNNER_TEMP/aosp-clang14"
+            sh scripts/fetch_aosp_clang.sh "$toolchain"
+          fi
           echo "TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
           echo "toolchain=$toolchain" >> "$GITHUB_OUTPUT"
           echo "$toolchain/bin" >> "$GITHUB_PATH"
@@ -262,6 +308,8 @@ jobs:
           SUSFS priority UID source: simonpunk gki-android12-5.10 eb95da0; parent command and package watcher
           Preinit: runner linked; device execution requires boot verification
           SUSFS: $susfs
+          Kernel patches: $(paste -sd, "$OUT_DIR/applied-patches.txt")
+          Optional tuning: $PERF_TUNING
           Toolchain: pinned AOSP Clang 14
           AnyKernel upstream: $ANYKERNEL_REPO@$ANYKERNEL_RESOLVED_COMMIT
           Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
@@ -271,7 +319,9 @@ jobs:
           cp "$OUT_DIR/bakasu-source.txt" "$PACKAGE_DIR/bakasu-source.txt"
           cp "$OUT_DIR/toolchain-source.txt" "$PACKAGE_DIR/toolchain-source.txt"
 
-          echo "ARTIFACT_NAME=A325N-BakaSU-$kernel_short" >> "$GITHUB_ENV"
+          suffix=''
+          [[ "$PERF_TUNING" == true ]] && suffix='-tuning'
+          echo "ARTIFACT_NAME=A325N-BakaSU-$kernel_short$suffix" >> "$GITHUB_ENV"
           echo "ZIP_NAME=$(basename "$zip_path")" >> "$GITHUB_ENV"
 
           echo '--- build-info.txt ---'
@@ -291,6 +341,11 @@ jobs:
             ${{ env.PACKAGE_DIR }}/toolchain-source.txt
           if-no-files-found: error
           retention-days: 14
+
+      - name: Clean build output (own PC runner)
+        if: always() && env.SELF_HOSTED == 'true'
+        shell: bash
+        run: rm -rf -- "$OUT_DIR" "$PACKAGE_DIR"
 
   release:
     name: Publish GitHub Release

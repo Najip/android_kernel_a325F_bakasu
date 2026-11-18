@@ -53,6 +53,9 @@ VENDOR_WARN_FLAGS="-Wno-error \
 export KCFLAGS=${KCFLAGS:-$VENDOR_WARN_FLAGS}
 
 mkdir -p "$OUT"
+# Device patches: network fix always, tuning only if PERF_TUNING=true,
+# original GPU voltages restored last.
+python3 "$ROOT/scripts/apply_kernel_patches.py" "$OUT"
 
 cp "$TOOLCHAIN/aosp-source.txt" "$OUT/toolchain-source.txt"
 "$CC" --version > "$OUT/clang-version.txt"
