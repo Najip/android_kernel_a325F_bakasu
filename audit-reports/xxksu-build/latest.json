@@ -1,11 +1,11 @@
 {
-  "status": "PASS",
-  "compile_outcome": "success",
-  "exit_code": "0",
-  "log_exit_code": "0",
-  "dependencies_outcome": "success",
-  "syntax_outcome": "success",
-  "source_commit": "b05d0d64087b159c70f8714ca99ade1e224adc40",
+  "status": "NOT_PASS",
+  "compile_outcome": "cancelled",
+  "exit_code": "",
+  "log_exit_code": "",
+  "package_outcome": "skipped",
+  "package_exit_code": "",
+  "source_commit": "0fd03e2d1f452e30054e7cef85b623487103f319",
   "source_lock": {
     "sources": {
       "KernelSU": "1b8ce9e15a9402aa2192aed5d381366cf2150f0f",
@@ -45,14 +45,15 @@
     ],
     "status": "Sequential application and reversal validated in Actions run 44254995433 (attempt 1); prebuild helper and compile/link not yet validated."
   },
-  "run_id": "44274945000",
+  "run_id": "44278046160",
   "attempt": "1",
-  "run_url": "https://github.com/Najip/android_kernel_a325F_bakasu/actions/runs/44274945000",
-  "scope": "Guarded patch preparation and compile/link checks only. Warnings require review. No boot, root, SUSFS-runtime, LKM, APK, packaging or release validation.",
-  "warning_line_count": 357,
+  "run_url": "https://github.com/Najip/android_kernel_a325F_bakasu/actions/runs/44278046160",
+  "scope": "Experimental kernel ZIP. Compile/link and archive checks only. Boot, root, SUSFS runtime and LKM remain untested. No release or deployment.",
+  "warning_line_count": 95,
   "log_parts": [
-    "audit-reports/xxksu-build/44274945000-1/build.part-0001.txt",
-    "audit-reports/xxksu-build/44274945000-1/build.part-0002.txt",
-    "audit-reports/xxksu-build/44274945000-1/build.part-0003.txt"
+    "audit-reports/xxksu-build/44278046160-1/build.part-0001.txt",
+    "audit-reports/xxksu-build/44278046160-1/build.part-0002.txt",
+    "audit-reports/xxksu-build/44278046160-1/build.part-0003.txt",
+    "audit-reports/xxksu-build/44278046160-1/package.part-0001.txt"
   ]
 }

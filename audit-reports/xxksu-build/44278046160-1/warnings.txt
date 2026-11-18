@@ -1,0 +1,95 @@
+drivers/misc/tzdev/4.1/Kconfig:1:warning: ignoring type redefinition of 'TZDEV' from 'tristate' to 'boolean'
+drivers/misc/tzdev/4.1/Kconfig:80:warning: ignoring type redefinition of 'ION_FD2PHYS' from 'boolean' to 'tristate'
+drivers/input/touchscreen/himax/himax_83xxx_i2c/Kconfig:82:warning: ignoring type redefinition of 'TOUCHSCREEN_HIMAX_DEBUG' from 'boolean' to 'tristate'
+drivers/sensorhub/debug/Kconfig:1:warning: ignoring unsupported character '
+drivers/sensorhub/debug/Kconfig:2:warning: ignoring unsupported character '
+drivers/sensorhub/debug/Kconfig:3:warning: ignoring unsupported character '
+drivers/sensorhub/debug/Kconfig:4:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:1:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:2:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:3:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:3:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:5:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:6:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:7:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:7:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:9:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:10:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:11:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:12:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:12:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:15:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:16:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:17:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:17:warning: ignoring unsupported character '
+drivers/input/sec_input/Kconfig:16:warning: ignoring type redefinition of 'INPUT_TOUCHSCREEN_TCLMV2' from 'boolean' to 'tristate'
+drivers/sensorhub/Kconfig:26:warning: config symbol defined without type
+drivers/misc/tzdev/4.1/Kconfig:1:warning: ignoring type redefinition of 'TZDEV' from 'tristate' to 'boolean'
+drivers/misc/tzdev/4.1/Kconfig:80:warning: ignoring type redefinition of 'ION_FD2PHYS' from 'boolean' to 'tristate'
+drivers/input/touchscreen/himax/himax_83xxx_i2c/Kconfig:82:warning: ignoring type redefinition of 'TOUCHSCREEN_HIMAX_DEBUG' from 'boolean' to 'tristate'
+drivers/sensorhub/debug/Kconfig:1:warning: ignoring unsupported character '
+drivers/sensorhub/debug/Kconfig:2:warning: ignoring unsupported character '
+drivers/sensorhub/debug/Kconfig:3:warning: ignoring unsupported character '
+drivers/sensorhub/debug/Kconfig:4:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:1:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:2:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:3:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:3:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:5:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:6:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:7:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:7:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:9:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:10:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:11:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:12:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:12:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:15:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:16:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:17:warning: ignoring unsupported character '
+drivers/sensorhub/sensorhub/Kconfig:17:warning: ignoring unsupported character '
+drivers/input/sec_input/Kconfig:16:warning: ignoring type redefinition of 'INPUT_TOUCHSCREEN_TCLMV2' from 'boolean' to 'tristate'
+drivers/sensorhub/Kconfig:26:warning: config symbol defined without type
+Warning: Kernel ABI header at 'tools/include/uapi/linux/bpf.h' differs from latest version at 'include/uapi/linux/bpf.h'
+Warning: Kernel ABI header at 'tools/include/uapi/linux/bpf_common.h' differs from latest version at 'include/uapi/linux/bpf_common.h'
+Warning: Kernel ABI header at 'tools/include/uapi/linux/netlink.h' differs from latest version at 'include/uapi/linux/netlink.h'
+Warning: Kernel ABI header at 'tools/include/uapi/linux/if_link.h' differs from latest version at 'include/uapi/linux/if_link.h'
+Warning: Kernel ABI header at 'tools/include/uapi/linux/if_xdp.h' differs from latest version at 'include/uapi/linux/if_xdp.h'
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/scripts/mod/modpost.c:811:30: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/arch/arm64/kernel/cpufeature.c:998:13: warning: unused function 'cpu_enable_ssbs' [-Wunused-function]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
