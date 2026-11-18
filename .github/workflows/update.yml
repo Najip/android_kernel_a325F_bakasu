@@ -1,11 +1,24 @@
-name: Update NoMount
+name: Update sources
+run-name: Check for updates (${{ github.ref_name }})
 
+# One updater for all three variants.
+#   common (BakaSU): runs every 6 hours. Updates the vendored NoMount (fs/nomount),
+#                    then BakaSU; a new BakaSU commit builds and publishes a Release.
+#   ksun and xxksu:  once a day (08:23 WIB) this starts the "Update sources" workflow
+#                    on those branches; each opens a pull request with a test build.
+# Run it by hand: Actions -> Update sources -> Run workflow.
+#   Branch common runs everything below; branch ksun or xxksu checks only that variant.
 on:
   schedule:
-    # 03:47, 09:47, 15:47, 21:47 UTC (scheduled runs always use the default branch)
-    - cron: '47 3,9,15,21 * * *'
+    - cron: '17 */6 * * *'   # BakaSU + NoMount (00:17, 06:17, 12:17, 18:17 UTC)
+    - cron: '23 1 * * *'     # ksun + xxksu (08:23 WIB)
   workflow_dispatch:
     inputs:
+      publish_release:
+        description: 'BakaSU: publish a kernel Release after updating'
+        required: false
+        type: boolean
+        default: true
       nomount_ref:
         description: 'NoMount branch, tag or commit to vendor'
         required: false
@@ -14,22 +27,24 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
-  group: nomount-auto-update-${{ github.ref_name }}
+  group: update-sources-common
   cancel-in-progress: false
 
 jobs:
-  update:
+  nomount:
     name: Update vendored NoMount (fs/nomount) and README
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '17 */6 * * *'
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
-      - name: Checkout selected branch
+      - name: Checkout common
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.ref_name }}
+          ref: common
           fetch-depth: 0
           persist-credentials: true
 
@@ -167,7 +182,7 @@ jobs:
 
       - name: Commit and push (no build)
         env:
-          TARGET_BRANCH: ${{ github.ref_name }}
+          TARGET_BRANCH: common
         shell: bash
         run: |
           set -euo pipefail
@@ -194,3 +209,130 @@ jobs:
           git push origin "HEAD:$TARGET_BRANCH"
 
           # Intentionally no 'gh workflow run kernel.yml' and no BakaSU update here.
+
+  bakasu:
+    name: Update BakaSU submodule and README
+    needs: nomount
+    if: ${{ !cancelled() && needs.nomount.result != 'skipped' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout common
+        uses: actions/checkout@v7
+        with:
+          ref: common
+          fetch-depth: 0
+          submodules: recursive
+          persist-credentials: true
+
+      - name: Check BakaSU tracked branch
+        id: ksu
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          current="$(git -C KernelSU rev-parse HEAD)"
+          ksu_branch="$(git config -f .gitmodules --get submodule.KernelSU.branch)"
+          git check-ref-format --branch "$ksu_branch" >/dev/null
+          git -C KernelSU fetch origin "+refs/heads/$ksu_branch:refs/remotes/origin/$ksu_branch" --tags
+          latest="$(git -C KernelSU rev-parse "refs/remotes/origin/$ksu_branch^{commit}")"
+          echo "Tracked BakaSU branch: $ksu_branch"
+
+          echo "Current: $current"
+          echo "Latest : $latest"
+
+          updated=false
+          if [ "$current" != "$latest" ]; then
+            git -C KernelSU checkout --detach "$latest"
+            updated=true
+          else
+            echo "BakaSU is already current."
+          fi
+
+          # Require unmodified upstream source and check its preinit API first.
+          sh scripts/prepare_bakasu.sh --check
+
+          short="$(git -C KernelSU rev-parse --short=8 HEAD)"
+          desc="$(git -C KernelSU describe --tags --always)"
+          count="$(git -C KernelSU rev-list --count HEAD)"
+          code="$((30700 + count))"
+
+          echo "updated=$updated" >> "$GITHUB_OUTPUT"
+          echo "short=$short" >> "$GITHUB_OUTPUT"
+          echo "desc=$desc" >> "$GITHUB_OUTPUT"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+
+          echo "BakaSU: $desc"
+          echo "Version code: $code"
+
+      - name: Sync README metadata
+        id: readme
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python3 scripts/update_readme_versions.py
+
+          changed=false
+          if ! git diff --quiet -- README.md README_KO.md; then
+            changed=true
+          fi
+          echo "changed=$changed" >> "$GITHUB_OUTPUT"
+
+      - name: Commit submodule and README update
+        if: steps.ksu.outputs.updated == 'true' || steps.readme.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add KernelSU README.md README_KO.md
+          git diff --cached --submodule=short
+
+          if [ "${{ steps.ksu.outputs.updated }}" = "true" ]; then
+            git commit -m "kernelsu: update BakaSU to ${{ steps.ksu.outputs.short }}"
+          else
+            git commit -m "docs: sync BakaSU README metadata"
+          fi
+          git push origin HEAD:common
+
+      - name: Trigger kernel build and publish
+        if: steps.ksu.outputs.updated == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          publish=true
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            publish='${{ inputs.publish_release }}'
+          fi
+
+          echo "Dispatching kernel.yml on common"
+          echo "publish_release=$publish"
+
+          gh workflow run kernel.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref common \
+            -f publish_release="$publish"
+
+  variants:
+    name: Start the ksun and xxksu updaters
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '23 1 * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Start update.yml on ksun and xxksu
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for branch in ksun xxksu; do
+            echo "Starting Update sources on $branch"
+            gh workflow run update.yml --repo "$GITHUB_REPOSITORY" --ref "$branch"
+          done

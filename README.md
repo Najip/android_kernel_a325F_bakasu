@@ -6,6 +6,18 @@ This kernel is intended for the SM-A325 family, including regional variants such
 
 [한국어 README](README_KO.md)
 
+## Variants
+
+This repository has three kernel variants, one branch each:
+
+| Branch | Root solution | Build | Updates |
+|---|---|---|---|
+| `common` (this one) | BakaSU + NoMount | Actions -> **A325X Kernel**, branch `common` | **Update sources** every 6 hours; new BakaSU builds a Release |
+| [`ksun`](../../tree/ksun) | KernelSU-Next + SUSFS v2.4.0 | Actions -> **A325X Kernel**, branch `ksun` | **Update sources** daily; opens a pull request with a test build |
+| [`xxksu`](../../tree/xxksu) | xxKSU + SUSFS v2.4.0 | Actions -> **A325X Kernel**, branch `xxksu` | **Update sources** daily; opens a pull request with a test build |
+
+Each branch has only two workflows: `kernel.yml` (build) and `update.yml` (updater).
+
 > **BakaSU source:** This project tracks BakaSU's `main` branch without modifying its sources. Linux 4.14 preinit, manual SELinux and SUSFS command integration live in the parent kernel. Automatic updates check the source API before updating the pinned submodule commit.
 
 ## Device Support
