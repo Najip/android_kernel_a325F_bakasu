@@ -1,6 +1,10 @@
 #!/bin/sh
 # Apply parent-kernel compatibility patches required by the selected BakaSU
 # revision. BakaSU itself must remain an unmodified upstream checkout.
+#
+# NO_PERF_TUNING=1 skips every patch whose file name contains "-tuning-" (the
+# performance and power tuning patch). All other patches are still applied.
+# APPLIED_PATCHES_FILE (optional) receives the names of the patches that were applied.
 set -eu
 
 ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
@@ -18,6 +22,10 @@ if [ -n "$(git -C "$ROOT" status --porcelain --untracked-files=normal)" ]; then
 	exit 1
 fi
 
+if [ -n "${APPLIED_PATCHES_FILE:-}" ]; then
+	: > "$APPLIED_PATCHES_FILE"
+fi
+
 patches=$(find "$PATCH_DIR" -maxdepth 1 -type f -name '*.patch' | sort)
 
 if [ -z "$patches" ]; then
@@ -26,8 +34,20 @@ if [ -z "$patches" ]; then
 fi
 
 for patch in $patches; do
-	echo "Checking kernel patch: $(basename "$patch")"
+	name=$(basename "$patch")
+	case $name in
+	*-tuning-*)
+		if [ "${NO_PERF_TUNING:-0}" = 1 ]; then
+			echo "Skipping kernel patch (NO_PERF_TUNING=1): $name"
+			continue
+		fi
+		;;
+	esac
+	echo "Checking kernel patch: $name"
 	git -C "$ROOT" apply --check "$patch"
 	git -C "$ROOT" apply "$patch"
-	echo "Applied kernel patch: $(basename "$patch")"
+	echo "Applied kernel patch: $name"
+	if [ -n "${APPLIED_PATCHES_FILE:-}" ]; then
+		printf '%s\n' "$name" >> "$APPLIED_PATCHES_FILE"
+	fi
 done
