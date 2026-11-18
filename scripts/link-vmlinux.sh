@@ -181,13 +181,13 @@ vmlinux_link()
 			objects="-Wl,--whole-archive			\
 				built-in.o				\
 				-Wl,--no-whole-archive			\
-				-Wl,--start-group			\
+				-Wl,--start-group				\
 				${KBUILD_VMLINUX_LIBS}			\
 				-Wl,--end-group				\
 				${@:2}"
 		else
 			objects="${KBUILD_VMLINUX_INIT}			\
-				-Wl,--start-group			\
+				-Wl,--start-group				\
 				${KBUILD_VMLINUX_MAIN}			\
 				${KBUILD_VMLINUX_LIBS}			\
 				-Wl,--end-group				\
@@ -367,9 +367,11 @@ fi
 
 btf_vmlinux_bin_o=""
 if [ -n "${CONFIG_DEBUG_INFO_BTF}" ]; then
-	if gen_btf .tmp_vmlinux.btf .btf.vmlinux.bin.o ; then
-		btf_vmlinux_bin_o=.btf.vmlinux.bin.o
-	fi
+	# Do not call gen_btf in a conditional: that suppresses set -e inside
+	# the function and can let dd manufacture an invalid object after a
+	# failed link, pahole invocation or objcopy operation.
+	gen_btf .tmp_vmlinux.btf .btf.vmlinux.bin.o
+	btf_vmlinux_bin_o=.btf.vmlinux.bin.o
 fi
 
 kallsymso=""
