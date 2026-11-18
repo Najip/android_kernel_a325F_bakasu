@@ -1,0 +1,27 @@
+x/hif/axi/include -DCONFIG_WLAN_DRV_BUILD_IN=1 -DCONFIG_WLAN_SERVICE=1 -DCONFIG_TEST_ENGINE_OFFLOAD=1 -Idrivers/misc/mediatek/connectivity/wlan_drv_gen4m/wlan_service/include -Idrivers/misc/mediatek/connectivity/wlan_drv_gen4m/wlan_service/service/include -Idrivers/misc/mediatek/connectivity/wlan_drv_gen4m/wlan_service/glue/osal/include -Idrivers/misc/mediatek/connectivity/wlan_drv_gen4m/wlan_service/glue/hal/include}]
+$MTK_WLAN_SERVICE is [{wlan_service/agent/agent.o wlan_service/service/service_test.o wlan_service/service/test_engine.o wlan_service/glue/osal/gen4m/sys_adaption_gen4m.o wlan_service/glue/osal/gen4m/net_adaption_gen4m.o wlan_service/glue/hal/gen4m/operation_gen4m.o}]
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/connectivity/wmt_chrdev_wifi/Makefile:53: wmt_chrdev_wifi build-in boot.img
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/connectivity/wmt_drv/Makefile:46: yumin: common 1
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/connectivity/wmt_drv/Makefile:48: yumin: common 2
+/home/najip/actions-runner-a32/_work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/connectivity/wmt_drv/Makefile:113: wmt_drv build-in boot.img
+MTK_GPU_VERSION 1 = mali
+************  drivers/trusty/mtee-kree mk ************
+*MTK_GPU_VERSION 2 = bifrost
+imgsensor drv by common ../common/v1/hi2021q_mipi_raw/ ../common/v1/sr846d_mipi_raw/ ../common/v1/gc5035_mipi_raw/ ../common/v1/gc5035b_mipi_raw/ ../common/v1/imx355_mipi_raw/ ../common/v1/gc02m1b_mipi_raw/ ../common/v1/gc02m1_mipi_raw/
+*MTK_GPU_VERSION 3 = r25p0
+camera project of sysfs: aau_v32
+mali MTK evironment, building r19p0 DDK
+mtk-Kbuild CONFIG_MALI_PLATFORM_THIRDPARTY := y
+mtk-Kbuild CONFIG_MALI_PLATFORM_THIRDPARTY_NAME := "mt6768"
+mali MTK evironment, building r19p0 DDK
+mtk-Kbuild CONFIG_MALI_PLATFORM_THIRDPARTY := y
+mtk-Kbuild CONFIG_MALI_PLATFORM_THIRDPARTY_NAME := "mt6768"
+mali MTK evironment, building r19p0 DDK
+mtk-Kbuild CONFIG_MALI_PLATFORM_THIRDPARTY := y
+mtk-Kbuild CONFIG_MALI_PLATFORM_THIRDPARTY_NAME := "mt6768"
+gc02m1_mipi_raw device driver is already in use
+imgsensor drv by project s5kgw3_mipi_raw/
+TCORE_UT_TESTS_SUPPORT = n
+TCORE_PROFILING_SUPPORT = n
+TCORE_PROFILING_AUTO_DUMP = n
+TCORE_MEMORY_LEAK_DETECTION_SUPPORT = n
