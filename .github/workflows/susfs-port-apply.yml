@@ -1,4 +1,4 @@
-name: SUSFS 2.4.0 port - build review branch (Jack 4.14)
+name: SUSFS port - isolated xxKSU review branch (Jack 4.14)
 on:
   workflow_dispatch:
     inputs:
@@ -7,66 +7,57 @@ on:
         type: boolean
         default: false
       kernel_ref:
-        description: 'Base kernel ref; blank = workflow branch'
+        description: 'Base kernel ref for the isolated migration'
         type: string
-        default: ''
-      jack_ref:
-        description: 'Jack ref; blank = pinned submodule commit'
-        type: string
-        default: ''
-      patch_path:
-        description: Patch path inside NonGKI_Kernel_Build_2nd
-        type: string
-        default: Patches/Patch/susfs_patch_to_4.14.patch
+        default: xxksu-sufs-jack
       target_branch:
-        description: Review branch to create or overwrite
+        description: 'NEW review branch only; existing targets are refused'
         type: string
-        default: susfs-2.4.0-port
+        default: xxksu-manual-susfs-port
 permissions:
   contents: write
 concurrency:
-  group: susfs-port-apply-${{ github.ref }}
-  cancel-in-progress: true
+  group: xxksu-susfs-port-${{ inputs.target_branch }}
+  cancel-in-progress: false
 jobs:
   apply:
+    if: github.ref == 'refs/heads/xxksu-sufs-jack'
     runs-on: ${{ inputs.self_hosted && 'self-hosted' || 'ubuntu-latest' }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ inputs.kernel_ref || github.ref }}
+          ref: ${{ inputs.kernel_ref }}
           fetch-depth: 0
           submodules: recursive
-      - name: Select Jack commit and validate target
+      - name: Validate isolated target and pinned sources
         shell: bash
         env:
-          JACK_REF: ${{ inputs.jack_ref }}
           TARGET_BRANCH: ${{ inputs.target_branch }}
         run: |
           set -euo pipefail
           case "$TARGET_BRANCH" in
-            ''|common|main|master|ksun-susfs-JackA1ltman|susfs-delta-report)
-              echo '::error::Refusing to overwrite protected source/report branch'; exit 1 ;;
+            xxksu-manual-susfs-port|xxksu-manual-susfs-port-*) ;;
+            *) echo '::error::Target must use the isolated xxksu-manual-susfs-port namespace'; exit 1 ;;
           esac
           git check-ref-format --branch "$TARGET_BRANCH"
-          if [ -n "$JACK_REF" ]; then
-            git -C NonGKI_Kernel_Build_2nd fetch origin "$JACK_REF"
-            git -C NonGKI_Kernel_Build_2nd checkout --detach FETCH_HEAD
-          fi
-          git -C NonGKI_Kernel_Build_2nd log -1 --format='%H %cI %s'
-      - name: Generate Jack priority filter port
+          refs=$(git ls-remote --heads origin "refs/heads/$TARGET_BRANCH")
+          test -z "$refs" || { echo '::error::Target already exists; no overwrite allowed'; exit 1; }
+          test "$(git -C KernelSU rev-parse HEAD)" = 1b8ce9e15a9402aa2192aed5d381366cf2150f0f
+          test "$(git -C NonGKI_Kernel_Build_2nd rev-parse HEAD)" = bbe032eb06c50d24a9207bf2ece5e25cf2460bd0
+          git diff --quiet
+          git diff --cached --quiet
+      - name: Generate existing Jack priority migration (not full manual-hook port)
         shell: bash
-        env:
-          PATCH_PATH: ${{ inputs.patch_path }}
         run: |
           set -euo pipefail
-          python3 - "NonGKI_Kernel_Build_2nd/$PATCH_PATH" <<'PY'
-          import re, sys
+          python3 - <<'PY'
+          import re
           from pathlib import Path
           def require(ok, message):
               if not ok:
                   raise SystemExit(message)
-          patch = Path(sys.argv[1]).read_text()
+          patch = Path('NonGKI_Kernel_Build_2nd/Patches/Patch/susfs_patch_to_4.14.patch').read_text()
           new = {}
           for section in re.split(r'(?m)^(?=diff --git )', patch):
               if not section.startswith('diff --git '):
@@ -88,7 +79,7 @@ jobs:
           require('susfs_is_priority_uid_filtered' in c and 'CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER' in c, 'Jack priority implementation missing')
           require('PRIORITY_UID_FILTER' in h and 'CMD_SUSFS_SET_PRIORITY_UID_FILTER' in d, 'Jack priority declarations missing')
           pattern = re.compile(r'/\*\n \* Switches the selinux domain.*?static void susfs_restore_creds\(struct cred \*orig_cred\) \{.*?\n\}\n', re.S)
-          replacement = """/* Preserve the boot-tested KernelSU-Next credential adaptation. */
+          replacement = """/* Preserve the parent-kernel credential adaptation. */
           static const struct cred *susfs_switch_to_ksu_domain(void) {
               struct cred *cred = READ_ONCE(ksu_cred);
               const struct cred *saved;
@@ -146,17 +137,15 @@ jobs:
           Path('fs/susfs_priority.c').unlink(missing_ok=True)
           Path('.susfs-port').mkdir(exist_ok=True)
           Path('.susfs-port/PORT_NOTES.md').write_text(
-              '# Jack priority UID filter migration\n\n'
-              '- Jack priority implementation, headers and feature-reporting blocks retained.\n'
-              '- Old standalone priority implementation removed from source and Kbuild.\n'
-              '- Priority and sus-path UID filter commands dispatched by parent-kernel glue.\n'
-              '- Reboot priority caller uses Jack double-pointer API, a separate return 0 and a feature guard.\n'
-              '- Existing KernelSU-Next credential, kernel_read and disabled-log adaptations retained.\n'
-              '- Logging configuration unchanged. No defconfig changes.\n'
-              '- This migration does not complete the remaining stat/super/sys hook audit.\n'
-              '- Generated source still needs a kernel build and device runtime testing.\n')
+              '# Isolated xxKSU SUSFS migration stage\n\n'
+              '- Imports Jack core/header priority implementation using the existing port generator.\n'
+              '- Replaces the standalone priority implementation and wires parent dispatch.\n'
+              '- Does NOT implement the full source-level manual-hook conversion.\n'
+              '- Does NOT modify hook-mode configuration, builder checks, or locked xxKSU patch series.\n'
+              '- Review compatibility with that patch series before attempting a build.\n'
+              '- Generated changes are uncompiled and unboot-tested; not a device-ready kernel.\n')
           PY
-      - name: Commit review branch
+      - name: Commit NEW isolated review branch
         shell: bash
         env:
           TARGET_BRANCH: ${{ inputs.target_branch }}
@@ -164,15 +153,16 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git checkout -B "$TARGET_BRANCH"
+          base=$(git rev-parse HEAD)
+          git checkout -b "$TARGET_BRANCH"
           git add -A -- fs/susfs.c fs/susfs_priority.c fs/susfs_ksu_glue.c fs/Makefile include/linux/susfs.h include/linux/susfs_def.h kernel/reboot.c .susfs-port/PORT_NOTES.md
           git diff --cached --check
           {
             echo "Review branch: $TARGET_BRANCH"
-            echo "Base: $(git rev-parse HEAD)"
+            echo "Base: $base"
             echo "Jack: $(git -C NonGKI_Kernel_Build_2nd rev-parse HEAD)"
             git diff --cached --stat
             cat .susfs-port/PORT_NOTES.md
           } | tee -a "$GITHUB_STEP_SUMMARY"
-          git commit -m 'SUSFS v2.4.0: use Jack priority UID filter and wire command dispatch'
-          git push --force-with-lease origin "HEAD:refs/heads/$TARGET_BRANCH"
+          git commit -m 'SUSFS: stage isolated xxKSU Jack priority migration for manual-port review'
+          git push --force-with-lease="refs/heads/$TARGET_BRANCH:" origin "HEAD:refs/heads/$TARGET_BRANCH"
