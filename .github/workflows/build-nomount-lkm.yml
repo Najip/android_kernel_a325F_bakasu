@@ -12,7 +12,7 @@ on:
         description: 'Upstream NoMount branch, tag or commit, e.g. master, dev, v2.3.0-720. Blank = the NoMount commit already vendored in that kernel (fs/nomount/Makefile).'
         required: false
         type: string
-        default: ''
+        default: 'dev'
 
 permissions:
   contents: read
