@@ -1,4 +1,4 @@
-name: A325X Kernel (no NoMount)
+name: A325X Kernel
 on:
   workflow_dispatch:
     inputs:
