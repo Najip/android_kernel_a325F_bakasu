@@ -24,6 +24,11 @@ on:
         required: false
         type: boolean
         default: true
+      perf_tuning:
+        description: 'Apply optional tuning; network fixes always enabled, original GPU voltages retained'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -32,6 +37,7 @@ concurrency:
   cancel-in-progress: false
 env:
   SELF_HOSTED: ${{ github.event_name == 'workflow_dispatch' && inputs.self_hosted }}
+  PERF_TUNING: ${{ github.event_name == 'workflow_dispatch' && inputs.perf_tuning }}
 
 jobs:
   build:
@@ -122,9 +128,9 @@ jobs:
           set -euo pipefail
           sh -n build_xxksu.sh
           sh -n package_xxksu.sh
-          python3 -c "import ast; ast.parse(open('scripts/prepare_xxksu.py').read())"
+          python3 -c "import ast; [ast.parse(open(p).read()) for p in ('scripts/prepare_xxksu.py', 'scripts/apply_xxksu_kernel_patches.py')]"
 
-      - name: Prepare patches and compile kernel
+      - name: Prepare selected patches and compile kernel
         id: compile
         run: |
           set -uo pipefail
@@ -145,7 +151,14 @@ jobs:
           codes=("${PIPESTATUS[@]}")
           echo "exit_code=${codes[0]}" >> "$GITHUB_OUTPUT"
           if [ "${codes[0]}" -ne 0 ]; then exit "${codes[0]}"; fi
-          exit "${codes[1]}"
+          if [ "${codes[1]}" -ne 0 ]; then exit "${codes[1]}"; fi
+          set -e
+          cp "$OUT_DIR/xxksu-kernel-patches.json" "$OUT_DIR/applied-patches.txt" "$PACKAGE_DIR/"
+          {
+            echo "Optional tuning: $PERF_TUNING"
+            echo 'Network fixes: enabled; original GPU voltage restoration: applied last'
+            cat "$OUT_DIR/xxksu-kernel-patches.json"
+          } >> "$PACKAGE_DIR/build-info.txt"
 
       - name: Record build and package results
         id: report
@@ -173,10 +186,14 @@ jobs:
                   parts.append(str(path))
               warnings.extend(line for line in data.decode('utf-8', errors='replace').splitlines() if 'warning:' in line.lower())
           (directory / 'warnings.txt').write_text('\n'.join(warnings) + '\n')
+          patch_file = pathlib.Path(os.environ.get('OUT_DIR') or '/nonexistent-xxksu-out') / 'xxksu-kernel-patches.json'
+          patch_result = json.loads(patch_file.read_text()) if patch_file.is_file() else {'status': 'not_completed'}
+          (directory / 'kernel-patches.json').write_text(json.dumps(patch_result, indent=2) + '\n')
           result = {'status': 'PASS' if os.environ['COMPILE_OUTCOME'] == 'success' and os.environ['PACKAGE_OUTCOME'] == 'success' else 'NOT_PASS',
                     'compile_outcome': os.environ['COMPILE_OUTCOME'], 'exit_code': os.environ.get('COMPILE_EXIT_CODE', ''),
                     'log_exit_code': os.environ.get('LOG_EXIT_CODE', ''),
                     'package_outcome': os.environ['PACKAGE_OUTCOME'], 'package_exit_code': os.environ.get('PACKAGE_EXIT_CODE', ''),
+                    'kernel_patches': patch_result,
                     'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
                     'source_lock': json.loads(pathlib.Path('patches/xxksu/source-lock.json').read_text()),
                     'run_id': os.environ['GITHUB_RUN_ID'], 'attempt': os.environ['GITHUB_RUN_ATTEMPT'],
@@ -194,7 +211,7 @@ jobs:
         if: success() && steps.package.outcome == 'success'
         uses: actions/upload-artifact@v7
         with:
-          name: A325X-xxKSU-experimental-${{ github.run_id }}-${{ github.run_attempt }}
+          name: A325X-xxKSU-experimental-${{ github.run_id }}-${{ github.run_attempt }}-tuning-${{ env.PERF_TUNING }}
           path: ${{ env.PACKAGE_DIR }}/
           if-no-files-found: error
           retention-days: 14
@@ -213,6 +230,9 @@ jobs:
             ${{ env.OUT_DIR }}/arch/arm64/boot/Image*
             ${{ env.OUT_DIR }}/System.map
             ${{ env.OUT_DIR }}/xxksu-source.json
+            ${{ env.OUT_DIR }}/xxksu-kernel-patches.json
+            ${{ env.OUT_DIR }}/applied-patches.txt
+            ${{ env.OUT_DIR }}/selected-kernel-patches/
             ${{ env.OUT_DIR }}/toolchain-source.txt
             ${{ env.OUT_DIR }}/vmlinux-header.txt
             ${{ env.OUT_DIR }}/xxksu-symbols.txt

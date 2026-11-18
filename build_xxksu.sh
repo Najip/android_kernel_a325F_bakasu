@@ -2,11 +2,13 @@
 set -eu
 ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 cd "$ROOT"
-# Source preparation must succeed before toolchain setup or compilation.
+# Mandatory xxKSU preparation runs first, while source trees are clean.
 PREPARATION=$(python3 "$ROOT/scripts/prepare_xxksu.py" --apply)
 . "$ROOT/scripts/aosp_clang14.conf"
 OUT=${OUT_DIR:-"$ROOT/out-xxksu"}
 case "$OUT" in /*) ;; *) OUT="$ROOT/$OUT" ;; esac
+# Networking is mandatory; tuning is opt-in; original GPU voltages are restored last.
+python3 "$ROOT/scripts/apply_xxksu_kernel_patches.py" "$OUT"
 TOOLCHAIN=${TOOLCHAIN:-"$ROOT/.toolchains/$AOSP_CLANG_DIRECTORY"}
 JOBS=${JOBS:-$(nproc)}
 sh "$ROOT/scripts/fetch_aosp_clang.sh" "$TOOLCHAIN"
