@@ -2,8 +2,6 @@ name: A325X Kernel
 
 on:
   push:
-    branches:
-      - common
     tags:
       - 'v*'
   workflow_dispatch:

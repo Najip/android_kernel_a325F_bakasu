@@ -1,0 +1,23 @@
+name: Setup xxKSU submodule
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stub:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Select the xxKSU branch
+        run: |
+          echo 'Registration stub only: no submodules are changed on common.'
+          echo 'Select xxksu-sufs-jack under Use workflow from to run the real setup.'
+          echo 'Warning: setup switches the KernelSU source; it does not complete the SUSFS compatibility port.'
+          {
+            echo '### Setup xxKSU submodule'
+            echo 'No setup was performed by this common-branch stub.'
+            echo 'Select xxksu-sufs-jack under Use workflow from for the actual workflow.'
+            echo 'Wait until the kernel/SUSFS integration is ready before switching sources.'
+          } >> "$GITHUB_STEP_SUMMARY"
