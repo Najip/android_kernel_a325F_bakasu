@@ -1,53 +1,36 @@
 #!/bin/sh
-# Apply parent-kernel compatibility patches required by the selected BakaSU
-# revision. BakaSU itself must remain an unmodified upstream checkout.
-#
-# NO_PERF_TUNING=1 skips every patch whose file name contains "-tuning-" (the
-# performance and power tuning patch). All other patches are still applied.
-# APPLIED_PATCHES_FILE (optional) receives the names of the patches that were applied.
+# Split network patch is mandatory; tuning is opt-in.
 set -eu
-
 ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 PATCH_DIR="$ROOT/patches/kernel"
-
-if [ ! -d "$PATCH_DIR" ]; then
-	echo "Missing kernel patch directory: $PATCH_DIR" >&2
-	exit 1
-fi
-
-# Reject a dirty kernel tree so a failed or repeated patch run cannot hide
-# local edits. CI checkouts are clean by definition.
+test -d "$PATCH_DIR"
 if [ -n "$(git -C "$ROOT" status --porcelain --untracked-files=normal)" ]; then
-	echo 'Kernel worktree is dirty; commit or stash local changes before applying patches' >&2
-	exit 1
+  echo 'Kernel worktree is dirty; commit or stash local changes before applying patches' >&2
+  exit 1
 fi
-
-if [ -n "${APPLIED_PATCHES_FILE:-}" ]; then
-	: > "$APPLIED_PATCHES_FILE"
-fi
-
-patches=$(find "$PATCH_DIR" -maxdepth 1 -type f -name '*.patch' | sort)
-
-if [ -z "$patches" ]; then
-	echo "No kernel compatibility patches found in $PATCH_DIR."
-	exit 0
-fi
-
-for patch in $patches; do
-	name=$(basename "$patch")
-	case $name in
-	*-tuning-*)
-		if [ "${NO_PERF_TUNING:-0}" = 1 ]; then
-			echo "Skipping kernel patch (NO_PERF_TUNING=1): $name"
-			continue
-		fi
-		;;
-	esac
-	echo "Checking kernel patch: $name"
-	git -C "$ROOT" apply --check "$patch"
-	git -C "$ROOT" apply "$patch"
-	echo "Applied kernel patch: $name"
-	if [ -n "${APPLIED_PATCHES_FILE:-}" ]; then
-		printf '%s\n' "$name" >> "$APPLIED_PATCHES_FILE"
-	fi
+NO_PERF_TUNING=${NO_PERF_TUNING:-1}
+case $NO_PERF_TUNING in 0|1) ;; *) echo 'NO_PERF_TUNING must be 0 or 1' >&2; exit 1;; esac
+network=0003-net-udp-gso-qdisc-juan.patch
+combined=0003-wifi-fix-perf-1100mhz-1035mv_uv75_zstd_usbnoauto-juan.patch
+restore=0006-restore-original-gpu-voltages.patch
+test -s "$PATCH_DIR/$network"
+test -s "$PATCH_DIR/$restore"
+if [ -n "${APPLIED_PATCHES_FILE:-}" ]; then : > "$APPLIED_PATCHES_FILE"; fi
+apply_one() {
+  git -C "$ROOT" apply --check "$1"
+  git -C "$ROOT" apply "$1"
+  echo "Applied kernel patch: $(basename "$1")"
+  if [ -n "${APPLIED_PATCHES_FILE:-}" ]; then basename "$1" >> "$APPLIED_PATCHES_FILE"; fi
+}
+for patch in $(find "$PATCH_DIR" -maxdepth 1 -type f -name '*.patch' | sort); do
+  name=$(basename "$patch")
+  case $name in
+    "$combined") echo "Skipping superseded combined patch: $name"; continue;;
+    "$restore") continue;;
+    *-tuning-*)
+      if [ "$NO_PERF_TUNING" = 1 ]; then echo "Skipping optional tuning: $name"; continue; fi;;
+  esac
+  apply_one "$patch"
 done
+# Restoration must follow tuning, including when both have the 0006 prefix.
+apply_one "$PATCH_DIR/$restore"
