@@ -32,7 +32,7 @@
       }
     ]
   },
-  "source_commit": "330ffeffd292e94f32c8d5b848684b3c7330cd35",
+  "source_commit": "56b3615c93b416c8f96813b2cea2e13215e1734f",
   "source_lock": {
     "sources": {
       "KernelSU": "1b8ce9e15a9402aa2192aed5d381366cf2150f0f",
@@ -72,13 +72,13 @@
     ],
     "status": "Sequential application and reversal validated in Actions run 44254995433 (attempt 1); prebuild helper and compile/link not yet validated."
   },
-  "run_id": "44302393789",
+  "run_id": "44307451367",
   "attempt": "1",
-  "run_url": "https://github.com/Najip/android_kernel_a325F_bakasu/actions/runs/44302393789",
+  "run_url": "https://github.com/Najip/android_kernel_a325F_bakasu/actions/runs/44307451367",
   "scope": "Experimental kernel ZIP. Compile/link and archive checks only. Boot, root, SUSFS runtime and LKM remain untested. No release or deployment.",
   "warning_line_count": 0,
   "log_parts": [
-    "audit-reports/xxksu-build/44302393789-1/build.part-0001.txt",
-    "audit-reports/xxksu-build/44302393789-1/package.part-0001.txt"
+    "audit-reports/xxksu-build/44307451367-1/build.part-0001.txt",
+    "audit-reports/xxksu-build/44307451367-1/package.part-0001.txt"
   ]
 }
