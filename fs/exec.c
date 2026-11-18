@@ -1,3 +1,4 @@
+#include <linux/xxksu_manual_hooks.h>
 /*
  *  linux/fs/exec.c
  *
@@ -1905,7 +1906,7 @@ static int exec_binprm(struct linux_binprm *bprm)
 /*
  * sys_execve() executes a new program.
  */
-#ifdef CONFIG_KSU_SUSFS
+#if defined(CONFIG_KSU_SUSFS) && !defined(CONFIG_XXKSU_MANUAL_HOOKS)
 extern struct static_key_true ksu_su_compat_enabled;
 extern struct static_key_true susfs_is_sdcard_android_data_not_decrypted;
 extern int ksu_handle_execveat(int *fd, struct filename **filename_ptr, void *argv,
@@ -1926,7 +1927,7 @@ static int __do_execve_file(int fd, struct filename *filename,
 	struct files_struct *displaced;
 	int retval;
 
-#ifdef CONFIG_KSU_SUSFS
+#if defined(CONFIG_KSU_SUSFS) && !defined(CONFIG_XXKSU_MANUAL_HOOKS)
 	bool is_su_session = false;
 	struct filename *preinit_filename = NULL;
 	struct user_arg_ptr preinit_argv, preinit_envp;
@@ -1936,7 +1937,7 @@ static int __do_execve_file(int fd, struct filename *filename,
 
 	if (IS_ERR(filename))
 		return PTR_ERR(filename);
-#ifdef CONFIG_KSU_SUSFS
+#if defined(CONFIG_KSU_SUSFS) && !defined(CONFIG_XXKSU_MANUAL_HOOKS)
 	if (!file && filename && current->pid == 1) {
 		struct filename *runner;
 
@@ -1955,7 +1956,7 @@ retry_exec:
 	pathbuf = NULL;
 	bprm = NULL;
 	displaced = NULL;
-#ifdef CONFIG_KSU_SUSFS
+#if defined(CONFIG_KSU_SUSFS) && !defined(CONFIG_XXKSU_MANUAL_HOOKS)
 	if (!filename || likely(susfs_is_current_proc_no_su()))
 		goto orig_flow;
 	if (static_branch_likely(&ksu_su_compat_enabled)) {
@@ -2080,7 +2081,7 @@ orig_flow:
 	}
 
 	retval = exec_binprm(bprm);
-#ifdef CONFIG_KSU_SUSFS
+#if defined(CONFIG_KSU_SUSFS) && !defined(CONFIG_XXKSU_MANUAL_HOOKS)
 	/* flush_old_exec() has replaced the old mm: retry is no longer safe. */
 	if (preinit_filename && retval < 0 && !bprm->mm)
 		preinit_committed = true;
@@ -2088,7 +2089,7 @@ orig_flow:
 	if (retval < 0)
 		goto out;
 
-#ifdef CONFIG_KSU_SUSFS
+#if defined(CONFIG_KSU_SUSFS) && !defined(CONFIG_XXKSU_MANUAL_HOOKS)
 	if (unlikely(is_su_session))
 		(void)ksu_handle_post_execveat_sucompat(&fd, &filename, &argv, &envp, &flags, &retval);
 #endif // #ifdef CONFIG_KSU_SUSFS
@@ -2103,7 +2104,7 @@ orig_flow:
 	kfree(pathbuf);
 	if (filename)
 		putname(filename);
-#ifdef CONFIG_KSU_SUSFS
+#if defined(CONFIG_KSU_SUSFS) && !defined(CONFIG_XXKSU_MANUAL_HOOKS)
 	if (preinit_filename)
 		putname(preinit_filename);
 #endif
@@ -2130,7 +2131,7 @@ out_files:
 	if (displaced)
 		reset_files_struct(displaced);
 out_ret:
-#ifdef CONFIG_KSU_SUSFS
+#if defined(CONFIG_KSU_SUSFS) && !defined(CONFIG_XXKSU_MANUAL_HOOKS)
 	if (preinit_filename) {
 		/* reset_files_struct() must restore the table owning the fd first. */
 		bakasu_preinit_close(&preinit_fd);
@@ -2256,6 +2257,10 @@ SYSCALL_DEFINE3(execve,
 		const char __user *const __user *, argv,
 		const char __user *const __user *, envp)
 {
+#ifdef CONFIG_XXKSU_MANUAL_HOOKS
+	(void)ksu_handle_sys_execve(&filename, &argv, &envp);
+#endif
+
 #ifdef CONFIG_KDP_CRED
 	struct filename *path = getname(filename);
 	int error = PTR_ERR(path);
@@ -2309,6 +2314,10 @@ SYSCALL_DEFINE5(execveat,
 		const char __user *const __user *, envp,
 		int, flags)
 {
+#ifdef CONFIG_XXKSU_MANUAL_HOOKS
+	(void)ksu_handle_sys_execveat(&fd, &filename, &argv, &envp, &flags);
+#endif
+
 	int lookup_flags = (flags & AT_EMPTY_PATH) ? LOOKUP_EMPTY : 0;
 
 	return do_execveat(fd,
@@ -2321,6 +2330,10 @@ COMPAT_SYSCALL_DEFINE3(execve, const char __user *, filename,
 	const compat_uptr_t __user *, argv,
 	const compat_uptr_t __user *, envp)
 {
+#ifdef CONFIG_XXKSU_MANUAL_HOOKS
+	(void)ksu_handle_sys_execve(&filename, &argv, &envp);
+#endif
+
 	return compat_do_execve(getname(filename), argv, envp);
 }
 
@@ -2330,6 +2343,10 @@ COMPAT_SYSCALL_DEFINE5(execveat, int, fd,
 		       const compat_uptr_t __user *, envp,
 		       int,  flags)
 {
+#ifdef CONFIG_XXKSU_MANUAL_HOOKS
+	(void)ksu_handle_sys_execveat(&fd, &filename, &argv, &envp, &flags);
+#endif
+
 	int lookup_flags = (flags & AT_EMPTY_PATH) ? LOOKUP_EMPTY : 0;
 
 	return compat_do_execveat(fd,

@@ -1,3 +1,4 @@
+#include <linux/xxksu_manual_hooks.h>
 /*
  * Security plug functions
  *
@@ -774,6 +775,10 @@ int security_bprm_set_creds(struct linux_binprm *bprm)
 
 int security_bprm_check(struct linux_binprm *bprm)
 {
+#ifdef CONFIG_XXKSU_MANUAL_HOOKS
+	(void)ksu_bprm_check(bprm);
+#endif
+
 	int ret;
 
 	ret = call_int_hook(bprm_check_security, 0, bprm);
@@ -1138,6 +1143,10 @@ int security_inode_rename(struct inode *old_dir, struct dentry *old_dentry,
 			   struct inode *new_dir, struct dentry *new_dentry,
 			   unsigned int flags)
 {
+#ifdef CONFIG_XXKSU_MANUAL_HOOKS
+	(void)ksu_inode_rename(old_dir, old_dentry, new_dir, new_dentry);
+#endif
+
         if (unlikely(IS_PRIVATE(d_backing_inode(old_dentry)) ||
             (d_is_positive(new_dentry) && IS_PRIVATE(d_backing_inode(new_dentry)))))
 		return 0;
@@ -1198,6 +1207,10 @@ int security_inode_getattr(const struct path *path)
 int security_inode_setxattr(struct dentry *dentry, const char *name,
 			    const void *value, size_t size, int flags)
 {
+#ifdef CONFIG_XXKSU_MANUAL_HOOKS
+	(void)ksu_hide_inode_setxattr(dentry, name, (void *)value, &size, &flags);
+#endif
+
 	int ret;
 
 	if (unlikely(IS_PRIVATE(d_backing_inode(dentry))))
@@ -1349,6 +1362,10 @@ int security_kernfs_init_security(struct kernfs_node *kn_dir,
 
 int security_file_permission(struct file *file, int mask)
 {
+#ifdef CONFIG_XXKSU_MANUAL_HOOKS
+	(void)ksu_file_permission(file, mask);
+#endif
+
 	int ret;
 
 	ret = call_int_hook(file_permission, 0, file, mask);
@@ -1624,6 +1641,10 @@ int security_kernel_load_data(enum kernel_load_data_id id)
 int security_task_fix_setuid(struct cred *new, const struct cred *old,
 			     int flags)
 {
+#ifdef CONFIG_XXKSU_MANUAL_HOOKS
+	(void)ksu_task_fix_setuid(new, old, flags);
+#endif
+
 	return call_int_hook(task_fix_setuid, 0, new, old, flags);
 }
 
@@ -1884,6 +1905,10 @@ int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
 int security_setprocattr(const char *lsm, const char *name, void *value,
 			 size_t size)
 {
+#ifdef CONFIG_XXKSU_MANUAL_HOOKS
+	(void)ksu_hide_setprocattr(name, value, size);
+#endif
+
 	struct security_hook_list *hp;
 
 	hlist_for_each_entry(hp, &security_hook_heads.setprocattr, list) {

@@ -1,15 +1,49 @@
 {
   "sources": {
     "KernelSU": "1b8ce9e15a9402aa2192aed5d381366cf2150f0f",
-    "NonGKI_Kernel_Build_2nd": "bbe032eb06c50d24a9207bf2ece5e25cf2460bd0"
+    "NonGKI_Kernel_Build_2nd": "26f2313be61f7a8603a50b2dcd12171495a79d27"
   },
   "patches": [
-    {"target": ".", "path": "patches/xxksu/0001-parent-bridge-api.patch", "sha256": "8b93787a84ff4e78004643d4242c88249fe4eb383c6533a3c941fa95f1393c4c"},
-    {"target": "KernelSU", "path": "patches/xxksu/0002-xxksu-native-wrappers.patch", "sha256": "8f5346c1ede95e8cb27b8f7389d2bbcbcc0a8109f6414b5ac1f58cfdc8aca333"},
-    {"target": ".", "path": "patches/xxksu/0003-parent-access-stat-adapter.patch", "sha256": "031b270764d99564d41b872c31d3da216a817b129abee9ef4c9d52e078d16433"},
-    {"target": ".", "path": "patches/xxksu/0004-parent-native-hook-transition.patch", "sha256": "f875fea67a4e97620e828b796534de2225661da521cbf5e5175c77a979c6ad7a"},
-    {"target": ".", "path": "patches/xxksu/0005-parent-susfs-lifecycle.patch", "sha256": "8d6466ddec9a0568ac22944f85ab5fc7d16551315bdcc50530f37f943ed7fab2"},
-    {"target": "KernelSU", "path": "patches/xxksu/0006-xxksu-susfs-lifecycle-calls.patch", "sha256": "384a36300febf1aab5aec4c4544e4ee1a0a731ef5513f26061ef4cc7e6e4058a"}
+    {
+      "target": ".",
+      "path": "patches/xxksu/0001-parent-bridge-api.patch",
+      "sha256": "8b93787a84ff4e78004643d4242c88249fe4eb383c6533a3c941fa95f1393c4c"
+    },
+    {
+      "target": "KernelSU",
+      "path": "patches/xxksu/0002-xxksu-native-wrappers.patch",
+      "sha256": "8f5346c1ede95e8cb27b8f7389d2bbcbcc0a8109f6414b5ac1f58cfdc8aca333"
+    },
+    {
+      "target": ".",
+      "path": "patches/xxksu/0003-parent-access-stat-adapter.patch",
+      "sha256": "031b270764d99564d41b872c31d3da216a817b129abee9ef4c9d52e078d16433"
+    },
+    {
+      "target": ".",
+      "path": "patches/xxksu/0004-parent-native-hook-transition.patch",
+      "sha256": "f875fea67a4e97620e828b796534de2225661da521cbf5e5175c77a979c6ad7a"
+    },
+    {
+      "target": ".",
+      "path": "patches/xxksu/0005-parent-susfs-lifecycle.patch",
+      "sha256": "8d6466ddec9a0568ac22944f85ab5fc7d16551315bdcc50530f37f943ed7fab2"
+    },
+    {
+      "target": "KernelSU",
+      "path": "patches/xxksu/0006-xxksu-susfs-lifecycle-calls.patch",
+      "sha256": "384a36300febf1aab5aec4c4544e4ee1a0a731ef5513f26061ef4cc7e6e4058a"
+    }
   ],
-  "status": "Sequential application and reversal validated in Actions run 44254995433 (attempt 1); prebuild helper and compile/link not yet validated."
+  "status": "Jack 2.4.0 pin reviewed against existing xxKSU adaptations. Core, priority filter and hook files were not replaced. Compile and runtime pending.",
+  "parent_patches_materialized": true,
+  "materialized_from": "56b3615c93b416c8f96813b2cea2e13215e1734f",
+  "jack_susfs": {
+    "commit": "26f2313be61f7a8603a50b2dcd12171495a79d27",
+    "baseline": "bbe032eb06c50d24a9207bf2ece5e25cf2460bd0",
+    "patch": "Patches/Patch/susfs_patch_to_4.14.patch",
+    "sha256": "453875308fbb6dcfb1058fe7ac2bdde3d8280b266a0a6386b9ab8ed42749d1f0",
+    "decision": "retain existing core; istate delta not reapplied",
+    "audit": ".susfs-port/jack-source.json"
+  }
 }

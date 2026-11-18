@@ -20,10 +20,11 @@
 
 #ifdef CONFIG_KSU_SUSFS
 struct user_arg_ptr;
-extern bool ksu_su_compat_enabled;
-extern bool ksu_is_allow_uid_for_current(uid_t uid);
+#include <linux/xxksu_parent_bridge.h>
+#if !defined(CONFIG_XXKSU_MANUAL_HOOKS)
 extern int ksu_handle_execveat_ksud(int *fd, struct filename **filename_ptr, void *argv, void *envp, int *flags);
 extern int ksu_handle_execveat_sucompat(int *fd, struct filename **filename_ptr, void *argv, void *envp, int *flags);
+#endif
 extern const size_t ksu_rc_len __weak;
 extern bool ksu_init_rc_hook __weak;
 extern bool is_ksu_domain(void) __weak;
@@ -95,8 +96,8 @@ static void susfs_ksun_su_to_sh(struct filename **filename)
 {
     static const char su[] = "/system/bin/su";
     struct filename *fn;
-    if (!filename || IS_ERR_OR_NULL(*filename) || !READ_ONCE(ksu_su_compat_enabled) ||
-        !ksu_is_allow_uid_for_current(current_uid().val) || likely(memcmp((*filename)->name, su, sizeof(su))))
+    if (!filename || IS_ERR_OR_NULL(*filename) || !xxksu_parent_sucompat_enabled() ||
+        !xxksu_parent_uid_allowed(current_uid().val) || likely(strcmp((*filename)->name, su)))
         return;
     fn = getname_kernel("/system/bin/sh");
     if (IS_ERR(fn))
@@ -117,11 +118,13 @@ int susfs_ksun_handle_stat(int *dfd, struct filename **filename, int *flags)
     return 0;
 }
 
+#if !defined(CONFIG_XXKSU_MANUAL_HOOKS)
 int susfs_ksun_handle_execveat(int *fd, struct filename **filename_ptr, void *argv, void *envp, int *flags)
 {
     ksu_handle_execveat_ksud(fd, filename_ptr, argv, envp, flags);
     return ksu_handle_execveat_sucompat(fd, filename_ptr, argv, envp, flags);
 }
+#endif
 
 static bool susfs_ksun_is_init_rc(struct file *fp)
 {

@@ -10,3 +10,8 @@ config SRCARCH
 	option env="SRCARCH"
 
 source "arch/$SRCARCH/Kconfig"
+
+config XXKSU_MANUAL_HOOKS
+	bool "xxKSU direct parent-kernel hooks"
+	depends on KSU=y
+	default y

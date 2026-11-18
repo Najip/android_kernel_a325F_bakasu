@@ -50,7 +50,8 @@ def main():
         require(path not in seen, 'duplicate patch')
         seen.add(path)
         require(hashlib.sha256(path.read_bytes()).hexdigest() == entry['sha256'], 'hash mismatch: ' + entry['path'])
-        patches.append((entry['target'], path))
+        if entry['target'] == 'KernelSU':
+            patches.append((entry['target'], path))
     with tempfile.TemporaryDirectory(prefix='xxksu-preflight-') as temporary:
         trees = {}
         for target in ('.', 'KernelSU'):

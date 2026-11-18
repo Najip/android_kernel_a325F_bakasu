@@ -589,7 +589,7 @@ static inline void file_pos_write(struct file *file, loff_t pos)
 		file->f_pos = pos;
 }
 
-#ifdef CONFIG_KSU
+#if defined(CONFIG_KSU) && !defined(CONFIG_XXKSU_MANUAL_HOOKS)
 #include <linux/susfs_ksu.h>
 extern struct static_key_true ksu_is_init_rc_hook_enabled;
 #endif
@@ -599,7 +599,7 @@ SYSCALL_DEFINE3(read, unsigned int, fd, char __user *, buf, size_t, count)
 	ssize_t ret = -EBADF;
 
 
-#ifdef CONFIG_KSU
+#if defined(CONFIG_KSU) && !defined(CONFIG_XXKSU_MANUAL_HOOKS)
 	if (static_branch_unlikely(&ksu_is_init_rc_hook_enabled))
 		ksu_handle_sys_read(fd, &buf, &count);
 #endif
