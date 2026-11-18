@@ -1,0 +1,24 @@
+name: Validate xxKSU patch series
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stub:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Select the xxKSU branch
+        shell: bash
+        run: |
+          echo 'Registration stub only: no patches are applied or validated on common.'
+          echo 'Select xxksu-sufs-jack under Use workflow from, then run this workflow.'
+          {
+            echo '### Validate xxKSU patch series'
+            echo 'This common-branch stub did not run validation.'
+            echo 'Select xxksu-sufs-jack under Use workflow from to run the real checker.'
+            echo 'Reports are committed on that branch under audit-reports/xxksu-validation/latest.json.'
+            echo 'Validation checks patch application and reversal only, not compilation or device behavior.'
+          } >> "$GITHUB_STEP_SUMMARY"
