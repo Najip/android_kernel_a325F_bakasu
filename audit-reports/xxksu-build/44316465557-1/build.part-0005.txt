@@ -1,0 +1,280 @@
+ruct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+  CC      block/blk-mq.o
+12 warnings generated.
+  CC      fs/fuse/inode.o
+  CC      kernel/time/posix-cpu-timers.o
+  CC      kernel/sched/cpuacct.o
+  CC      kernel/sched/cpufreq.o
+  CC      kernel/time/posix-clock.o
+  CC      fs/fuse/control.o
+  CC      kernel/sched/cpufreq_schedutil.o
+  CC      fs/fuse/xattr.o
+  CC      block/blk-mq-tag.o
+  CC      kernel/time/itimer.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/kernel/sched/cpufreq_schedutil.c:19:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched.h:1851:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+                TP_PROTO(struct hmp_statisic *hmp_stats),
+                                ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+                int task_load, struct clb_stats *B, struct clb_stats *L),
+                                      ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+  CC      fs/fuse/acl.o
+12 warnings generated.
+  CC      kernel/time/clockevents.o
+  CC      block/blk-stat.o
+  CC      fs/fuse/passthrough.o
+  CC      kernel/sched/membarrier.o
+  CC      kernel/time/tick-common.o
+  AR      fs/fuse/fuse.o
+  AR      fs/fuse/built-in.o
+  CC      fs/incfs/data_mgmt.o
+  CC      block/blk-mq-sysfs.o
+  CC      kernel/sched/psi.o
+  CC      kernel/time/tick-broadcast.o
+  CC      fs/incfs/format.o
+  CC      block/blk-mq-cpumap.o
+  AR      kernel/sched/built-in.o
+  CC      block/blk-mq-sched.o
+  CC      fs/incfs/integrity.o
+  CC      kernel/time/tick-broadcast-hrtimer.o
+  CC      fs/incfs/main.o
+  CC      block/ioctl.o
+  CC      kernel/time/sched_clock.o
+  CC      fs/incfs/pseudo_files.o
+  CC      drivers/amba/bus.o
+  CC      kernel/time/tick-oneshot.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/fs/incfs/pseudo_files.c:25:22: warning: redefinition of typedef '__poll_t' is a C11 feature [-Wtypedef-redefinition]
+typedef unsigned int __poll_t;
+                     ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/uapi/linux/types.h:55:18: note: previous definition is here
+typedef unsigned __poll_t;
+                 ^
+  CC      kernel/time/tick-sched.o
+1 warning generated.
+  CC      fs/incfs/sysfs.o
+  AR      drivers/amba/built-in.o
+  CC      block/genhd.o
+  CC      drivers/android/binderfs.o
+  CC      fs/incfs/vfs.o
+  CC      kernel/time/timer_list_aee.o
+  CC      drivers/android/binder.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/kernel/time/timer_list_aee.c:44:5: warning: 'CONFIG_TIMER_AEE_FULL_DUMP' is not defined, evaluates to 0 [-Wundef]
+#if CONFIG_TIMER_AEE_FULL_DUMP
+    ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/kernel/time/timer_list_aee.c:60:5: warning: 'CONFIG_TIMER_AEE_FULL_DUMP' is not defined, evaluates to 0 [-Wundef]
+#if CONFIG_TIMER_AEE_FULL_DUMP
+    ^
+2 warnings generated.
+  AR      kernel/time/built-in.o
+  CC      kernel/trace/trace_clock.o
+  CC      fs/incfs/verity.o
+  CC      block/partition-generic.o
+  CC      kernel/trace/ring_buffer.o
+  AR      fs/incfs/incrementalfs.o
+  AR      fs/incfs/built-in.o
+  CC      fs/isofs/namei.o
+  CC      fs/isofs/inode.o
+  CC      block/ioprio.o
+  CC      fs/isofs/dir.o
+  CC      kernel/trace/trace.o
+  CC      block/badblocks.o
+  CC      fs/isofs/util.o
+  CC      drivers/android/binder_alloc.o
+  CC      fs/isofs/rock.o
+  CC      block/partitions/check.o
+  CC      fs/isofs/export.o
+  CC      block/partitions/msdos.o
+  AR      drivers/android/built-in.o
+  AR      drivers/auxdisplay/built-in.o
+  CC      drivers/base/component.o
+  CC      fs/isofs/joliet.o
+  CC      block/partitions/efi.o
+  CC      fs/isofs/compress.o
+  CC      drivers/base/core.o
+  AR      fs/isofs/isofs.o
+  AR      fs/isofs/built-in.o
+  AR      block/partitions/built-in.o
+  CC      fs/jbd2/transaction.o
+  CC      block/scsi_ioctl.o
+  CC      kernel/trace/trace_output.o
+  CC      block/blk-cgroup.o
+  CC      fs/jbd2/commit.o
+  CC      drivers/base/bus.o
+  CC      kernel/trace/trace_seq.o
+  CC      block/noop-iosched.o
+  CC      fs/jbd2/recovery.o
+  CC      drivers/base/dd.o
+  CC      kernel/trace/trace_stat.o
+  CC      block/deadline-iosched.o
+  CC      fs/jbd2/checkpoint.o
+  CC      drivers/base/syscore.o
+  CC      kernel/trace/trace_printk.o
+  CC      block/cfq-iosched.o
+  CC      fs/jbd2/revoke.o
+  CC      kernel/trace/trace_sched_switch.o
+  CC      drivers/base/driver.o
+  CC      fs/jbd2/journal.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/kernel/trace/trace_sched_switch.c:12:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched.h:1851:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+                TP_PROTO(struct hmp_statisic *hmp_stats),
+                                ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+                int task_load, struct clb_stats *B, struct clb_stats *L),
+                                      ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+  CC      block/mq-deadline.o
+12 warnings generated.
+  CC      kernel/trace/trace_nop.o
+  CC      drivers/base/class.o
+  CC      block/kyber-iosched.o
+  CC      kernel/trace/blktrace.o
+  CC      drivers/base/platform.o
+  CC      block/compat_ioctl.o
+  CC      kernel/trace/trace_events.o
+  AR      fs/jbd2/jbd2.o
+  AR      fs/jbd2/built-in.o
+  CC      fs/kernfs/mount.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/kernel/trace/trace_events.c:25:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched.h:1851:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+                TP_PROTO(struct hmp_statisic *hmp_stats),
+                                ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+                int task_load, struct clb_stats *B, struct clb_stats *L),
+                                      ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+  CC      drivers/base/cpu.o
+  CC      block/blk-mq-virtio.o
+  CC      fs/kernfs/inode.o
+  CC      drivers/base/firmware.o
+12 warnings generated.
+  CC      block/keyslot-manager.o
+  CC      fs/kernfs/dir.o
+  CC      drivers/base/init.o
+  CC      kernel/trace/trace_export.o
+  CC      drivers/base/map.o
+  CC      block/bio-crypt-ctx.o
+  CC      fs/kernfs/file.o
+  CC      drivers/base/devres.o
+  CC      kernel/trace/trace_event_perf.o
+  CC      block/blk-crypto.o
+  CC      drivers/base/attribute_container.o
+  CC      fs/kernfs/symlink.o
+  CC      kernel/trace/trace_events_filter.o
+  AR      fs/kernfs/built-in.o
+  CC      fs/nls/nls_base.o
+  CC      block/blk-crypto-fallback.o
+  CC      drivers/base/transport_class.o
+  CC      fs/nls/nls_cp437.o
+  CC      drivers/base/topology.o
+  CC      fs/nls/nls_cp737.o
+  AR      block/built-in.o
+  CC      fs/nls/nls_cp775.o
+  CC      kernel/kmod.o
+  CC      drivers/base/container.o
+  CC      kernel/trace/trace_events_trigger.o
+  CC      fs/nls/nls_cp850.o
+  CC      drivers/base/property.o
+  CC      fs/nls/nls_cp852.o
+  CC      fs/nls/nls_cp855.o
+  CC      fs/nls/nls_cp857.o
+  CC      fs/notify/fsnotify.o
+  CC      fs/nls/nls_cp860.o
+  CC      kernel/trace/bpf_trace.o
+  CC      fs/nls/nls_cp861.o
+  CC      fs/nls/nls_cp862.o
+  CC      fs/notify/notification.o
+  CC      drivers/base/cacheinfo.o
+  CC      fs/nls/nls_cp863.o
+  CC      fs/nls/nls_cp864.o
+  CC      fs/notify/group.o
+  CC      fs/nls/nls_cp865.o
+  CC      drivers/base/power/sysfs.o
+  CC      fs/nls/nls_cp866.o
+  CC      fs/notify/mark.o
+  CC      fs/nls/nls_cp869.o
+  CC      fs/nls/nls_cp874.o
+  CC      drivers/base/power/generic_ops.o
+  CC      kernel/trace/trace_kprobe.o
+  CC      fs/nls/nls_cp932.o
+  CC      fs/notify/fdinfo.o
+  CC      fs/nls/nls_euc-jp.o
+  CC      fs/notify/dnotify/dnotify.o
+  CC      drivers/base/power/common.o
+  CC      fs/nls/nls_cp936.o
+  CC      kernel/trace/power-traces.o
+  AR      fs/notify/dnotify/built-in.o
+  AR      fs/notify/fanotify/built-in.o
+  CC      fs/notify/inotify/inotify_fsnotify.o
+  CC      fs/nls/nls_cp949.o
+  CC      fs/notify/inotify/inotify_user.o
+  CC      drivers/base/power/qos.o
+  CC      fs/nls/nls_cp950.o
+  AR      fs/notify/inotify/built-in.o
+  AR      fs/notify/built-in.o
+  CC      fs/nls/nls_cp1250.o
+  CC      kernel/trace/rpm-traces.o
+  CC      drivers/base/power/runtime.o
+  CC      fs/nls/nls_cp1251.o
+  CC      sound/sound_core.o
+  CC      fs/nls/nls_ascii.o
+  CC      fs/nls/nls_iso8859-1.o
+  AR      sound/arm/built-in.o
+  AR      sound/atmel/built-in.o
+  CC      kernel/trace/trace_probe.o
+  CC      fs/nls/nls_iso8859-2.o
+  CC      sound/core/sound.o
+  CC      fs/nls/nls_iso8859-3.o
+  CC      drivers/base/power/wakeirq.o
+  CC      fs/nls/nls_iso8859-4.o
+  CC      sound/core/init.o
+  CC      fs/nls/nls_iso8859-5.o
+  CC      kernel/trace/trace_uprobe.o
+  CC      fs/nls/nls_iso8859-6.o
+  CC      drivers/base/power/main.o
+  CC      fs/nls/nls_iso8859-7.o
+  CC      fs/nls/nls_cp1255.o
+  CC      sound/core/memory.o
+  CC      fs/nls/nls_iso8859-9.o
+  CC      kernel/trace/mtk_trace.o
+  CC      fs/nls/nls_iso8859-13.o
+  CC      sound/core/control.o
+  CC      fs/nls/nls_iso8859-14.o
+  AR      kernel/trace/built-in.o
+  CC      kernel/groups.o
+  CC      fs/nls/nls_iso8859-15.o
+  CC      drivers/base/power/wakeup.o

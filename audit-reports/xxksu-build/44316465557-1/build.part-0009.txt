@@ -1,0 +1,389 @@
+k/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/input/touchscreen/melfas_mip4/mip4_ts.c:1139:60: warning: | has lower precedence than ==; == will be evaluated first [-Wparentheses]
+                                0 == (rbuf[2]) | (rbuf[3] << 8) || 0xFFFF == (rbuf[2]) | (rbuf[3] << 8) ||
+                                                                   ~~~~~~~~~~~~~~~~~~~~^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/input/touchscreen/melfas_mip4/mip4_ts.c:1139:60: note: place parentheses around the '==' expression to silence this warning
+                                0 == (rbuf[2]) | (rbuf[3] << 8) || 0xFFFF == (rbuf[2]) | (rbuf[3] << 8) ||
+                                                                                       ^
+                                                                   (                  )
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/input/touchscreen/melfas_mip4/mip4_ts.c:1139:60: note: place parentheses around the | expression to evaluate it first
+                                0 == (rbuf[2]) | (rbuf[3] << 8) || 0xFFFF == (rbuf[2]) | (rbuf[3] << 8) ||
+                                                                                       ^
+                                                                             (                         )
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/input/touchscreen/melfas_mip4/mip4_ts.c:1272:25: warning: address of 'info->client->dev.of_node' will always evaluate to 'true' [-Wpointer-bool-conversion]
+        if (&info->client->dev.of_node) {
+        ~~   ~~~~~~~~~~~~~~~~~~^~~~~~~
+  CC      lib/earlycpio.o
+  CC      net/ipv6/addrlabel.o
+5 warnings generated.
+  CC      lib/extable.o
+  CC      drivers/input/touchscreen/melfas_mip4/mip4_ts_mod.o
+  CC      lib/fdt.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/input/touchscreen/melfas_mip4/mip4_ts_mod.c:387:6: warning: unused variable 'virtual_key_info' [-Wunused-variable]
+        int virtual_key_info = 0;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/input/touchscreen/melfas_mip4/mip4_ts_mod.c:381:6: warning: unused variable 'left_event' [-Wunused-variable]
+        int left_event = 0;
+            ^
+  CC      lib/fdt_empty_tree.o
+  CC      lib/fdt_ro.o
+2 warnings generated.
+  CC      drivers/input/touchscreen/melfas_mip4/mip4_ts_dev.o
+  CC      net/ipv6/route.o
+  CC      lib/fdt_rw.o
+  CC      lib/fdt_strerror.o
+  CC      lib/fdt_sw.o
+  CC      lib/fdt_wip.o
+  CC      lib/flex_proportions.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/net/ipv6/route.c:2626:15: warning: incompatible pointer types passing 'spinlock_t *' (aka 'struct spinlock *') to parameter of type 'rwlock_t *' [-Wincompatible-pointer-types]
+        read_lock_bh(&table->tb6_lock);
+                     ^~~~~~~~~~~~~~~~
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/rwlock.h:96:47: note: expanded from macro 'read_lock_bh'
+#define read_lock_bh(lock)              _raw_read_lock_bh(lock)
+                                                          ^~~~
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/rwlock_api_smp.h:20:45: note: passing argument to parameter 'lock' here
+void __lockfunc _raw_read_lock_bh(rwlock_t *lock)       __acquires(lock);
+                                            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/net/ipv6/route.c:2634:17: warning: incompatible pointer types passing 'spinlock_t *' (aka 'struct spinlock *') to parameter of type 'rwlock_t *' [-Wincompatible-pointer-types]
+        read_unlock_bh(&table->tb6_lock);
+                       ^~~~~~~~~~~~~~~~
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/rwlock.h:109:51: note: expanded from macro 'read_unlock_bh'
+#define read_unlock_bh(lock)            _raw_read_unlock_bh(lock)
+                                                            ^~~~
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/rwlock_api_smp.h:32:47: note: passing argument to parameter 'lock' here
+void __lockfunc _raw_read_unlock_bh(rwlock_t *lock)     __releases(lock);
+                                              ^
+  CC      lib/idr.o
+  CC      drivers/input/touchscreen/melfas_mip4/mip4_fw_mss100.o
+  CC      net/ipv4/fib_frontend.o
+  CC      lib/int_sqrt.o
+  CC      lib/ioremap.o
+  AR      drivers/input/touchscreen/melfas_mip4/built-in.o
+  AR      drivers/input/touchscreen/built-in.o
+  AR      drivers/input/input-core.o
+  AR      drivers/input/built-in.o
+  CC      drivers/input/input_boost/evdev_booster.o
+  CC      lib/irq_regs.o
+  CC      lib/is_single_threaded.o
+  CC      drivers/input/input_boost/input_booster.o
+2 warnings generated.
+  CC      lib/klist.o
+  CC      lib/kobject.o
+  CC      net/ipv4/fib_semantics.o
+  CC      drivers/input/input_boost/input_booster_mtk.o
+  CC      net/ipv6/ip6_fib.o
+  CC      lib/kobject_uevent.o
+  AR      drivers/input/input_boost/input_booster_lkm.o
+  AR      drivers/input/input_boost/built-in.o
+  CC      drivers/input/misc/hall/hall_ic.o
+  AR      drivers/input/misc/hall/built-in.o
+  CC      drivers/input/sec_input/sec_tsp_log.o
+  CC      net/ipv4/fib_trie.o
+  CC      lib/nmi_backtrace.o
+  CC      net/ipv6/ipv6_sockglue.o
+  CC      lib/nodemask.o
+  CC      drivers/input/sec_input/sec_tclm_v2.o
+  CC      lib/plist.o
+  CC      lib/radix-tree.o
+  CC      drivers/input/sec_input/sec_tsp_dumpkey.o
+  CC      lib/ratelimit.o
+  CC      net/ipv6/ndisc.o
+  CC      lib/rbtree.o
+  CC      net/ipv4/fib_notifier.o
+  CC      lib/seq_buf.o
+  CC      drivers/input/sec_input/sec_common_fn.o
+  CC      net/ipv4/inet_fragment.o
+  CC      lib/sha1.o
+  CC      lib/show_mem.o
+  CC      lib/siphash.o
+  CC      net/ipv6/udp.o
+  CC      lib/string.o
+  CC      drivers/input/sec_input/sec_cmd.o
+  CC      lib/timerqueue.o
+  CC      net/ipv4/ping.o
+  CC      lib/vsprintf.o
+  AR      drivers/input/sec_input/built-in.o
+  AR      drivers/input/sec_input/melfas/built-in.o
+  CC      drivers/input/sec_input/stm/stm_i2c.o
+  CC      net/ipv6/udplite.o
+  CC      drivers/input/sec_input/stm/stm_core.o
+  CC      net/ipv4/ip_tunnel_core.o
+  CC      net/ipv6/raw.o
+  CC      lib/win_minmax.o
+  CC      drivers/input/sec_input/stm/stm_fn.o
+  GEN     lib/crc32table.h
+  CC      lib/oid_registry.o
+  CC      net/ipv4/gre_offload.o
+  AR      lib/lib.a
+  CC      lib/crc32.o
+  CC      net/ipv6/icmp.o
+  CC      net/ipv4/metrics.o
+  EXPORTS lib/lib-ksyms.o
+  AR      lib/built-in.o
+  CC      drivers/input/sec_input/stm/stm_fw.o
+  CC      net/key/af_key.o
+  CC      net/ipv4/udp_tunnel_stub.o
+  CC      drivers/input/sec_input/stm/stm_dump.o
+  CC      net/ipv6/mcast.o
+  AR      net/key/built-in.o
+  CC      drivers/iommu/iommu.o
+  CC      net/ipv4/ip_tunnel.o
+  CC      drivers/input/sec_input/stm/stm_cmd.o
+  CC      drivers/iommu/iommu-traces.o
+  CC      net/ipv6/reassembly.o
+  CC      drivers/iommu/iommu-sysfs.o
+  CC      drivers/iommu/dma-iommu.o
+  CC      net/ipv4/sysctl_net_ipv4.o
+  CC      net/ipv6/tcp_ipv6.o
+  CC      net/ipv4/proc.o
+  CC      drivers/iommu/iova.o
+  CC      net/ipv6/ping.o
+  CC      net/ipv4/fib_rules.o
+  AR      drivers/input/sec_input/stm/stm_ts.o
+  AR      drivers/input/sec_input/stm/built-in.o
+  CC      drivers/iommu/of_iommu.o
+  CC      drivers/irqchip/irqchip.o
+  CC      drivers/irqchip/irq-gic.o
+  AR      drivers/iommu/built-in.o
+  CC      net/l2tp/l2tp_core.o
+  CC      net/ipv6/exthdrs.o
+  CC      net/ipv4/gre_demux.o
+  CC      drivers/irqchip/irq-gic-common.o
+  CC      drivers/irqchip/irq-gic-v3.o
+  CC      drivers/irqchip/irq-partition-percpu.o
+  CC      net/ipv4/udp_tunnel_core.o
+  CC      net/ipv6/datagram.o
+  CC      net/l2tp/l2tp_ppp.o
+  CC      drivers/irqchip/irq-mtk-sysirq.o
+  AR      drivers/irqchip/built-in.o
+-- KDIR: 
+-- MDIR: /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/KernelSU/kernel
+-- KernelSU Manager package name: me.weishu.kernelsu
+-- KernelSU Manager signature size: 0x033b
+-- KernelSU Manager signature hash: c371061b19d8c7d7d6133c6a9bafe198fa944e50c1b31c9d8daa8d7f1fc2d2d6
+-- KernelSU/compat: iterate_dir found!
+-- KernelSU/compat: f_op->read_iter found!
+  CC      net/ipv4/udp_tunnel_nic.o
+  AR      net/l2tp/built-in.o
+  CC      drivers/leds/led-core.o
+  CC      net/ipv6/ip6_flowlabel.o
+  CC      drivers/leds/led-class.o
+  CC      net/ipv4/ip_vti.o
+  CC      drivers/leds/led-triggers.o
+  CC      net/ipv6/inet6_connection_sock.o
+  CC      drivers/leds/leds-sm5714-fled.o
+  CC      net/ipv4/syncookies.o
+  CC      drivers/kernelsu/ksu.o
+  CC      drivers/leds/trigger/ledtrig-timer.o
+  AR      drivers/leds/trigger/built-in.o
+  AR      drivers/leds/built-in.o
+  CC      net/llc/llc_core.o
+  CC      net/ipv6/udp_offload.o
+  CC      net/ipv4/esp4.o
+  CC      net/ipv6/seg6.o
+  CC      net/llc/llc_input.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/net/ipv4/esp4.c:124:23: warning: unused variable 'xo' [-Wunused-variable]
+        struct xfrm_offload *xo = xfrm_offload(skb);
+                             ^
+1 warning generated.
+  CC      net/ipv6/fib6_notifier.o
+  CC      net/llc/llc_output.o
+  CC      net/ipv4/xfrm4_mode_beet.o
+  CC      net/ipv6/sysctl_net_ipv6.o
+  AR      drivers/kernelsu/kernelsu.o
+  AR      drivers/kernelsu/built-in.o
+  AR      net/llc/llc.o
+  AR      net/llc/built-in.o
+  CC      net/ipv4/tunnel4.o
+  AR      drivers/macintosh/built-in.o
+  CC      drivers/mailbox/mailbox.o
+  CC      net/ipv4/xfrm4_mode_transport.o
+  CC      net/ipv6/xfrm6_policy.o
+  CC      drivers/mailbox/mtk-cmdq-mailbox.o
+  CC      net/ipv4/xfrm4_mode_tunnel.o
+  CC      net/ipv6/xfrm6_state.o
+  CC      net/netfilter/core.o
+  CC      net/ipv4/netfilter.o
+  CC      net/ipv6/xfrm6_input.o
+  AR      drivers/mailbox/built-in.o
+  CC      drivers/md/dm-uevent.o
+  CC      net/ipv4/netfilter/nf_conntrack_l3proto_ipv4.o
+  CC      net/netfilter/nf_log.o
+  CC      net/ipv6/xfrm6_output.o
+  CC      drivers/md/dm.o
+  CC      net/ipv4/netfilter/nf_conntrack_proto_icmp.o
+  CC      net/netfilter/nf_queue.o
+  CC      net/ipv6/xfrm6_protocol.o
+  CC      net/ipv4/netfilter/nf_nat_l3proto_ipv4.o
+  CC      drivers/md/dm-table.o
+  CC      net/netfilter/nf_sockopt.o
+  CC      net/ipv6/netfilter.o
+  CC      net/ipv4/netfilter/nf_nat_proto_icmp.o
+  CC      drivers/md/dm-target.o
+  CC      net/netfilter/nfnetlink.o
+  CC      net/ipv4/netfilter/nf_defrag_ipv4.o
+  CC      net/ipv6/fib6_rules.o
+  CC      drivers/md/dm-linear.o
+  CC      net/netfilter/nfnetlink_queue.o
+  CC      net/ipv4/netfilter/nf_socket_ipv4.o
+  CC      drivers/md/dm-stripe.o
+  CC      net/ipv6/proc.o
+  CC      drivers/md/dm-ioctl.o
+  CC      net/ipv6/syncookies.o
+  CC      net/netfilter/nfnetlink_log.o
+  CC      net/ipv4/netfilter/nf_log_ipv4.o
+  CC      drivers/md/dm-io.o
+  CC      net/ipv4/netfilter/nf_reject_ipv4.o
+  CC      net/ipv6/ah6.o
+  CC      net/netfilter/nf_conntrack_core.o
+  CC      drivers/md/dm-kcopyd.o
+  CC      net/ipv6/esp6.o
+  CC      net/ipv4/netfilter/nf_nat_h323.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/net/ipv6/esp6.c:144:23: warning: unused variable 'xo' [-Wunused-variable]
+        struct xfrm_offload *xo = xfrm_offload(skb);
+                             ^
+  CC      drivers/md/dm-sysfs.o
+1 warning generated.
+  CC      net/ipv4/netfilter/nf_nat_pptp.o
+  CC      drivers/md/dm-stats.o
+  CC      net/netfilter/nf_conntrack_standalone.o
+  CC      net/ipv6/ipcomp6.o
+  CC      net/ipv4/netfilter/nf_nat_masquerade_ipv4.o
+  CC      drivers/md/dm-rq.o
+  CC      net/ipv6/xfrm6_tunnel.o
+  CC      net/netfilter/nf_conntrack_expect.o
+  CC      net/ipv4/netfilter/nf_nat_proto_gre.o
+  CC      drivers/md/dm-builtin.o
+  CC      net/ipv6/tunnel6.o
+  CC      drivers/md/dm-bufio.o
+  CC      net/ipv4/netfilter/ip_tables.o
+  CC      net/netfilter/nf_conntrack_helper.o
+  CC      net/ipv6/xfrm6_mode_transport.o
+  CC      drivers/md/dm-crypt.o
+  CC      net/ipv6/xfrm6_mode_tunnel.o
+  CC      net/netfilter/nf_conntrack_proto.o
+  CC      net/ipv4/netfilter/iptable_filter.o
+  CC      net/ipv6/xfrm6_mode_beet.o
+  CC      drivers/md/dm-default-key.o
+  CC      net/ipv4/netfilter/iptable_mangle.o
+  CC      net/netfilter/nf_conntrack_l3proto_generic.o
+  CC      net/ipv6/mip6.o
+  CC      drivers/md/dm-snap.o
+  CC      net/ipv4/netfilter/iptable_nat.o
+  CC      net/ipv6/netfilter/ip6_tables.o
+  CC      net/ipv4/netfilter/iptable_raw.o
+  CC      net/netfilter/nf_conntrack_proto_generic.o
+  CC      drivers/md/dm-exception-store.o
+  CC      net/ipv4/netfilter/iptable_security.o
+  CC      net/netfilter/nf_conntrack_proto_tcp.o
+  CC      drivers/md/dm-snap-transient.o
+  CC      net/ipv4/netfilter/ipt_ah.o
+  CC      drivers/md/dm-snap-persistent.o
+  CC      net/ipv6/netfilter/ip6table_filter.o
+  CC      net/ipv4/netfilter/ipt_rpfilter.o
+  CC      drivers/md/dm-verity-fec.o
+  CC      net/netfilter/nf_conntrack_proto_udp.o
+  CC      net/ipv6/netfilter/ip6table_mangle.o
+  CC      net/ipv4/netfilter/ipt_MASQUERADE.o
+  CC      drivers/md/dm-verity-avb.o
+  CC      net/ipv6/netfilter/ip6table_raw.o
+  CC      drivers/md/dm-verity-target.o
+  CC      net/ipv4/netfilter/ipt_REJECT.o
+  CC      net/netfilter/nf_conntrack_extend.o
+  CC      net/ipv6/netfilter/nf_conntrack_l3proto_ipv6.o
+  CC      net/ipv4/netfilter/arp_tables.o
+  CC      drivers/md/dm-verity-debug.o
+  CC      net/ipv6/netfilter/nf_conntrack_proto_icmpv6.o
+  CC      net/netfilter/nf_conntrack_acct.o
+  CC      drivers/md/alta_bigdata.o
+  CC      net/ipv6/netfilter/nf_defrag_ipv6_hooks.o
+  CC      drivers/md/dm-bow.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/md/dm-bow.c:15:9: warning: 'SECTOR_SIZE' macro redefined [-Wmacro-redefined]
+#define SECTOR_SIZE 512
+        ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/blkdev.h:1154:9: note: previous definition is here
+#define SECTOR_SIZE (1 << SECTOR_SHIFT)
+        ^
+  CC      net/ipv4/netfilter/arpt_mangle.o
+  CC      net/netfilter/nf_conntrack_seqadj.o
+1 warning generated.
+  AR      drivers/md/dm-mod.o
+  AR      drivers/md/dm-snapshot.o
+  AR      drivers/md/dm-verity.o
+  AR      drivers/md/built-in.o
+  AR      drivers/media/common/b2c2/built-in.o
+  AR      drivers/media/common/saa7146/built-in.o
+  AR      drivers/media/common/siano/built-in.o
+  AR      drivers/media/common/v4l2-tpg/built-in.o
+  AR      drivers/media/common/built-in.o
+  AR      drivers/media/firewire/built-in.o
+  AR      drivers/media/i2c/soc_camera/built-in.o
+  CC      drivers/media/i2c/ir-kbd-i2c.o
+  CC      net/ipv4/netfilter/arptable_filter.o
+  CC      net/ipv6/netfilter/nf_conntrack_reasm.o
+  AR      drivers/media/i2c/built-in.o
+  AR      drivers/media/mmc/siano/built-in.o
+  AR      net/ipv4/netfilter/nf_conntrack_ipv4.o
+  AR      drivers/media/mmc/built-in.o
+  AR      net/ipv4/netfilter/nf_nat_ipv4.o
+  AR      net/ipv4/netfilter/built-in.o
+  CC      net/ipv4/inet_diag.o
+  AR      drivers/media/pci/b2c2/built-in.o
+  CC      net/netfilter/nf_conntrack_ecache.o
+  AR      drivers/media/pci/ddbridge/built-in.o
+  AR      drivers/media/pci/dm1105/built-in.o
+  AR      drivers/media/pci/mantis/built-in.o
+  AR      drivers/media/pci/netup_unidvb/built-in.o
+  AR      drivers/media/pci/ngene/built-in.o
+  AR      drivers/media/pci/pluto2/built-in.o
+  AR      drivers/media/pci/pt1/built-in.o
+  AR      drivers/media/pci/pt3/built-in.o
+  AR      drivers/media/pci/saa7146/built-in.o
+  AR      drivers/media/pci/smipcie/built-in.o
+  AR      drivers/media/pci/ttpci/built-in.o
+  AR      drivers/media/pci/built-in.o
+  AR      drivers/media/platform/blackfin/built-in.o
+  AR      drivers/media/platform/davinci/built-in.o
+  AR      drivers/media/platform/meson/built-in.o
+  CC      drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_drv.o
+  CC      net/ipv6/netfilter/nf_socket_ipv6.o
+  CC      drivers/media/platform/mtk-vcodec/vdec_drv_if.o
+  CC      net/netfilter/nf_conntrack_proto_dccp.o
+  CC      net/ipv4/tcp_diag.o
+  CC      net/ipv6/netfilter/nf_log_ipv6.o
+  CC      drivers/media/platform/mtk-vcodec/mtk_vcodec_dec.o
+  CC      net/ipv4/udp_diag.o
+  CC      net/netfilter/nf_conntrack_proto_sctp.o
+  CC      net/ipv6/netfilter/nf_reject_ipv6.o
+  CC      net/ipv4/tcp_bic.o
+  CC      drivers/media/platform/mtk-vcodec/mt6768/mtk_vcodec_dec_pm.o
+  CC      drivers/media/platform/mtk-vcodec/vdec/vdec_common_if.o
+  CC      net/ipv4/tcp_cubic.o
+  CC      net/ipv6/netfilter/ip6t_rpfilter.o
+  CC      net/netfilter/nf_conntrack_proto_gre.o
+  CC      drivers/media/platform/mtk-vcodec/vdec/vdec_log_if.o
+  CC      net/ipv4/xfrm4_policy.o
+  CC      net/ipv6/netfilter/ip6t_REJECT.o
+  CC      drivers/media/platform/mtk-vcodec/vdec_vcu_if.o
+  CC      net/ipv4/xfrm4_state.o
+  CC      drivers/media/platform/mtk-vcodec/mtk_vcodec_enc.o
+  CC      net/netfilter/nf_conntrack_netlink.o
+  AR      net/ipv6/netfilter/nf_conntrack_ipv6.o
+  AR      net/ipv6/netfilter/nf_defrag_ipv6.o
+  AR      net/ipv6/netfilter/built-in.o
+  CC      net/ipv6/ip6_vti.o
+  CC      net/ipv4/xfrm4_input.o
+  CC      net/ipv6/sit.o
+  CC      drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.o
+  CC      net/netfilter/nf_conntrack_amanda.o
+  CC      drivers/media/platform/mtk-vcodec/mt6768/mtk_vcodec_enc_pm.o
+  CC      net/ipv4/xfrm4_output.o
+  CC      drivers/media/platform/mtk-vcodec/venc_drv_if.o
+  CC      net/netfilter/nf_conntrack_ftp.o
+  CC      net/ipv6/ip6_tunnel.o
+  CC      drivers/media/platform/mtk-vcodec/venc/venc_common_if.o
+  CC      net/ipv4/xfrm4_protocol.o
+  CC      drivers/media/platform/mtk-vcodec/venc/venc_log_if.o
+  CC      drivers/media/platform/mtk-vcodec/venc_vcu_if.o
+  CC      net/netfilter/nf_conntrack_h323_main.o
+  CC      drivers/media/platform/mtk-vcodec/mt6768/mtk_vcodec_intr.o
+  CC      net/ipv4/bpf

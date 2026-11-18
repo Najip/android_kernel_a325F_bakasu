@@ -1,0 +1,254 @@
+.h:57:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_defs.h:76:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/include/linux/memory_group_manager.h:31:13: warning: redefinition of typedef 'vm_fault_t' is a C11 feature [-Wtypedef-redefinition]
+typedef int vm_fault_t;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/mm_types.h:25:13: note: previous definition is here
+typedef int vm_fault_t;
+            ^
+  AR      drivers/misc/mediatek/lens/sub/common/wv511aaf/built-in.o
+  AR      drivers/misc/mediatek/lens/sub/built-in.o
+  CC      drivers/misc/mediatek/lens/sub2/sub2_lens.o
+1 warning generated.
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/backend/gpu/mali_kbase_debug_job_fault_backend.o
+  AR      drivers/misc/mediatek/masp/sec.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/mgmt/p2p_rlm_obss.o
+  AR      drivers/misc/mediatek/masp/built-in.o
+  CC      drivers/thermal/thermal_core.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/backend/gpu/mali_kbase_debug_job_fault_backend.c:23:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase.h:57:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_defs.h:76:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/include/linux/memory_group_manager.h:31:13: warning: redefinition of typedef 'vm_fault_t' is a C11 feature [-Wtypedef-redefinition]
+typedef int vm_fault_t;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/mm_types.h:25:13: note: previous definition is here
+typedef int vm_fault_t;
+            ^
+1 warning generated.
+  AR      drivers/misc/mediatek/lens/sub2/built-in.o
+  AR      drivers/misc/mediatek/lens/built-in.o
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/backend/gpu/mali_kbase_jm_hw.o
+  CC      drivers/tty/tty_io.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/backend/gpu/mali_kbase_jm_hw.c:27:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase.h:57:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_defs.h:76:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/include/linux/memory_group_manager.h:31:13: warning: redefinition of typedef 'vm_fault_t' is a C11 feature [-Wtypedef-redefinition]
+typedef int vm_fault_t;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/mm_types.h:25:13: note: previous definition is here
+typedef int vm_fault_t;
+            ^
+1 warning generated.
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/mgmt/p2p_fsm.o
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/backend/gpu/mali_kbase_jm_rb.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/backend/gpu/mali_kbase_jm_rb.c:28:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase.h:57:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_defs.h:76:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/include/linux/memory_group_manager.h:31:13: warning: redefinition of typedef 'vm_fault_t' is a C11 feature [-Wtypedef-redefinition]
+typedef int vm_fault_t;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/mm_types.h:25:13: note: previous definition is here
+typedef int vm_fault_t;
+            ^
+  CC      drivers/thermal/thermal_sysfs.o
+1 warning generated.
+  AR      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase.o
+  AR      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/built-in.o
+  CC      drivers/tty/n_tty.o
+  AR      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/built-in.o
+  AR      drivers/misc/mediatek/gpu/gpu_mali/built-in.o
+  AR      drivers/misc/mediatek/gpu/built-in.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/mgmt/wapi.o
+  CC      drivers/usb/class/cdc-acm.o
+  CC      drivers/thermal/thermal_helpers.o
+  CC      drivers/thermal/thermal_hwmon.o
+  CC      drivers/usb/class/usblp.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/chips/common/cmm_asic_connac.o
+  CC      drivers/tty/tty_ioctl.o
+  CC      drivers/thermal/of-thermal.o
+  CC      drivers/usb/class/cdc-wdm.o
+  CC      drivers/thermal/backward_compatible.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/chips/common/dbg_connac.o
+  CC      drivers/tty/tty_ldisc.o
+  AR      drivers/thermal/broadcom/built-in.o
+  AR      drivers/usb/class/built-in.o
+  AR      drivers/thermal/samsung/built-in.o
+  CC      drivers/thermal/ss_thermal_log.o
+  CC      drivers/usb/common/common.o
+  AR      drivers/thermal/thermal_sys.o
+  AR      drivers/thermal/built-in.o
+  CC      drivers/usb/typec/common/pdic_notifier.o
+  CC      drivers/tty/tty_buffer.o
+  AR      drivers/usb/common/usb-common.o
+  AR      drivers/usb/common/built-in.o
+  CC      drivers/usb/core/usb.o
+  CC      drivers/usb/typec/common/pdic_sysfs.o
+  CC      drivers/tty/tty_port.o
+  CC      drivers/usb/typec/common/pdic_core.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/chips/common/fw_dl.o
+  CC      drivers/usb/core/hub.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/usb/core/hub.c:2865:6: warning: unused variable 'reset_recovery_time' [-Wunused-variable]
+        int reset_recovery_time;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/usb/core/hub.c:4951:7: warning: mixing declarations and code is a C99 extension [-Wdeclaration-after-statement]
+        bool retry_locked;
+             ^
+  CC      drivers/usb/typec/common/pdic_misc.o
+  CC      drivers/tty/tty_mutex.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/connectivity/wlan_drv_gen4m/chips/common/fw_dl.c:2356:9: warning: ROM code supports SEM-CTRL for ROM patch download [-W#pragma-messages]
+#pragma message("ROM code supports SEM-CTRL for ROM patch download")
+        ^
+  CC      drivers/tty/tty_ldsem.o
+  CC      drivers/usb/typec/common/pdic_param.o
+1 warning generated.
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/chips/connac/connac.o
+  CC      drivers/tty/tty_baudrate.o
+  AR      drivers/usb/typec/common/pdic_notifier_module.o
+  AR      drivers/usb/typec/common/built-in.o
+  CC      drivers/misc/mediatek/mdp/mdp_ioctl_ex.o
+2 warnings generated.
+  CC      drivers/tty/tty_jobctrl.o
+  CC      drivers/usb/core/hcd.o
+  AR      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/wlan_6768_axi.o
+  AR      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/built-in.o
+  AR      drivers/misc/mediatek/connectivity/built-in.o
+  CC      drivers/misc/mediatek/memory-amms/memory-amms.o
+  CC      drivers/misc/mediatek/mdp/mdp_m4u.o
+  CC      drivers/tty/n_null.o
+  AR      drivers/misc/mediatek/mdp/built-in.o
+  CC      drivers/usb/gadget/usbstring.o
+  CC      drivers/tty/pty.o
+  CC      drivers/usb/core/urb.o
+  CC      drivers/usb/gadget/config.o
+  CC      drivers/tty/tty_audit.o
+  AR      drivers/misc/mediatek/memory-amms/built-in.o
+  CC      drivers/misc/mediatek/memory-ssmr/memory_ssmr.o
+  CC      drivers/tty/sysrq.o
+  CC      drivers/usb/core/message.o
+  CC      drivers/usb/gadget/epautoconf.o
+  AR      drivers/misc/mediatek/memory-ssmr/built-in.o
+  CC      drivers/misc/mediatek/met_drv/met_api.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/met_drv/met_api.c:17:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched.h:1851:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+                TP_PROTO(struct hmp_statisic *hmp_stats),
+                                ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+                int task_load, struct clb_stats *B, struct clb_stats *L),
+                                      ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+  CC      drivers/usb/gadget/composite.o
+  AR      drivers/tty/ipwireless/built-in.o
+  CC      drivers/tty/serial/serial_core.o
+12 warnings generated.
+  CC      drivers/usb/core/driver.o
+  AR      drivers/misc/mediatek/met_drv/built-in.o
+  CC      drivers/misc/mediatek/mlog/mlog_logger.o
+  CC      drivers/usb/gadget/functions.o
+  CC      drivers/usb/core/config.o
+  CC      drivers/tty/serial/earlycon.o
+  AR      drivers/misc/mediatek/mlog/built-in.o
+  CC      drivers/misc/mediatek/mmdvfs/swpm_me.o
+  CC      drivers/tty/serial/8250/8250_core.o
+  CC      drivers/usb/gadget/configfs.o
+  CC      drivers/misc/mediatek/mmdvfs/mmdvfs_pmqos.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/usb/gadget/configfs.c:1659:12: warning: unused function 'configfs_composite_setup' [-Wunused-function]
+static int configfs_composite_setup(struct usb_gadget *gadget,
+           ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/usb/gadget/configfs.c:1684:13: warning: unused function 'configfs_composite_disconnect' [-Wunused-function]
+static void configfs_composite_disconnect(struct usb_gadget *gadget)
+            ^
+  CC      drivers/usb/core/file.o
+2 warnings generated.
+  CC      drivers/tty/serial/8250/8250_port.o
+  CC      drivers/usb/core/buffer.o
+  CC      drivers/usb/gadget/u_f.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/tty/serial/8250/8250_port.c:719:16: warning: unused variable 'lcr' [-Wunused-variable]
+        unsigned char lcr = 0, efr = 0;
+                      ^
+  CC      drivers/usb/core/sysfs.o
+  CC      drivers/usb/gadget/function/f_acm.o
+1 warning generated.
+  CC      drivers/misc/mediatek/mmdvfs/mmdvfs_plat_default.o
+  CC      drivers/usb/core/endpoint.o
+  AR      drivers/misc/mediatek/mmdvfs/built-in.o
+  CC      drivers/misc/mediatek/mmp/src/mmprofile.o
+  CC      drivers/tty/serial/8250/8250_dma.o
+  CC      drivers/usb/gadget/function/u_serial.o
+  CC      drivers/usb/core/devio.o
+  CC      drivers/tty/serial/8250/8250_early.o
+  CC      drivers/usb/gadget/function/f_serial.o
+  CC      drivers/tty/serial/8250/8250_fsl.o
+  CC      drivers/usb/gadget/function/u_ether.o
+  AR      drivers/misc/mediatek/mmp/src/built-in.o
+  AR      drivers/misc/mediatek/mmp/built-in.o
+  CC      drivers/misc/mediatek/mtprintk/mtk_printk_ctrl.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/usb/gadget/function/u_ether.c:1283:23: warning: unused variable 'a' [-Wunused-variable]
+        static unsigned char a[6] = {0x06, 0x16, 0x26, 0x36, 0x46, 0x56};
+                             ^
+  CC      drivers/tty/serial/8250/8250_mtk.o
+  CC      drivers/usb/core/notify.o
+  AR      drivers/misc/mediatek/mtprintk/built-in.o
+  CC      drivers/misc/mediatek/partition/mtk_partition.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/tty/serial/8250/8250_mtk.c:222:6: warning: unused variable 'lcr' [-Wunused-variable]
+        int lcr = serial_in(up, UART_LCR);
+            ^
+1 warning generated.
+  CC      drivers/usb/core/generic.o
+1 warning generated.
+  AR      drivers/misc/mediatek/partition/built-in.o
+  CC      drivers/misc/mediatek/perf/perf_common.o
+  AR      drivers/tty/serial/8250/8250.o
+  AR      drivers/tty/serial/8250/8250_base.o
+  AR      drivers/tty/serial/8250/built-in.o
+  AR      drivers/tty/serial/built-in.o
+  CC      drivers/usb/gadget/function/f_rndis.o
+  AR      drivers/tty/vt/built-in.o
+  AR      drivers/tty/built-in.o
+  CC      drivers/usb/misc/trancevibrator.o
+  CC      drivers/usb/core/quirks.o
+  CC      drivers/misc/mediatek/perf/lowmem_hint.o
+  AR      drivers/usb/misc/built-in.o
+  AR      drivers/usb/gadget/legacy/built-in.o
+  CC      drivers/usb/typec/manager/usb_typec_manager_notifier.o
+  CC      drivers/usb/core/devices.o
+  AR      drivers/misc/mediatek/perf/built-in.o
+  CC      drivers/misc/mediatek/performance/perfmgr_main.o
+  CC      drivers/usb/gadget/function/rndis.o
+  CC      drivers/usb/core/port.o
+  CC      drivers/misc/mediatek/performance/base/utility.o
+  CC      drivers/usb/typec/manager/usb_typec_manager_hwparam.o
+  CC      drivers/usb/core/of.o
+  AR      drivers/misc/mediatek/performance/base/built-in.o
+  CC      drivers/usb/typec/manager/if_cb_manager.o
+  CC      drivers/misc/mediatek/performance/boost_ctrl/boostctrl_main.o
+  CC      drivers/misc/mediatek/performance/boost_ctrl/cpu_ctrl/cpu_ctrl.o
+  AR      drivers/usb/core/usbcore.o
+  AR      drivers/usb/core/built-in.o
+  CC      drivers/usb/gadget/function/f_mass_storage.o
+  CC      drivers/misc/mediatek/performance/perf_ioctl/perf_ioctl.o
+  AR      drivers/usb/typec/manager/usb_typec_manager.o
+  AR      drivers/usb/typec/manager/built-in.o
+  CC      drivers/misc/mediatek/performance/resym/rs_trace.o
+  CC      drivers/misc/mediatek/performance/resym/rs_base.o
+  AR      drivers/misc/mediatek/performance/perf_ioctl/built-in.o
+  CC      drivers/misc/mediatek/pidmap/pidmap.o
+  CC      drivers/misc/mediatek/performance/resym/rs_main.o
+  AR      drivers/misc/mediatek/performance/boost_ctrl/cpu_ctrl/built-in.o
+  CC      drivers/misc/mediatek/performance/boost_ctrl/dram_ctrl/dram_ctrl.o
+  CC      drivers/misc/mediatek/performance/resym/rs_usage.o
+  AR      drivers/misc/mediatek/pidmap/built-in.o
+  CC      drivers/usb/gadget/function/storage_common.o
+  AR      drivers/misc/mediatek/performance/boost_ctrl/dram_ctrl/built-in.o
+  CC      drivers/misc/mediatek/performance/boost_ctrl/eas_ctrl/eas_ctrl.o
+  CC      drivers/misc/mediatek/performance/resym/rs_state.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/performance/boost_ctrl/eas_ctrl/eas_ctrl.c

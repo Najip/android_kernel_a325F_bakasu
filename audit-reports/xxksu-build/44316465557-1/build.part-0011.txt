@@ -1,0 +1,311 @@
+s/media/usb/b2c2/built-in.o
+  AR      drivers/media/usb/dvb-usb/built-in.o
+  AR      drivers/media/usb/dvb-usb-v2/built-in.o
+  CC      net/netfilter/xt_ecn.o
+  AR      drivers/media/usb/s2255/built-in.o
+  AR      drivers/media/usb/siano/built-in.o
+  AR      drivers/media/usb/stkwebcam/built-in.o
+  AR      drivers/media/usb/ttusb-budget/built-in.o
+  AR      drivers/media/usb/ttusb-dec/built-in.o
+  AR      drivers/media/usb/zr364xx/built-in.o
+  AR      drivers/media/usb/built-in.o
+  CC      drivers/misc/drb/dev_ril_bridge.o
+  AR      drivers/misc/mediatek/base/power/drcc_v1/mt6768/built-in.o
+  AR      drivers/misc/mediatek/base/power/drcc_v1/built-in.o
+  CC      drivers/misc/mediatek/base/power/dvfsrc/dvfsrc-boost-driver.o
+  CC      drivers/media/rc/ir-nec-decoder.o
+  CC      net/netfilter/xt_esp.o
+  AR      drivers/misc/mediatek/base/power/dvfsrc/built-in.o
+  CC      drivers/misc/mediatek/base/power/leakage_table_v2/mtk_static_power.o
+  CC      drivers/media/rc/ir-rc5-decoder.o
+  CC      drivers/media/rc/ir-rc6-decoder.o
+  AR      drivers/misc/drb/built-in.o
+  AR      drivers/misc/mic/bus/built-in.o
+  AR      drivers/misc/mic/built-in.o
+  CC      drivers/misc/mediatek/blocktag/blocktag.o
+  CC      net/netfilter/xt_hashlimit.o
+  CC      drivers/misc/mediatek/base/power/leakage_table_v2/mtk_static_power_mt6768.o
+  AR      drivers/misc/mediatek/base/power/leakage_table_v2/built-in.o
+  CC      drivers/misc/mediatek/base/power/mcdi/mtk_mcdi_governor.o
+  CC      drivers/media/rc/ir-jvc-decoder.o
+  CC      drivers/media/rc/ir-sony-decoder.o
+  CC      drivers/misc/mediatek/base/power/mcdi/mtk_mcdi_governor_lib.o
+  CC      drivers/media/rc/ir-sanyo-decoder.o
+  CC      drivers/misc/mediatek/base/power/mcdi/mtk_mcdi_governor_hint.o
+  CC      net/netfilter/xt_helper.o
+  CC      drivers/misc/mediatek/base/power/mcdi/mtk_mcdi_api.o
+  CC      drivers/media/rc/ir-sharp-decoder.o
+  CC      drivers/misc/mediatek/base/power/mcdi/mcdi_v1/mtk_mcdi_main.o
+  AR      drivers/misc/mediatek/blocktag/built-in.o
+  CC      net/wireless/core.o
+  CC      drivers/media/rc/ir-mce_kbd-decoder.o
+  CC      net/netfilter/xt_hl.o
+  CC      drivers/misc/mediatek/base/power/mcdi/mcdi_v1/mtk_mcdi_util.o
+  CC      drivers/media/rc/ir-xmp-decoder.o
+  CC      drivers/misc/mediatek/base/power/mcdi/mcdi_v1/mtk_mcdi_profile.o
+  CC      net/netfilter/xt_iprange.o
+  AR      drivers/media/rc/rc-core.o
+  AR      drivers/media/rc/built-in.o
+  CC      drivers/media/v4l2-core/v4l2-dev.o
+  CC      drivers/misc/mediatek/base/power/mcdi/mcdi_v1/mtk_mcdi_cpc.o
+  CC      net/netfilter/xt_l2tp.o
+  CC      drivers/misc/mediatek/base/power/mcdi/mcdi_v1/mtk_mcdi_mcupm.o
+  CC      drivers/media/v4l2-core/v4l2-ioctl.o
+  AR      drivers/misc/mediatek/base/power/mcdi/mcdi_v1/built-in.o
+  CC      drivers/misc/mediatek/base/power/mcdi/mt6768/mtk_mcdi_plat.o
+  CC      net/wireless/sysfs.o
+  CC      net/netfilter/xt_length.o
+  CC      drivers/misc/mediatek/base/power/mcdi/mt6768/mtk_mcdi_state.o
+  AR      drivers/misc/mediatek/base/power/mcdi/mt6768/built-in.o
+  AR      drivers/misc/mediatek/base/power/mcdi/built-in.o
+  CC      drivers/misc/mediatek/base/power/mdpm_v1/mtk_mdpm_common.o
+  CC      net/netfilter/xt_limit.o
+  CC      net/wireless/radiotap.o
+  CC      drivers/misc/mediatek/base/power/mdpm_v1/mt6768/mtk_mdpm_platform.o
+  CC      drivers/media/v4l2-core/v4l2-device.o
+  CC      net/netfilter/xt_mac.o
+  AR      drivers/misc/mediatek/base/power/mdpm_v1/mt6768/built-in.o
+  AR      drivers/misc/mediatek/base/power/mdpm_v1/built-in.o
+  CC      drivers/misc/mediatek/base/power/mt6768/mtk_picachu.o
+  CC      drivers/misc/mediatek/base/power/mt6768/mtk_gpufreq_core.o
+  CC      net/netfilter/xt_owner.o
+  CC      net/wireless/util.o
+  CC      drivers/media/v4l2-core/v4l2-fh.o
+  CC      net/netfilter/xt_pkttype.o
+  CC      drivers/media/v4l2-core/v4l2-event.o
+  CC      net/netfilter/xt_policy.o
+  CC      drivers/misc/mediatek/base/power/mt6768/mtk_gpu_log.o
+  CC      drivers/media/v4l2-core/v4l2-ctrls.o
+  CC      drivers/misc/mediatek/base/power/mt6768/mtk_gpu_bw.o
+  CC      net/netfilter/xt_quota.o
+  AR      drivers/misc/mediatek/base/power/mt6768/built-in.o
+  CC      drivers/misc/mediatek/base/power/pbm_v4/mtk_pbm.o
+  CC      net/wireless/reg.o
+  AR      drivers/misc/mediatek/base/power/pbm_v4/built-in.o
+  CC      drivers/misc/mediatek/base/power/power_gs_v1/mt6768/mtk_power_gs_6358_array.o
+  CC      net/netfilter/xt_quota2.o
+  CC      drivers/misc/mediatek/base/power/power_gs_v1/mt6768/mtk_cg_array.o
+  CC      drivers/media/v4l2-core/v4l2-subdev.o
+  CC      drivers/misc/mediatek/base/power/power_gs_v1/mt6768/mtk_dcm_array.o
+  CC      drivers/misc/mediatek/base/power/power_gs_v1/mt6768/mtk_power_gs_sp.o
+  CC      net/netfilter/xt_socket.o
+  CC      drivers/misc/mediatek/base/power/power_gs_v1/mt6768/mtk_power_gs_compare.o
+  CC      drivers/media/v4l2-core/v4l2-clk.o
+  CC      drivers/misc/mediatek/base/power/power_gs_v1/mt6768/mtk_power_gs_dump_pmic.o
+  CC      net/netfilter/xt_state.o
+  AR      drivers/misc/mediatek/base/power/power_gs_v1/mt6768/built-in.o
+  CC      drivers/misc/mediatek/base/power/power_gs_v1/mtk_power_gs.o
+  CC      drivers/media/v4l2-core/v4l2-async.o
+  CC      net/netfilter/xt_statistic.o
+  CC      drivers/misc/mediatek/base/power/power_gs_v1/mtk_power_gs_api.o
+  CC      net/wireless/scan.o
+  CC      drivers/media/v4l2-core/v4l2-compat-ioctl32.o
+  CC      net/netfilter/xt_string.o
+  AR      drivers/misc/mediatek/base/power/power_gs_v1/built-in.o
+  CC      drivers/misc/mediatek/base/power/ppm_v3/src/mtk_ppm_main.o
+  CC      net/netfilter/xt_time.o
+  CC      drivers/misc/mediatek/base/power/ppm_v3/src/mtk_ppm_interface.o
+  CC      net/netfilter/xt_u32.o
+  CC      drivers/misc/mediatek/base/power/ppm_v3/src/mtk_ppm_api.o
+  CC      drivers/misc/mediatek/base/power/ppm_v3/src/mtk_ppm_profile.o
+  CC      net/netfilter/xt_domainfilter.o
+  CC      drivers/misc/mediatek/base/power/ppm_v3/src/mtk_ppm_ipi.o
+  CC      net/wireless/nl80211.o
+  CC      drivers/misc/mediatek/base/power/ppm_v3/src/mtk_ppm_cpi.o
+  AR      net/netfilter/netfilter.o
+  AR      net/netfilter/nf_conntrack.o
+  AR      net/netfilter/nf_conntrack_h323.o
+  AR      net/netfilter/nf_nat.o
+  AR      net/netfilter/built-in.o
+  CC      drivers/misc/mediatek/boot/mtk_boot_common.o
+  CC      drivers/misc/mediatek/base/power/ppm_v3/src/mtk_ppm_policy_dlpt.o
+  CC      drivers/media/v4l2-core/vb2-trace.o
+  CC      drivers/misc/mediatek/base/power/ppm_v3/src/mtk_ppm_policy_sys_boost.o
+  CC      drivers/misc/mediatek/boot/mtk_boot.o
+  AR      drivers/misc/mediatek/boot/BOOT_COMMON.o
+  AR      drivers/misc/mediatek/boot/built-in.o
+  CC      drivers/media/v4l2-core/v4l2-trace.o
+  CC      drivers/mmc/core/core.o
+  CC      drivers/misc/mediatek/base/power/ppm_v3/src/mtk_ppm_policy_ptpod.o
+  CC      drivers/misc/mediatek/base/power/ppm_v3/src/mtk_ppm_policy_pwr_thro.o
+  CC      drivers/misc/mediatek/base/power/ppm_v3/src/mtk_ppm_policy_thermal.o
+  CC      drivers/media/v4l2-core/v4l2-common.o
+  CC      drivers/misc/mediatek/base/power/ppm_v3/src/mtk_ppm_policy_lcm_off.o
+  CC      drivers/misc/mediatek/base/power/ppm_v3/src/mtk_ppm_policy_hard_user_limit.o
+  CC      drivers/media/v4l2-core/v4l2-dv-timings.o
+  CC      drivers/mmc/core/bus.o
+  CC      drivers/misc/mediatek/base/power/ppm_v3/src/mtk_ppm_policy_user_limit.o
+  CC      drivers/media/v4l2-core/v4l2-mem2mem.o
+  CC      drivers/misc/mediatek/base/power/ppm_v3/src/mtk_ppm_policy_force_limit.o
+  CC      drivers/mmc/core/host.o
+  CC      drivers/misc/mediatek/base/power/ppm_v3/src/mtk_ppm_policy_ut.o
+  CC      drivers/media/v4l2-core/videobuf2-core.o
+  CC      drivers/misc/mediatek/base/power/ppm_v3/src/mach/mt6768/mtk_ppm_platform.o
+  CC      drivers/mmc/core/mmc.o
+  CC      drivers/misc/mediatek/base/power/ppm_v3/src/mach/mt6768/mtk_ppm_power_data.o
+  CC      drivers/misc/mediatek/base/power/ppm_v3/src/mach/mt6768/mtk_ppm_cobra_algo.o
+  CC      drivers/media/v4l2-core/videobuf2-v4l2.o
+  CC      drivers/mmc/core/mmc_ops.o
+  AR      drivers/misc/mediatek/base/power/ppm_v3/src/mach/mt6768/built-in.o
+  AR      drivers/misc/mediatek/base/power/ppm_v3/src/mach/built-in.o
+  AR      drivers/misc/mediatek/base/power/ppm_v3/src/built-in.o
+  AR      drivers/misc/mediatek/base/power/ppm_v3/built-in.o
+  CC      drivers/misc/mediatek/base/power/spm/common/mtk_idle_fs/mtk_lp_kernfs.o
+  CC      drivers/media/v4l2-core/videobuf2-memops.o
+  CC      drivers/misc/mediatek/base/power/spm/common/mtk_idle_fs/mtk_lp_sysfs.o
+  CC      drivers/mmc/core/sd.o
+  CC      net/wireless/mlme.o
+  CC      drivers/misc/mediatek/base/power/spm/common/mtk_idle_fs/mtk_idle_sysfs.o
+  CC      drivers/misc/mediatek/base/power/spm/common/mtk_idle_fs/mtk_lp_sysfs_procfs.o
+  CC      drivers/media/v4l2-core/videobuf2-dma-contig.o
+  CC      drivers/mmc/core/sd_ops.o
+  AR      drivers/misc/mediatek/base/power/spm/common/mtk_idle_fs/built-in.o
+  CC      drivers/misc/mediatek/base/power/spm/common/mtk_idle.o
+  CC      drivers/misc/mediatek/base/power/spm/common/mtk_idle_select.o
+  AR      drivers/media/v4l2-core/videodev.o
+  AR      drivers/media/v4l2-core/built-in.o
+  AR      drivers/media/built-in.o
+  CC      net/xdp/xsk.o
+  CC      drivers/mmc/core/sdio.o
+  CC      drivers/misc/mediatek/base/power/spm/common/mtk_idle_internal.o
+  CC      drivers/mmc/core/sdio_ops.o
+  CC      drivers/misc/mediatek/base/power/spm/common/mtk_idle_profile.o
+  CC      net/wireless/ibss.o
+  CC      drivers/misc/mediatek/base/power/spm/common/mtk_idle_twam.o
+  CC      drivers/mmc/core/sdio_bus.o
+  CC      drivers/misc/mediatek/base/power/spm/common/mtk_spm_resource_req.o
+  CC      net/xdp/xdp_umem.o
+  CC      drivers/misc/mediatek/base/power/spm/common/mtk_sleep.o
+  CC      drivers/mmc/core/sdio_cis.o
+  CC      net/xdp/xsk_queue.o
+  CC      drivers/mmc/core/sdio_io.o
+  CC      net/wireless/sme.o
+  CC      drivers/misc/mediatek/base/power/spm/common/mtk_sleep_init.o
+  CC      drivers/misc/mediatek/base/power/spm/common/mtk_vcore_dvfs.o
+  CC      net/xdp/xskmap.o
+  CC      drivers/mmc/core/sdio_irq.o
+  CC      drivers/misc/mediatek/base/power/spm/common/mtk_idle_module.o
+  CC      drivers/misc/mediatek/base/power/spm/common/mtk_idle_export_legacy.o
+  AR      net/xdp/built-in.o
+  CC      net/xfrm/xfrm_policy.o
+  CC      drivers/mmc/core/slot-gpio.o
+  AR      drivers/misc/mediatek/base/power/spm/common/built-in.o
+  CC      drivers/misc/mediatek/base/power/spm/mt6768/mtk_spm.o
+  CC      net/wireless/chan.o
+  CC      drivers/mmc/core/pwrseq.o
+  CC      drivers/misc/mediatek/base/power/spm/mt6768/mtk_spm_twam.o
+  CC      drivers/mmc/core/pwrseq_simple.o
+  CC      drivers/misc/mediatek/base/power/spm/mt6768/mtk_spm_irq.o
+  CC      drivers/mmc/core/pwrseq_emmc.o
+  CC      drivers/mmc/core/block.o
+  CC      drivers/misc/mediatek/base/power/spm/mt6768/mtk_spm_dram.o
+  CC      net/wireless/ethtool.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/mmc/core/block.c:1300:21: warning: unused variable 'rpmb' [-Wunused-variable]
+        const unsigned int rpmb = EXT_CSD_PART_CONFIG_ACC_RPMB;
+                           ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/mmc/core/block.c:1299:21: warning: unused variable 'mask' [-Wunused-variable]
+        const unsigned int mask = EXT_CSD_PART_CONFIG_ACC_MASK;
+                           ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/mmc/core/block.c:1332:21: warning: unused variable 'rpmb' [-Wunused-variable]
+        const unsigned int rpmb = EXT_CSD_PART_CONFIG_ACC_RPMB;
+                           ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/mmc/core/block.c:1331:21: warning: unused variable 'mask' [-Wunused-variable]
+        const unsigned int mask = EXT_CSD_PART_CONFIG_ACC_MASK;
+                           ^
+  CC      drivers/misc/mediatek/base/power/spm/mt6768/mtk_spm_internal.o
+  CC      net/xfrm/xfrm_state.o
+  CC      drivers/misc/mediatek/base/power/spm/mt6768/mtk_spm_suspend.o
+  CC      drivers/misc/mediatek/base/power/spm/mt6768/mtk_spm_suspend_process.o
+4 warnings generated.
+  CC      net/wireless/mesh.o
+  CC      drivers/misc/mediatek/base/power/spm/mt6768/mtk_sspm.o
+  CC      drivers/mmc/core/queue.o
+  CC      drivers/misc/mediatek/base/power/spm/mt6768/mtk_spm_power.o
+  CC      net/wireless/ap.o
+  CC      drivers/misc/mediatek/base/power/spm/mt6768/mtk_spm_fs.o
+  CC      net/xfrm/xfrm_hash.o
+  CC      net/xfrm/xfrm_input.o
+  CC      drivers/mmc/core/mtk_mmc_block.o
+  CC      drivers/misc/mediatek/base/power/spm/mt6768/mtk_spm_utils.o
+  CC      net/wireless/trace.o
+  CC      drivers/misc/mediatek/base/power/spm/mt6768/mtk_idle_cond_check.o
+  CC      drivers/mmc/core/mmc_crypto.o
+  CC      drivers/misc/mediatek/base/power/spm/mt6768/mtk_spm_idle.o
+  CC      net/xfrm/xfrm_output.o
+  CC      drivers/mmc/core/crypto.o
+  CC      drivers/misc/mediatek/base/power/spm/mt6768/mtk_spm_vcore_dvfs.o
+  CC      drivers/misc/mediatek/base/power/spm/mt6768/mtk_idle_module_plat.o
+  AR      drivers/mmc/core/mmc_core.o
+  AR      drivers/mmc/core/mmc_block.o
+  AR      drivers/mmc/core/built-in.o
+  CC      drivers/misc/mediatek/base/power/spm/mt6768/mtk_spm_resource_req_console.o
+  CC      drivers/mmc/host/mediatek/ComboA/sd.o
+  CC      drivers/misc/mediatek/base/power/spm/mt6768/models/mtk_idle_dram.o
+  CC      net/xfrm/xfrm_sysctl.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/mmc/host/mediatek/ComboA/sd.c:4459:16: warning: unused variable 'flags' [-Wunused-variable]
+        unsigned long flags;
+                      ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/mmc/host/mediatek/ComboA/sd.c:5265:6: warning: unused variable 'retval' [-Wunused-variable]
+        int retval = 0;
+            ^
+  CC      drivers/misc/mediatek/base/power/spm/mt6768/models/mtk_idle_syspll.o
+  CC      drivers/misc/mediatek/base/power/spm/mt6768/models/mtk_idle_bus26m.o
+  CC      net/xfrm/xfrm_replay.o
+  AR      drivers/misc/mediatek/base/power/spm/mt6768/built-in.o
+  AR      drivers/misc/mediatek/base/power/spm/built-in.o
+  CC      drivers/misc/mediatek/base/power/udi_v2/mtk_udi.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/base/power/udi_v2/mtk_udi.c:481:18: warning: 'sscanf' may overflow; destination buffer in argument 9 has size 512, but the corresponding specifier may require size 513 [-Wfortify-source]
+                        &recv_buf[2], recv_char[1], &recv_buf[4]) == 8) {
+                                      ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/base/power/udi_v2/mtk_udi.c:488:18: warning: 'sscanf' may overflow; destination buffer in argument 8 has size 512, but the corresponding specifier may require size 513 [-Wfortify-source]
+                        &recv_buf[2], recv_char[1]) == 6) {
+                                      ^
+2 warnings generated.
+2 warnings generated.
+  AR      drivers/misc/mediatek/base/power/udi_v2/built-in.o
+  CC      drivers/misc/mediatek/base/power/upower_v2/mtk_unified_power.o
+  CC      net/xfrm/xfrm_device.o
+  CC      drivers/misc/mediatek/base/power/upower_v2/mtk_unified_power_internal.o
+  CC      drivers/mmc/host/mediatek/ComboA/dbg.o
+  CC      net/wireless/ocb.o
+  CC      drivers/misc/mediatek/base/power/upower_v2/mtk_unified_power_api.o
+  CC      net/xfrm/xfrm_proc.o
+  CC      drivers/misc/mediatek/base/power/upower_v2/mtk_unified_power_mt6768.o
+  CC      net/wireless/of.o
+  AR      drivers/misc/mediatek/base/power/upower_v2/built-in.o
+  AR      drivers/misc/mediatek/base/power/built-in.o
+  CC      drivers/mmc/host/mediatek/ComboA/mtk_sd_misc.o
+  AR      drivers/misc/mediatek/base/built-in.o
+  CC      net/xfrm/xfrm_algo.o
+  CC      drivers/misc/mediatek/boot_reason/mtk_boot_reason.o
+  AR      drivers/misc/mediatek/boot_reason/BOOT_REASON.o
+  AR      drivers/misc/mediatek/boot_reason/built-in.o
+  CC      drivers/misc/mediatek/btif/common/mtk_btif.o
+  CC      net/wireless/wext-core.o
+  CC      net/xfrm/xfrm_user.o
+  CC      drivers/mmc/host/mediatek/ComboA/msdc_tune.o
+  CC      drivers/misc/mediatek/btif/common/mtk_btif_exp.o
+  CC      net/wireless/wext-proc.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/mmc/host/mediatek/ComboA/msdc_tune.c:37:36: warning: unused variable 'base_top' [-Wunused-variable]
+        void __iomem *base = host->base, *base_top = host->base_top;
+                                          ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/mmc/host/mediatek/ComboA/msdc_tune.c:44:16: warning: unused variable 'base' [-Wunused-variable]
+        void __iomem *base = host->base, *base_top = host->base_top;
+                      ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/mmc/host/mediatek/ComboA/msdc_tune.c:75:16: warning: unused variable 'base' [-Wunused-variable]
+        void __iomem *base = host->base, *base_top = host->base_top;
+                      ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/mmc/host/mediatek/ComboA/msdc_tune.c:165:36: warning: unused variable 'base_top' [-Wunused-variable]
+        void __iomem *base = host->base, *base_top = host->base_top;
+                                          ^
+4 warnings generated.
+  CC      drivers/mmc/host/mediatek/ComboA/msdc_partition.o
+  CC      net/wireless/wext-priv.o
+  CC      drivers/misc/mediatek/btif/common/btif_dma_plat.o
+  AR      net/wireless/cfg80211.o
+  AR      net/wireless/built-in.o
+  CC      drivers/mstdrv/mstdrv_main.o
+  CC      drivers/mmc/host/mediatek/ComboA/autok.o
+  CC      drivers/misc/mediatek/btif/common/btif_plat.o
+  CC      net/xfrm/xfrm_ipcomp.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/mmc/host/mediatek/ComboA/autok.c:3527:15: warning:
