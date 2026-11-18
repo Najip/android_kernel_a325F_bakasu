@@ -1,0 +1,259 @@
+   ccci_dump_write(0, CCCI_DUMP_DPMA_DRB, 0, fmt, ##args)
+                                                         ^~~~
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/eccci/hif/ccci_hif_dpmaif.c:485:37: warning: cast to smaller integer type 'u32' (aka 'unsigned int') from 'u8 *' (aka 'unsigned char *') [-Wpointer-to-int-cast]
+                DPMA_DRB_DATA_INFO("%08X(%04d):", (u32)data_8ptr, count * 8);
+                                                  ^~~~~~~~~~~~~~
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/eccci/hif/ccci_hif_dpmaif.c:128:51: note: expanded from macro 'DPMA_DRB_DATA_INFO'
+        ccci_dump_write(0, CCCI_DUMP_DPMA_DRB, 0, fmt, ##args)
+                                                         ^~~~
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/nic/que_mgt.o
+  AR      drivers/misc/mediatek/eccci/mixdev/mix_event_lib.o
+  AR      drivers/misc/mediatek/eccci/mixdev/built-in.o
+  CC      drivers/misc/mediatek/eccci/mt6768/ccci_platform.o
+2 warnings generated.
+  CC      drivers/misc/mediatek/connectivity/wmt_drv/common_main/linux/bgw_desense.o
+  CC      drivers/misc/mediatek/eccci/mt6768/md_sys1_platform.o
+  CC      drivers/misc/mediatek/eccci/hif/dpmaif_drv.o
+  CC      drivers/misc/mediatek/connectivity/wmt_drv/common_main/linux/wmt_idc.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/nic/nic_cmd_event.o
+  CC      drivers/misc/mediatek/eccci/hif/net_speed_monitor.o
+  CC      drivers/misc/mediatek/connectivity/wmt_drv/common_main/linux/stp_uart.o
+  AR      drivers/misc/mediatek/eccci/mt6768/ccci.o
+  AR      drivers/misc/mediatek/eccci/mt6768/built-in.o
+  CC      drivers/regulator/s2mpb03/s2mpb03.o
+  CC      drivers/misc/mediatek/eccci/hif/ccci_ringbuf.o
+  CC      drivers/misc/mediatek/connectivity/wmt_drv/common_main/linux/wmt_dbg.o
+  AR      drivers/regulator/s2mpb03/built-in.o
+  CC      drivers/misc/mediatek/flashlight/flashlight-core.o
+  CC      drivers/misc/mediatek/eccci/hif/ccci_hif_ccif.o
+  CC      drivers/misc/mediatek/connectivity/wmt_drv/common_main/linux/stp_dbg.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/nic/nic_umac.o
+  CC      drivers/misc/mediatek/flashlight/flashlight-device.o
+  CC      drivers/misc/mediatek/flashlight/flashlights-sm5714.o
+  AR      drivers/misc/mediatek/eccci/hif/ccci_hif_all.o
+  AR      drivers/misc/mediatek/eccci/hif/built-in.o
+  AR      drivers/misc/mediatek/flashlight/flashlight.o
+  AR      drivers/misc/mediatek/flashlight/built-in.o
+  CC      drivers/misc/mediatek/eccci/udc/udc.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/nic/p2p_nic.o
+  CC      drivers/misc/mediatek/eccci/port/port_cfg.o
+  CC      drivers/misc/mediatek/connectivity/wmt_drv/common_main/linux/wmt_user_proc.o
+  AR      drivers/misc/mediatek/eccci/udc/built-in.o
+  CC      drivers/rtc/rtc-lib.o
+  CC      drivers/misc/mediatek/eccci/port/port_char.o
+  CC      drivers/misc/mediatek/connectivity/wmt_drv/common_main/linux/wmt_proc_dbg.o
+  CC      drivers/rtc/hctosys.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/gl_init.o
+  CC      drivers/misc/mediatek/connectivity/wmt_drv/common_main/linux/wmt_alarm.o
+  CC      drivers/rtc/class.o
+  CC      drivers/misc/mediatek/connectivity/wmt_drv/common_main/linux/fw_log_wmt.o
+  CC      drivers/misc/mediatek/eccci/port/port_ctlmsg.o
+  CC      drivers/rtc/interface.o
+  CC      drivers/misc/mediatek/eccci/port/port_udc.o
+  CC      drivers/misc/mediatek/connectivity/wmt_drv/common_main/linux/wmt_step.o
+  CC      drivers/rtc/nvmem.o
+  CC      drivers/misc/mediatek/eccci/port/port_misc.o
+  CC      drivers/rtc/rtc-dev.o
+  CC      drivers/misc/mediatek/connectivity/wmt_drv/common_main/linux/stp_btif.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/gl_kal.o
+  CC      drivers/rtc/rtc-proc.o
+  CC      drivers/misc/mediatek/eccci/port/port_ipc.o
+  CC      drivers/misc/mediatek/connectivity/wmt_drv/debug_utility/ring.o
+  CC      drivers/misc/mediatek/connectivity/wmt_drv/debug_utility/ring_emi.o
+  CC      drivers/rtc/rtc-sysfs.o
+  CC      drivers/misc/mediatek/connectivity/wmt_drv/debug_utility/connsys_debug_utility.o
+  CC      drivers/rtc/rtc-mt6358.o
+  CC      drivers/misc/mediatek/eccci/port/port_net.o
+  AR      drivers/misc/mediatek/connectivity/wmt_drv/wmt_drv.o
+  AR      drivers/rtc/rtc-core.o
+  AR      drivers/misc/mediatek/connectivity/wmt_drv/built-in.o
+  AR      drivers/rtc/built-in.o
+  AR      drivers/misc/mediatek/eccci/ccci.o
+  CC      drivers/misc/mediatek/flashlight/richtek/rt-flashlight.o
+  CC      drivers/misc/mediatek/freqhopping/mtk_freqhopping_drv.o
+  CC      drivers/misc/mediatek/eccci/port/port_poller.o
+  CC      drivers/misc/mediatek/eccci/port/port_proxy.o
+  CC      drivers/misc/mediatek/flashlight/richtek/rtfled.o
+  CC      drivers/misc/mediatek/freqhopping/mt6768/mtk_freqhopping_sspm.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/gl_bow.o
+  AR      drivers/misc/mediatek/flashlight/richtek/built-in.o
+  AR      drivers/misc/mediatek/freqhopping/mt6768/built-in.o
+  AR      drivers/misc/mediatek/freqhopping/built-in.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/gl_wext.o
+  CC      drivers/samsung/debug/sec_debug.o
+  CC      drivers/misc/mediatek/eccci/port/port_rpc.o
+  CC      drivers/samsung/debug/sec_debug_extra_info.o
+  CC      drivers/scsi/scsi.o
+  CC      drivers/samsung/debug/sec_debug_hw_param.o
+  CC      drivers/misc/mediatek/eccci/port/port_smem.o
+  CC      drivers/samsung/debug/sec_debug_auto_comment.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/gl_wext_priv.o
+  CC      drivers/samsung/debug/sec_debug_init_log.o
+  CC      drivers/scsi/hosts.o
+  CC      drivers/samsung/debug/sec_debug_hist.o
+  CC      drivers/misc/mediatek/eccci/port/port_sysmsg.o
+  CC      drivers/samsung/debug/sec_debug_softdog.o
+  CC      drivers/scsi/scsi_ioctl.o
+  CC      drivers/misc/mediatek/eccci/port/ccci_swtp.o
+  AR      drivers/samsung/debug/built-in.o
+  CC      drivers/samsung/misc/sec_log.o
+  AR      drivers/misc/mediatek/eccci/port/ccci_port.o
+  AR      drivers/misc/mediatek/eccci/port/built-in.o
+  AR      drivers/misc/mediatek/eccci/built-in.o
+  AR      drivers/security/samsung/five_tee_driver/built-in.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/gl_ate_agent.o
+  CC      drivers/scsi/scsicam.o
+  CC      drivers/samsung/misc/sec_bootstat.o
+  CC      drivers/samsung/misc/vbus_notifier.o
+  CC      drivers/scsi/scsi_error.o
+  CC      drivers/samsung/misc/sec_chipid.o
+  AR      drivers/samsung/misc/built-in.o
+  CC      drivers/samsung/sec_reboot.o
+  CC      drivers/misc/mediatek/geniezone/gz_main.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/gl_qa_agent.o
+  CC      drivers/samsung/sec_class.o
+  CC      drivers/misc/mediatek/geniezone/mtee_ut/gz_ut.o
+  CC      drivers/scsi/scsi_lib.o
+  CC      drivers/misc/mediatek/geniezone/mtee_ut/gz_chmem_ut.o
+  CC      drivers/samsung/sec_param.o
+  CC      drivers/misc/mediatek/geniezone/mtee_ut/gz_shmem_ut.o
+  CC      drivers/samsung/sec_fmm_lock.o
+  CC      drivers/misc/mediatek/geniezone/mtee_ut/gz_vreg_ut.o
+  CC      drivers/samsung/sec_key_notifier.o
+  CC      drivers/misc/mediatek/geniezone/gz-trusty/trusty.o
+  CC      drivers/scsi/scsi_common.o
+  CC      drivers/samsung/sec_crash_key.o
+  CC      drivers/scsi/scsi_lib_dma.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/gl_hook_api.o
+  CC      drivers/samsung/sec_crash_key_user.o
+  CC      drivers/misc/mediatek/geniezone/gz-trusty/trusty-irq.o
+  CC      drivers/samsung/sec_hard_reset_hook.o
+  CC      drivers/scsi/scsi_scan.o
+  AR      drivers/samsung/built-in.o
+  AR      drivers/security/samsung/icdrv/built-in.o
+  CC      drivers/misc/mediatek/geniezone/gz-trusty/trusty-mem.o
+  AR      drivers/security/samsung/tzic/built-in.o
+MTK_GPU_VERSION 1 = mali
+  CC      drivers/misc/mediatek/gpu/ged/src/ged_ski.o
+  CC      drivers/misc/mediatek/geniezone/gz-trusty/trusty-virtio.o
+  CC      drivers/misc/mediatek/gpu/ged/src/ged.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/gl_rst.o
+  CC      drivers/misc/mediatek/gpu/ged/src/ged_base.o
+  CC      drivers/scsi/scsi_sysfs.o
+  CC      drivers/misc/mediatek/geniezone/gz-trusty/trusty-ipc.o
+  CC      drivers/misc/mediatek/gpu/ged/src/ged_main.o
+  CC      drivers/misc/mediatek/gpu/ged/src/ged_sysfs.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/gl_cfg80211.o
+  CC      drivers/misc/mediatek/gpu/ged/src/ged_hal.o
+  CC      drivers/scsi/scsi_devinfo.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/ged/src/ged_hal.c:223:9: warning: unused variable 'j' [-Wunused-variable]
+        int i, j;
+               ^
+1 warning generated.
+  CC      drivers/misc/mediatek/geniezone/gz-trusty/smcnr-table.o
+  CC      drivers/misc/mediatek/gpu/ged/src/ged_log.o
+  CC      drivers/scsi/scsi_sysctl.o
+  CC      drivers/misc/mediatek/geniezone/gz-trusty/gz-log.o
+  CC      drivers/scsi/scsi_proc.o
+  CC      drivers/misc/mediatek/gpu/ged/src/ged_bridge.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/gl_proc.o
+  CC      drivers/scsi/scsi_trace.o
+  CC      drivers/misc/mediatek/gpu/ged/src/ged_monitor_3D_fence.o
+  AR      drivers/misc/mediatek/geniezone/gz-trusty/built-in.o
+************  drivers/trusty/mtee-kree mk ************
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/tzdev/Makefile.include:2: "CONFIG_MTK_PLATFORM: "mt6768""
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/tzdev/Makefile.include:3: "CONFIG_TEEGRIS_VERSION_STRING: "4.2.0""
+  CC      drivers/misc/mediatek/geniezone/mtee-kree/tz_mmap.o
+  CC      drivers/misc/mediatek/gpu/ged/src/ged_notify_sw_vsync.o
+  CC      drivers/scsi/scsi_logging.o
+  CC      drivers/misc/mediatek/geniezone/mtee-kree/tz_system.o
+  CC      drivers/misc/mediatek/gpu/ged/src/ged_hashtable.o
+  CC      drivers/misc/mediatek/gpu/ged/src/ged_thread.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/gl_sys.o
+  CC      drivers/misc/mediatek/gpu/ged/src/ged_ge.o
+  CC      drivers/scsi/scsi_pm.o
+  CC      drivers/misc/mediatek/geniezone/mtee-kree/kree_mem.o
+  CC      drivers/misc/mediatek/gpu/ged/src/ged_dvfs.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/ged/src/ged_dvfs.c:1020:8: warning: mixing declarations and code is a C99 extension [-Wdeclaration-after-statement]
+                        int i32NewFreqID =
+                            ^
+  CC      drivers/scsi/sd.o
+1 warning generated.
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/gl_vendor.o
+  AR      drivers/misc/mediatek/geniezone/mtee-kree/built-in.o
+  AR      drivers/misc/mediatek/geniezone/built-in.o
+  CC      drivers/misc/mediatek/gpu/ged/src/ged_gpu_tuner.o
+*MTK_GPU_VERSION 2 = bifrost
+*MTK_GPU_VERSION 3 = r25p0
+mali MTK evironment, building r19p0 DDK
+mtk-Kbuild CONFIG_MALI_PLATFORM_THIRDPARTY := y
+mtk-Kbuild CONFIG_MALI_PLATFORM_THIRDPARTY_NAME := "mt6768"
+mali MTK evironment, building r19p0 DDK
+mtk-Kbuild CONFIG_MALI_PLATFORM_THIRDPARTY := y
+mtk-Kbuild CONFIG_MALI_PLATFORM_THIRDPARTY_NAME := "mt6768"
+mali MTK evironment, building r19p0 DDK
+mtk-Kbuild CONFIG_MALI_PLATFORM_THIRDPARTY := y
+mtk-Kbuild CONFIG_MALI_PLATFORM_THIRDPARTY_NAME := "mt6768"
+  CC      drivers/misc/mediatek/gpu/ged/src/ged_kpi.o
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/platform/mtk_platform_common/mtk_platform_common.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/platform/mtk_platform_common/mtk_platform_common.c:14:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase.h:57:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_defs.h:76:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/include/linux/memory_group_manager.h:31:13: warning: redefinition of typedef 'vm_fault_t' is a C11 feature [-Wtypedef-redefinition]
+typedef int vm_fault_t;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/mm_types.h:25:13: note: previous definition is here
+typedef int vm_fault_t;
+            ^
+1 warning generated.
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/platform/mtk_platform_common/mtk_mfg_counter.o
+  AR      drivers/scsi/scsi_mod.o
+  AR      drivers/scsi/sd_mod.o
+  AR      drivers/scsi/built-in.o
+  CC      drivers/misc/mediatek/gpu/hal/mtk_gpu_utility.o
+  AR      drivers/misc/mediatek/gpu/ged/ged.o
+  AR      drivers/misc/mediatek/gpu/ged/built-in.o
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/context/mali_kbase_context.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/platform.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/context/mali_kbase_context.c:34:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase.h:57:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_defs.h:76:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/include/linux/memory_group_manager.h:31:13: warning: redefinition of typedef 'vm_fault_t' is a C11 feature [-Wtypedef-redefinition]
+typedef int vm_fault_t;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/mm_types.h:25:13: note: previous definition is here
+typedef int vm_fault_t;
+            ^
+imgsensor drv by common ../common/v1/hi2021q_mipi_raw/ ../common/v1/sr846d_mipi_raw/ ../common/v1/gc5035_mipi_raw/ ../common/v1/gc5035b_mipi_raw/ ../common/v1/imx355_mipi_raw/ ../common/v1/gc02m1b_mipi_raw/ ../common/v1/gc02m1_mipi_raw/
+  CC      drivers/misc/mediatek/imgsensor/src/mt6768/../common/v1/imgsensor.o
+1 warning generated.
+  AR      drivers/misc/mediatek/gpu/hal/hal.o
+  AR      drivers/misc/mediatek/gpu/hal/built-in.o
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/debug/mali_kbase_debug_ktrace.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/debug/mali_kbase_debug_ktrace.c:22:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase.h:57:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_defs.h:76:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/include/linux/memory_group_manager.h:31:13: warning: redefinition of typedef 'vm_fault_t' is a C11 feature [-Wtypedef-redefinition]
+typedef int vm_fault_t;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/mm_types.h:25:13: note: previous definition is here
+typedef int vm_fault_t;
+            ^
+  CC      drivers/sensorhub/comm/shub_comm.o
+1 warning generated.
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/os/linux/gl_p2p.o
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/device/mali_kbase_device.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/device/mali_kbase_device.c:38:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase.h:57:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_defs.h:76:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/include/linux/memory_group_manager.h:31:13: warning: redefinition of typedef 'vm_fault_t' is a C11 feature [-Wtypedef-redefinition]
+typedef int vm_fault_t;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/linux/mm_types.h:25:13: note: previous definition is here
+typedef int vm_fault_t;
+            ^
+  CC      drivers/sensorhub/comm/shub_iio.o
+1 warning generated.
+  CC      drivers/misc/mediatek/gpu/gpu_mali/mali_bifrost/mali-r25p0/drivers/gpu/arm/midgard/mali_kbase_cache_policy.o
+  CC      drivers/sensorhub/comm/shub_kfifo_buf.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/med

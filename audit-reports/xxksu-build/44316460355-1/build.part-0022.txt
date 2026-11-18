@@ -1,0 +1,283 @@
+ole_fsm.o
+  AR      drivers/misc/mediatek/lens/main/common/lc898217af/built-in.o
+  CC      drivers/misc/mediatek/lens/main/common/lc898217afa/LC898217AFA.o
+  AR      drivers/misc/mediatek/lens/main2/common/gt9772af/built-in.o
+  CC      drivers/misc/mediatek/lens/main2/common/lc898212xdaf_f/LC898212XDAF_F.o
+  CC      drivers/staging/android/ion/mtk/ion_history.o
+  AR      drivers/misc/mediatek/lens/main/common/lc898217afa/built-in.o
+  CC      drivers/misc/mediatek/lens/main/common/lc898217afb/LC898217AFB.o
+  CC      drivers/misc/mediatek/lens/main2/common/lc898212xdaf_f/LC89821x_STMV.o
+  AR      drivers/misc/mediatek/lens/main2/common/lc898212xdaf_f/built-in.o
+  CC      drivers/staging/android/ion/mtk/ion_comm.o
+  CC      drivers/misc/mediatek/lens/main2/common/lc898217af/LC898217AF.o
+  AR      drivers/misc/mediatek/lens/main/common/lc898217afb/built-in.o
+  CC      drivers/misc/mediatek/lens/main/common/lc898217afc/LC898217AFC.o
+  AR      drivers/misc/mediatek/lens/main2/common/lc898217af/built-in.o
+  AR      drivers/staging/android/ion/mtk/built-in.o
+  AR      drivers/staging/android/ion/built-in.o
+  CC      drivers/misc/mediatek/lens/main2/common/lc898217afa/LC898217AFA.o
+  CC      drivers/staging/android/ashmem.o
+  AR      drivers/misc/mediatek/lens/main/common/lc898217afc/built-in.o
+  CC      drivers/misc/mediatek/lens/main/common/lc898229af/LC898229AF.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/mgmt/p2p_role_state.o
+  AR      drivers/misc/mediatek/lens/main2/common/lc898217afa/built-in.o
+  CC      drivers/misc/mediatek/lens/main2/common/lc898217afb/LC898217AFB.o
+  AR      drivers/misc/mediatek/lens/main/common/lc898229af/built-in.o
+  CC      drivers/misc/mediatek/lens/main/common/ov5645af/OV5645AF.o
+  CC      drivers/staging/android/debug_kinfo.o
+  AR      drivers/misc/mediatek/lens/main2/common/lc898217afb/built-in.o
+  CC      drivers/misc/mediatek/lens/main2/common/lc898217afc/LC898217AFC.o
+  AR      drivers/misc/mediatek/lens/main/common/ov5645af/built-in.o
+  CC      drivers/misc/mediatek/lens/main/common/wv511aaf/WV511AAF.o
+  CC      drivers/staging/android/alarm-dev.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/mgmt/p2p_func.o
+  AR      drivers/misc/mediatek/lens/main2/common/lc898217afc/built-in.o
+  AR      drivers/misc/mediatek/lens/main2/built-in.o
+  AR      drivers/misc/mediatek/lens/main/common/wv511aaf/built-in.o
+  AR      drivers/misc/mediatek/lens/main/built-in.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/tzdev/Makefile.include:2: "CONFIG_MTK_PLATFORM: "mt6768""
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/tzdev/Makefile.include:3: "CONFIG_TEEGRIS_VERSION_STRING: "4.2.0""
+  CC      drivers/misc/mediatek/m4u/2.0/m4u.o
+  CC      drivers/staging/android/lmkd_debug.o
+  CC      drivers/misc/mediatek/lens/main3/main3_lens.o
+  AR      drivers/staging/android/built-in.o
+  AR      drivers/staging/iio/accel/built-in.o
+  AR      drivers/staging/iio/adc/built-in.o
+  AR      drivers/staging/iio/addac/built-in.o
+  CC      drivers/misc/mediatek/lens/main3/common/bu24253af/BU24253AF.o
+  AR      drivers/staging/iio/cdc/built-in.o
+  AR      drivers/staging/iio/frequency/built-in.o
+  AR      drivers/staging/iio/gyro/built-in.o
+  AR      drivers/staging/iio/impedance-analyzer/built-in.o
+  AR      drivers/staging/iio/light/built-in.o
+  AR      drivers/staging/iio/meter/built-in.o
+  AR      drivers/staging/iio/resolver/built-in.o
+  AR      drivers/staging/iio/trigger/built-in.o
+  AR      drivers/staging/iio/built-in.o
+  AR      drivers/misc/mediatek/lens/main3/common/bu24253af/built-in.o
+  CC      drivers/misc/mediatek/lens/main3/common/gt9772af/GT9772AF.o
+  AR      drivers/staging/media/built-in.o
+  AR      drivers/staging/typec/fusb302/built-in.o
+  AR      drivers/staging/typec/built-in.o
+  AR      drivers/staging/built-in.o
+  CC      drivers/misc/mediatek/masp/asfv2/core/sec_boot_core.o
+  AR      drivers/misc/mediatek/lens/main3/common/gt9772af/built-in.o
+  AR      drivers/misc/mediatek/lens/main3/built-in.o
+  CC      drivers/misc/mediatek/lens/sub/sub_lens.o
+  CC      drivers/misc/mediatek/masp/asfv2/core/sec_mod_core.o
+  CC      drivers/misc/mediatek/m4u/2.0/m4u_mva.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/mgmt/p2p_scan.o
+  CC      drivers/misc/mediatek/masp/asfv2/core/sec_osal.o
+  CC      drivers/misc/mediatek/lens/sub/common/ak7371af/AK7371AF.o
+  CC      drivers/misc/mediatek/m4u/2.0/m4u_pgtable.o
+  AR      drivers/misc/mediatek/lens/sub/common/ak7371af/built-in.o
+  CC      drivers/misc/mediatek/lens/sub/common/bu6424af/BU6424AF.o
+  CC      drivers/misc/mediatek/masp/asfv2/core/sec_legacy.o
+  CC      drivers/misc/mediatek/m4u/2.0/m4u_debug.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/mgmt/p2p_ie.o
+  AR      drivers/misc/mediatek/lens/sub/common/bu6424af/built-in.o
+  CC      drivers/misc/mediatek/lens/sub/common/bu6429af/BU6429AF.o
+  CC      drivers/misc/mediatek/masp/asfv2/module/sec_mod.o
+  AR      drivers/misc/mediatek/lens/sub/common/bu6429af/built-in.o
+  CC      drivers/misc/mediatek/lens/sub/common/dw9714af/DW9714AF.o
+  CC      drivers/misc/mediatek/m4u/2.0/m4u_sec_gp.o
+  CC      drivers/misc/mediatek/masp/asfv2/module/sec_clk.o
+  AR      drivers/misc/mediatek/lens/sub/common/dw9714af/built-in.o
+  CC      drivers/misc/mediatek/lens/sub/common/dw9718af/DW9718AF.o
+  AR      drivers/misc/mediatek/m4u/2.0/built-in.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/mgmt/p2p_rlm.o
+  CC      drivers/misc/mediatek/m4u/mt6768/m4u_hw.o
+  CC      drivers/misc/mediatek/masp/asfv2/mach/hacc_lib.o
+  CC      drivers/misc/mediatek/masp/asfv2/mach/hacc_export.o
+  AR      drivers/misc/mediatek/lens/sub/common/dw9718af/built-in.o
+  CC      drivers/misc/mediatek/lens/sub/common/dw9814af/DW9814AF.o
+  CC      drivers/misc/mediatek/masp/asfv2/mach/hacc_hk.o
+  AR      drivers/misc/mediatek/lens/sub/common/dw9814af/built-in.o
+  CC      drivers/misc/mediatek/lens/sub/common/lc898214af/LC898214AF.o
+  CC      drivers/misc/mediatek/masp/asfv2/mach/hacc_sk.o
+  CC      drivers/misc/mediatek/masp/asfv2/mach/sec_lib.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/mgmt/p2p_assoc.o
+  AR      drivers/misc/mediatek/lens/sub/common/lc898214af/built-in.o
+  CC      drivers/misc/mediatek/lens/sub/common/wv511aaf/WV511AAF.o
+  CC      drivers/misc/mediatek/masp/asfv2/mach/mt6768/security_ao.o
+  AR      drivers/misc/mediatek/m4u/mt6768/built-in.o
+  AR      drivers/misc/mediatek/m4u/built-in.o
+  CC      drivers/misc/mediatek/mdp/mdp_ioctl_ex.o
+  AR      drivers/misc/mediatek/lens/sub/common/wv511aaf/built-in.o
+  AR      drivers/misc/mediatek/masp/sec.o
+  AR      drivers/misc/mediatek/lens/sub/built-in.o
+  AR      drivers/misc/mediatek/masp/built-in.o
+  CC      drivers/sti/abc/abc_common.o
+  CC      drivers/misc/mediatek/lens/sub2/sub2_lens.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/mgmt/p2p_bss.o
+  AR      drivers/misc/mediatek/lens/sub2/built-in.o
+  AR      drivers/misc/mediatek/lens/built-in.o
+  CC      drivers/sti/abc/abc_hub_core.o
+  CC      drivers/misc/mediatek/mdp/mdp_m4u.o
+  CC      drivers/switch/switch_class.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/mgmt/p2p_rlm_obss.o
+  AR      drivers/misc/mediatek/mdp/built-in.o
+  CC      drivers/sti/abc/abc_hub_bootc.o
+  CC      drivers/thermal/thermal_core.o
+  AR      drivers/switch/built-in.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/mgmt/p2p_fsm.o
+  AR      drivers/sti/abc/abc.o
+  AR      drivers/sti/abc/abc_hub.o
+  AR      drivers/sti/abc/built-in.o
+  CC      drivers/misc/mediatek/memory-amms/memory-amms.o
+  CC      drivers/thermal/thermal_sysfs.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/mgmt/wapi.o
+  CC      drivers/tty/tty_io.o
+  CC      drivers/thermal/thermal_helpers.o
+  AR      drivers/misc/mediatek/memory-amms/built-in.o
+  CC      drivers/tty/n_tty.o
+  CC      drivers/thermal/thermal_hwmon.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/chips/common/cmm_asic_connac.o
+  CC      drivers/thermal/of-thermal.o
+  CC      drivers/usb/class/cdc-acm.o
+  CC      drivers/tty/tty_ioctl.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/chips/common/dbg_connac.o
+  CC      drivers/thermal/backward_compatible.o
+  AR      drivers/thermal/broadcom/built-in.o
+  CC      drivers/usb/class/usblp.o
+  AR      drivers/thermal/samsung/built-in.o
+  CC      drivers/thermal/ss_thermal_log.o
+  CC      drivers/tty/tty_ldisc.o
+  AR      drivers/thermal/thermal_sys.o
+  AR      drivers/thermal/built-in.o
+  CC      drivers/usb/typec/common/pdic_notifier.o
+  CC      drivers/usb/class/cdc-wdm.o
+  CC      drivers/tty/tty_buffer.o
+  CC      drivers/usb/typec/common/pdic_sysfs.o
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/chips/common/fw_dl.o
+  CC      drivers/usb/typec/common/pdic_core.o
+  AR      drivers/usb/class/built-in.o
+  CC      drivers/usb/common/common.o
+  CC      drivers/tty/tty_port.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/connectivity/wlan_drv_gen4m/chips/common/fw_dl.c:2356:9: warning: ROM code supports SEM-CTRL for ROM patch download [-W#pragma-messages]
+#pragma message("ROM code supports SEM-CTRL for ROM patch download")
+        ^
+  CC      drivers/usb/typec/common/pdic_misc.o
+  AR      drivers/usb/common/usb-common.o
+  AR      drivers/usb/common/built-in.o
+  CC      drivers/usb/core/usb.o
+  CC      drivers/tty/tty_mutex.o
+1 warning generated.
+  CC      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/chips/connac/connac.o
+  CC      drivers/usb/typec/common/pdic_param.o
+  CC      drivers/tty/tty_ldsem.o
+  AR      drivers/usb/typec/common/pdic_notifier_module.o
+  AR      drivers/usb/typec/common/built-in.o
+  CC      drivers/usb/core/hub.o
+  CC      drivers/misc/mediatek/memory-ssmr/memory_ssmr.o
+  CC      drivers/tty/tty_baudrate.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/usb/core/hub.c:2865:6: warning: unused variable 'reset_recovery_time' [-Wunused-variable]
+        int reset_recovery_time;
+            ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/usb/core/hub.c:4951:7: warning: mixing declarations and code is a C99 extension [-Wdeclaration-after-statement]
+        bool retry_locked;
+             ^
+  AR      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/wlan_6768_axi.o
+  AR      drivers/misc/mediatek/connectivity/wlan_drv_gen4m/built-in.o
+  AR      drivers/misc/mediatek/connectivity/built-in.o
+  CC      drivers/usb/gadget/usbstring.o
+  CC      drivers/tty/tty_jobctrl.o
+  AR      drivers/misc/mediatek/memory-ssmr/built-in.o
+  CC      drivers/misc/mediatek/met_drv/met_api.o
+  CC      drivers/usb/gadget/config.o
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/misc/mediatek/met_drv/met_api.c:17:
+In file included from /home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched.h:1851:
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+                TP_PROTO(struct hmp_statisic *hmp_stats),
+                                ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:406:19: warning: declaration of 'struct hmp_statisic' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+                int task_load, struct clb_stats *B, struct clb_stats *L),
+                                      ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/include/trace/events/sched_enhance.h:431:25: warning: declaration of 'struct clb_stats' will not be visible outside of this function [-Wvisibility]
+2 warnings generated.
+12 warnings generated.
+  CC      drivers/tty/n_null.o
+  CC      drivers/usb/gadget/epautoconf.o
+  CC      drivers/tty/pty.o
+  CC      drivers/usb/core/hcd.o
+  AR      drivers/misc/mediatek/met_drv/built-in.o
+  CC      drivers/misc/mediatek/mlog/mlog_logger.o
+  CC      drivers/tty/tty_audit.o
+  CC      drivers/usb/gadget/composite.o
+  AR      drivers/misc/mediatek/mlog/built-in.o
+  CC      drivers/misc/mediatek/mmdvfs/swpm_me.o
+  CC      drivers/tty/sysrq.o
+  CC      drivers/usb/core/urb.o
+  CC      drivers/misc/mediatek/mmdvfs/mmdvfs_pmqos.o
+  CC      drivers/usb/gadget/functions.o
+  AR      drivers/tty/ipwireless/built-in.o
+  CC      drivers/tty/serial/serial_core.o
+  CC      drivers/usb/core/message.o
+  CC      drivers/usb/gadget/configfs.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/usb/gadget/configfs.c:1659:12: warning: unused function 'configfs_composite_setup' [-Wunused-function]
+static int configfs_composite_setup(struct usb_gadget *gadget,
+           ^
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/usb/gadget/configfs.c:1684:13: warning: unused function 'configfs_composite_disconnect' [-Wunused-function]
+static void configfs_composite_disconnect(struct usb_gadget *gadget)
+            ^
+  CC      drivers/misc/mediatek/mmdvfs/mmdvfs_plat_default.o
+2 warnings generated.
+  CC      drivers/usb/core/driver.o
+  AR      drivers/misc/mediatek/mmdvfs/built-in.o
+  CC      drivers/misc/mediatek/mmp/src/mmprofile.o
+  CC      drivers/tty/serial/earlycon.o
+  CC      drivers/usb/gadget/u_f.o
+  CC      drivers/tty/serial/8250/8250_core.o
+  CC      drivers/usb/gadget/function/f_acm.o
+  CC      drivers/usb/core/config.o
+  CC      drivers/usb/gadget/function/u_serial.o
+  CC      drivers/tty/serial/8250/8250_port.o
+  AR      drivers/misc/mediatek/mmp/src/built-in.o
+  AR      drivers/misc/mediatek/mmp/built-in.o
+  CC      drivers/misc/mediatek/mtprintk/mtk_printk_ctrl.o
+  CC      drivers/usb/core/file.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/tty/serial/8250/8250_port.c:719:16: warning: unused variable 'lcr' [-Wunused-variable]
+        unsigned char lcr = 0, efr = 0;
+                      ^
+  AR      drivers/misc/mediatek/mtprintk/built-in.o
+  CC      drivers/usb/gadget/function/f_serial.o
+  CC      drivers/misc/mediatek/partition/mtk_partition.o
+1 warning generated.
+  CC      drivers/usb/core/buffer.o
+  CC      drivers/usb/gadget/function/u_ether.o
+  AR      drivers/misc/mediatek/partition/built-in.o
+  CC      drivers/tty/serial/8250/8250_dma.o
+  CC      drivers/misc/mediatek/perf/perf_common.o
+  CC      drivers/usb/core/sysfs.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/usb/gadget/function/u_ether.c:1283:23: warning: unused variable 'a' [-Wunused-variable]
+        static unsigned char a[6] = {0x06, 0x16, 0x26, 0x36, 0x46, 0x56};
+                             ^
+  CC      drivers/misc/mediatek/perf/lowmem_hint.o
+  CC      drivers/usb/core/endpoint.o
+1 warning generated.
+  CC      drivers/tty/serial/8250/8250_early.o
+  CC      drivers/usb/core/devio.o
+  AR      drivers/misc/mediatek/perf/built-in.o
+  CC      drivers/misc/mediatek/performance/perfmgr_main.o
+  CC      drivers/tty/serial/8250/8250_fsl.o
+  CC      drivers/usb/gadget/function/f_rndis.o
+  CC      drivers/misc/mediatek/performance/base/utility.o
+  CC      drivers/tty/serial/8250/8250_mtk.o
+  AR      drivers/misc/mediatek/performance/base/built-in.o
+  CC      drivers/misc/mediatek/performance/boost_ctrl/boostctrl_main.o
+/home/runner/work/android_kernel_a325F_bakasu/android_kernel_a325F_bakasu/drivers/tty/serial/8250/8250_mtk.c:222:6: warning: unused variable 'lcr' [-Wunused-variable]
+        int lcr = serial_in(up, UART_LCR);
+            ^
+  CC      drivers/usb/gadget/function/rndis.o
+1 warning generated.
+  CC      drivers/misc/mediatek/performance/boost_ctrl/cpu_ctrl/cpu_ctrl.o
+  CC      drivers/usb/co
