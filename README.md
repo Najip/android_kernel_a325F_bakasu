@@ -49,9 +49,9 @@ Other SM-A325 regional variants may be compatible because they share the same ba
 - KernelSU multi-manager support
 - BakaSU SUSFS inline-hook integration for this non-GKI Linux 4.14 tree (KProbes/Kretprobes remain enabled for compatibility)
 - SELinux enforcing
-- NoMount `v2.2.0` built-in path redirection and virtual file injection
+- NoMount `v2.3.1` built-in path redirection and virtual file injection
 <!-- AUTO:NOMOUNT:START -->
-- NoMount commit [`7914458c`](https://github.com/maxsteeel/nomount/commit/7914458ca71dfa3a8c162fa97fdb69332db7a690)
+- NoMount commit [`dcd77d03`](https://github.com/maxsteeel/nomount/commit/dcd77d03e9912f397a586d7da81694d1628f170e)
 <!-- AUTO:NOMOUNT:END -->
 - SUSFS mount hiding
 - SUSFS path hiding
@@ -212,7 +212,7 @@ This project would not have been possible without the work of the following proj
 
 - [maxsteeel/nomount](https://github.com/maxsteeel/nomount)
 
-  NoMount provides mountless path redirection and virtual file injection. This kernel includes the upstream NoMount v2.2.0 kernel implementation as a built-in subsystem for the Linux 4.14 device tree. The source is pinned to commit `7914458ca71dfa3a8c162fa97fdb69332db7a690` and reports driver version `23 (720)`. Use the matching NoMount v2.2.0 metamodule and CLI: protocol v23 is incompatible with the older v21 tools.
+  NoMount provides mountless path redirection and virtual file injection. This kernel includes the upstream NoMount v2.3.1 kernel implementation as a built-in subsystem for the Linux 4.14 device tree. The source is pinned to commit `dcd77d03e9912f397a586d7da81694d1628f170e` and reports driver version `23 (785)`. Use the matching NoMount v2.3.1 metamodule and CLI: protocol v23 is incompatible with the older v21 tools.
 
 ### AnyKernel3
 
@@ -231,7 +231,7 @@ This repository contains device-specific integration and compatibility work, inc
 - BakaSU SUSFS sucompat runtime handling for `execve`, post-exec SU sessions, `faccessat`, and stat-family lookups
 - Refreshed SUSFS v2.3.0 kstat/statfs, inotify, proc-fd, mount-hiding, open-redirect, and map-spoofing integration based on the current non-GKI 4.14 reference patches
 - Samsung 4.14 compatibility for KDP mount layout, VFS signatures and split smaps accounting; successful-exec SU session handling, NULL filename protection, mount-ID ownership and allocation failure fixes
-- NoMount v2.2.0 built-in integration with mountless path redirection and virtual file injection
+- NoMount v2.3.1 built-in integration with mountless path redirection and virtual file injection
 - Samsung and MediaTek compatibility adjustments
 - `/proc/cmdline` spoofing stability fixes
 - Compatibility fixes for older networking, memory-management, and kernel APIs

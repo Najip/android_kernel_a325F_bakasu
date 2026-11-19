@@ -31,9 +31,9 @@ Samsung MT6768 커널 소스를 기반으로 **BakaSU**와 **SUSFS**를 통합�
 - KernelSU 멀티 매니저 지원
 - 이 Non-GKI Linux 4.14 트리를 위한 BakaSU SUSFS inline-hook 통합(KProbes/Kretprobes는 호환성을 위해 활성화)
 - SELinux Enforcing
-- NoMount `v2.2.0` 내장형 경로 리다이렉션 및 가상 파일 주입
+- NoMount `v2.3.1` 내장형 경로 리다이렉션 및 가상 파일 주입
 <!-- AUTO:NOMOUNT:START -->
-- NoMount 커밋 [`7914458c`](https://github.com/maxsteeel/nomount/commit/7914458ca71dfa3a8c162fa97fdb69332db7a690)
+- NoMount 커밋 [`dcd77d03`](https://github.com/maxsteeel/nomount/commit/dcd77d03e9912f397a586d7da81694d1628f170e)
 <!-- AUTO:NOMOUNT:END -->
 - SUSFS 마운트 숨김
 - SUSFS 경로 숨김
@@ -192,7 +192,7 @@ arch/arm64/configs/a325n-release.config
 
 - [maxsteeel/nomount](https://github.com/maxsteeel/nomount)
 
-  NoMount는 별도의 파일시스템 마운트 없이 경로 리다이렉션과 가상 파일 주입 기능을 제공합니다. 이 커널에는 Linux 4.14 기기 트리에 맞춰 업스트림 NoMount v2.2.0 커널 구현이 built-in 서브시스템으로 통합되어 있습니다. 소스는 커밋 `7914458ca71dfa3a8c162fa97fdb69332db7a690`에 고정되어 있으며 드라이버 버전은 `23 (720)`으로 표시됩니다. 일치하는 NoMount v2.2.0 메타모듈과 CLI를 사용하세요. 프로토콜 v23는 이전 v21 도구와 호환되지 않습니다.
+  NoMount는 별도의 파일시스템 마운트 없이 경로 리다이렉션과 가상 파일 주입 기능을 제공합니다. 이 커널에는 Linux 4.14 기기 트리에 맞춰 업스트림 NoMount v2.3.1 커널 구현이 built-in 서브시스템으로 통합되어 있습니다. 소스는 커밋 `dcd77d03e9912f397a586d7da81694d1628f170e`에 고정되어 있으며 드라이버 버전은 `23 (785)`으로 표시됩니다. 일치하는 NoMount v2.3.1 메타모듈과 CLI를 사용하세요. 프로토콜 v23는 이전 v21 도구와 호환되지 않습니다.
 
 ### AnyKernel3
 
@@ -211,7 +211,7 @@ Linux, Android, Samsung 커널, KernelSU, BakaSU, SUSFS 및 AnyKernel3의 모든
 - `execve`, post-exec SU session, `faccessat` 및 stat 계열 조회를 위한 BakaSU SUSFS sucompat 런타임 처리
 - 최신 Non-GKI 4.14 참고 패치를 기반으로 갱신한 SUSFS v2.3.0 kstat/statfs, inotify, proc-fd, mount hiding, open redirect 및 map spoofing 통합
 - Samsung 4.14의 KDP mount 구조·VFS 시그니처·분리된 smaps 처리 호환성 및 성공한 exec의 SU 세션 처리, NULL filename 보호, mount ID 소유권·할당 실패 수정
-- 마운트 없는 경로 리다이렉션과 가상 파일 주입을 제공하는 NoMount v2.2.0 built-in 통합
+- 마운트 없는 경로 리다이렉션과 가상 파일 주입을 제공하는 NoMount v2.3.1 built-in 통합
 - Samsung 및 MediaTek 호환성 수정
 - `/proc/cmdline` 위조 안정성 수정
 - 구형 네트워크, 메모리 관리 및 커널 API 호환성 수정
