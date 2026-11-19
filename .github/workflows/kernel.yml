@@ -11,11 +11,6 @@ on:
         required: false
         type: boolean
         default: true
-      lto:
-        description: 'Link Time Optimization: thin (recommended), full (slowest build) or none'
-        type: choice
-        options: [thin, full, none]
-        default: thin
       perf_tuning:
         description: 'Apply the optional performance tuning patch (the network fix is always applied)'
         required: false
@@ -41,7 +36,6 @@ env:
   ANYKERNEL_COMMIT: af770f7b16cf8f8eb7c68614b2a693b3b361c90c
   SELF_HOSTED: ${{ github.event_name == 'workflow_dispatch' && inputs.self_hosted }}
   PERF_TUNING: ${{ github.event_name == 'workflow_dispatch' && inputs.perf_tuning }}
-  LTO: ${{ github.event_name == 'workflow_dispatch' && inputs.lto || 'thin' }}
 
 jobs:
   build:
@@ -86,7 +80,6 @@ jobs:
           if [ -n "$tagged_commit" ] && [ "$tagged_commit" != "$kernel_commit" ]; then
             tag="${tag}-$(git rev-parse --short=10 HEAD)"
           fi
-          [[ "$LTO" == thin ]] || tag="${tag}-lto-$LTO"
           [[ "$PERF_TUNING" == true ]] && tag="${tag}-tuning"
           echo "release_tag=$tag" >> "$GITHUB_OUTPUT"
           echo "BakaSU release tag: $tag"
@@ -139,7 +132,6 @@ jobs:
             key=$(sha256sum scripts/fetch_aosp_clang.sh scripts/aosp_clang14.conf | sha256sum | cut -c1-16)
             toolchain="$cache/aosp-clang14-$key"
             AOSP_CLANG_CACHE="$cache/archives" sh scripts/fetch_aosp_clang.sh "$toolchain"
-            echo "THINLTO_CACHE=$cache/thinlto" >> "$GITHUB_ENV"
           else
             toolchain="$RUNNER_TEMP/aosp-clang14"
             sh scripts/fetch_aosp_clang.sh "$toolchain"
@@ -318,7 +310,6 @@ jobs:
           SUSFS: $susfs
           Kernel patches: $(paste -sd, "$OUT_DIR/applied-patches.txt")
           Optional tuning: $PERF_TUNING
-          LTO: $LTO
           Toolchain: pinned AOSP Clang 14
           AnyKernel upstream: $ANYKERNEL_REPO@$ANYKERNEL_RESOLVED_COMMIT
           Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
@@ -329,8 +320,7 @@ jobs:
           cp "$OUT_DIR/toolchain-source.txt" "$PACKAGE_DIR/toolchain-source.txt"
 
           suffix=''
-          [[ "$LTO" == thin ]] || suffix="-lto-$LTO"
-          [[ "$PERF_TUNING" == true ]] && suffix="$suffix-tuning"
+          [[ "$PERF_TUNING" == true ]] && suffix='-tuning'
           echo "ARTIFACT_NAME=A325N-BakaSU-$kernel_short$suffix" >> "$GITHUB_ENV"
           echo "ZIP_NAME=$(basename "$zip_path")" >> "$GITHUB_ENV"
 
