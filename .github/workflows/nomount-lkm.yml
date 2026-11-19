@@ -54,6 +54,9 @@ jobs:
           set -euo pipefail
           # ksun / xxksu download KernelSU at build time; common uses its submodule.
           if [ -f scripts/setup_sources.py ]; then
+            # A KernelSU folder left by another branch's build on the PC runner
+            # would not match sources.json, so always start fresh.
+            rm -rf -- KernelSU
             python3 scripts/setup_sources.py "$RUNNER_TEMP/lkm-info"
           fi
           test -f drivers/kernelsu/Kconfig
