@@ -12,7 +12,7 @@ on:
         type: boolean
         default: true
       perf_tuning:
-        description: 'Apply the optional performance tuning patch (the network fix is always applied)'
+        description: 'Performance tuning: GPU 1100 MHz, CPU undervolt, BORE, 250 Hz, schedutil, BBR (the network fix is always applied)'
         required: false
         type: boolean
         default: false
