@@ -16,7 +16,11 @@ Keep a backup of your original `boot` image before flashing.
   with all ten features enabled: SUS_PATH, SUS_MOUNT, SUS_KSTAT, SPOOF_UNAME, ENABLE_LOG,
   HIDE_KSU_SUSFS_SYMBOLS, SPOOF_CMDLINE_OR_BOOTCONFIG, OPEN_REDIRECT, SUS_MAP and PRIORITY_UID_FILTER.
 - Jack's priority UID filter and sus_path UID filter. App lists are refreshed when apps are installed or removed.
-- Network fix (UDP GSO / qdisc). Optional performance tuning. Original GPU voltages.
+- Network fix (WiFi "connected, no internet" / VPN reconnect hang, UDP-only GSO), always applied.
+- Optional performance tuning (`perf_tuning`, unticked by default): GPU 1100 MHz @ 1.035 V,
+  CPU/CCI undervolt, GPU meter at `/sys/kernel/gpu/gpu_fmeter`, fast charging with the screen on,
+  zram zstd, USB autosuspend off, BORE scheduler, 250 Hz, schedutil, BBR + fq_codel.
+  The CPU undervolt was tuned on one phone; if yours freezes or reboots under load, build without it.
 - AnyKernel3 flashable ZIP.
 
 The exact upstream commits used are in [`sources.json`](sources.json).
@@ -36,7 +40,7 @@ Builds run on GitHub; you do not need a PC.
 - **Automatic:** every change on the `xxksu` branch builds a ZIP on a GitHub runner.
 - **By hand:** Actions -> **A325X Kernel** -> **Run workflow** -> branch `xxksu`.
   - `self_hosted`: on = your own PC runner (faster, cached compiler); off = GitHub runner.
-  - `perf_tuning`: applies the optional tuning patch.
+  - `perf_tuning`: applies the optional tuning patch and `a325n-tuning.config`.
   - `publish_release`: also puts the ZIP on the Releases page.
 
 What the build does (`build_xxksu.sh`, then `package_xxksu.sh`):
@@ -83,7 +87,7 @@ The updater never applies risky changes silently:
 | `sources.json` | Pinned xxKSU and SUSFS upstream commits |
 | `patches/kernelsu/` | Small patches applied to xxKSU at build time |
 | `patches/susfs/` | Local additions on top of Jack's SUSFS core |
-| `patches/kernel/` | Device patches: network fix, optional tuning, original GPU voltages |
+| `patches/kernel/` | Device patches: network fix (always), optional tuning |
 | `fs/susfs.c`, `include/linux/susfs*.h` | SUSFS v2.4.0 core |
 | `arch/arm64/configs/` | Kernel config fragments |
 | `build_xxksu.sh`, `package_xxksu.sh` | Build and package scripts |

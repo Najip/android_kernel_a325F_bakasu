@@ -7,8 +7,7 @@ OUT=${OUT_DIR:-"$ROOT/out-xxksu"}
 case "$OUT" in /*) ;; *) OUT="$ROOT/$OUT" ;; esac
 # 1. Download xxKSU at the pinned commit (sources.json) and apply patches/kernelsu/.
 python3 "$ROOT/scripts/setup_sources.py" "$OUT"
-# 2. Device patches: network fix always, tuning only if PERF_TUNING=true,
-#    original GPU voltages restored last.
+# 2. Device patches: network fix always, tuning only if PERF_TUNING=true.
 python3 "$ROOT/scripts/apply_kernel_patches.py" "$OUT"
 TOOLCHAIN=${TOOLCHAIN:-"$ROOT/.toolchains/$AOSP_CLANG_DIRECTORY"}
 JOBS=${JOBS:-$(nproc)}
@@ -38,13 +37,26 @@ cp "$TOOLCHAIN/aosp-source.txt" "$OUT/toolchain-source.txt"
 "$CC" --version >> "$OUT/toolchain-source.txt"
 "$LD" --version >> "$OUT/toolchain-source.txt"
 "$AS" --version >> "$OUT/toolchain-source.txt"
+# Optional performance tuning config (PERF_TUNING=true), merged last.
+TUNING_CONFIG=
+if [ "${PERF_TUNING:-false}" = true ]; then
+  TUNING_CONFIG="$ROOT/arch/arm64/configs/a325n-tuning.config"
+fi
 sh "$ROOT/scripts/kconfig/merge_config.sh" -m -O "$OUT" \
   "$ROOT/arch/arm64/configs/mt6768_slm_defconfig" \
   "$ROOT/arch/arm64/configs/a32.config" \
   "$ROOT/arch/arm64/configs/battery.config" \
   "$ROOT/arch/arm64/configs/ksu-a325n-common.config" \
-  "$ROOT/arch/arm64/configs/a325n-release.config"
+  "$ROOT/arch/arm64/configs/a325n-release.config" \
+  ${TUNING_CONFIG:+"$TUNING_CONFIG"}
 make -C "$ROOT" O="$OUT" olddefconfig
+if [ -n "$TUNING_CONFIG" ]; then
+  for option in CONFIG_SLM_OC_GPU=y CONFIG_SLM_OC_CCI=y CONFIG_SLM_OC_RAMDVFS=y CONFIG_SCHED_BORE=y \
+      CONFIG_HZ=250 CONFIG_CPU_FREQ_DEFAULT_GOV_SCHEDUTIL=y 'CONFIG_DEFAULT_TCP_CONG="bbr"' \
+      'CONFIG_DEFAULT_NET_SCH="fq_codel"'; do
+    grep -qx "$option" "$OUT/.config" || { echo "Tuning option missing: $option" >&2; exit 1; }
+  done
+fi
 for disabled in CONFIG_KSU_LSM_SECURITY_HOOKS CONFIG_KSU_HACK_ARM64_BRANCH_LINK CONFIG_KSU_TAMPER_SYSCALL_TABLE; do
   if grep -q "^$disabled=" "$OUT/.config"; then
     echo "Automated hook mode unexpectedly enabled: $disabled" >&2; exit 1
