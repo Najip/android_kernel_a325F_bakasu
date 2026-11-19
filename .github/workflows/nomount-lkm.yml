@@ -18,6 +18,11 @@ on:
         required: false
         type: string
         default: 'dev'
+      perf_tuning:
+        description: 'Tick if your kernel was built with perf_tuning (keeps the module settings, e.g. 250 Hz, matching the kernel)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -52,7 +57,7 @@ jobs:
             python3 scripts/setup_sources.py "$RUNNER_TEMP/lkm-info"
           fi
           test -f drivers/kernelsu/Kconfig
-          PERF_TUNING=false python3 scripts/apply_kernel_patches.py "$RUNNER_TEMP/lkm-info"
+          PERF_TUNING=${{ inputs.perf_tuning }} python3 scripts/apply_kernel_patches.py "$RUNNER_TEMP/lkm-info"
           echo "KERNEL_PATCHES=$(paste -sd, "$RUNNER_TEMP/lkm-info/applied-patches.txt")" >> "$GITHUB_ENV"
 
       - name: Resolve NoMount source
@@ -186,7 +191,8 @@ jobs:
             arch/arm64/configs/a32.config \
             arch/arm64/configs/battery.config \
             arch/arm64/configs/ksu-a325n-common.config \
-            arch/arm64/configs/a325n-release.config
+            arch/arm64/configs/a325n-release.config \
+            ${{ inputs.perf_tuning && 'arch/arm64/configs/a325n-tuning.config' || '' }}
 
           # Build NoMount as a module instead of built-in
           scripts/config --file "$OUT_DIR/.config" -d NOMOUNT -m NOMOUNT

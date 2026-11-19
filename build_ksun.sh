@@ -88,7 +88,7 @@ export KCFLAGS=${KCFLAGS:-$VENDOR_WARN_FLAGS}
 
 mkdir -p "$OUT"
 # Device patches: network fix and patches/kernel/0004 always, tuning only if
-# PERF_TUNING=true, original GPU voltages restored last.
+# PERF_TUNING=true.
 python3 "$ROOT/scripts/apply_kernel_patches.py" "$OUT"
 
 cp "$TOOLCHAIN/aosp-source.txt" "$OUT/toolchain-source.txt"
@@ -103,15 +103,28 @@ cat "$OUT/clang-version.txt" "$OUT/lld-version.txt" >> "$OUT/toolchain-source.tx
 } > "$OUT/manager-signature.txt"
 cat "$OUT/manager-signature.txt"
 
+# Optional performance tuning config (PERF_TUNING=true), merged last.
+TUNING_CONFIG=
+if [ "${PERF_TUNING:-false}" = true ]; then
+  TUNING_CONFIG="$ROOT/arch/arm64/configs/a325n-tuning.config"
+fi
 set -- \
   "$ROOT/arch/arm64/configs/mt6768_slm_defconfig" \
   "$ROOT/arch/arm64/configs/a32.config" \
   "$ROOT/arch/arm64/configs/battery.config" \
   "$ROOT/arch/arm64/configs/ksu-a325n-common.config" \
-  "$ROOT/arch/arm64/configs/a325n-release.config"
+  "$ROOT/arch/arm64/configs/a325n-release.config" \
+  ${TUNING_CONFIG:+"$TUNING_CONFIG"}
 "$ROOT/scripts/kconfig/merge_config.sh" -m -O "$OUT" "$@"
 
 make -C "$ROOT" O="$OUT" olddefconfig
+if [ -n "$TUNING_CONFIG" ]; then
+  for option in CONFIG_SLM_OC_GPU=y CONFIG_SLM_OC_CCI=y CONFIG_SLM_OC_RAMDVFS=y CONFIG_SCHED_BORE=y \
+      CONFIG_HZ=250 CONFIG_CPU_FREQ_DEFAULT_GOV_SCHEDUTIL=y 'CONFIG_DEFAULT_TCP_CONG="bbr"' \
+      'CONFIG_DEFAULT_NET_SCH="fq_codel"'; do
+    grep -qx "$option" "$OUT/.config" || { echo "Tuning option missing: $option" >&2; exit 1; }
+  done
+fi
 # The embedded preinit runner uses these target headers. Install them before
 # Kbuild evaluates its code generators, including on a fresh output directory.
 make -C "$ROOT" O="$OUT" headers_install INSTALL_HDR_PATH="$OUT/usr"

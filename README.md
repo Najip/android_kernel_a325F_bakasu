@@ -35,7 +35,7 @@ Builds run on GitHub; you do not need a PC.
 - **Automatic:** every change on the `ksun` branch builds a ZIP on a GitHub runner.
 - **By hand:** Actions -> **A325X Kernel** -> **Run workflow** -> branch `ksun`.
   - `self_hosted`: on = your own PC runner (faster, cached compiler); off = GitHub runner.
-  - `perf_tuning`: applies the optional tuning patch.
+  - `perf_tuning`: applies the optional tuning patch and `a325n-tuning.config`.
   - `publish_release`: also puts the ZIP on the Releases page.
 
 What the build does (`build_ksun.sh`, then `package_ksun.sh`):
@@ -79,7 +79,7 @@ The updater never applies risky changes silently:
 | `sources.json` | Pinned KernelSU-Next and SUSFS upstream commits |
 | `patches/kernelsu/` | Small patches applied to KernelSU-Next at build time |
 | `patches/susfs/` | Local additions on top of Jack's SUSFS core |
-| `patches/kernel/` | Device patches: network fix, optional tuning, original GPU voltages, KSUN link fix |
+| `patches/kernel/` | Device patches: network fix (always), optional tuning, KSUN link fix |
 | `fs/susfs*.c`, `include/linux/susfs*.h` | SUSFS v2.4.0 core and KernelSU-Next glue |
 | `arch/arm64/configs/` | Kernel config fragments |
 | `build_ksun.sh`, `package_ksun.sh` | Build and package scripts |
