@@ -33,7 +33,7 @@ Samsung MT6768 커널 소스를 기반으로 **BakaSU**와 **SUSFS**를 통합�
 - SELinux Enforcing
 - NoMount `v2.3.1` 내장형 경로 리다이렉션 및 가상 파일 주입
 <!-- AUTO:NOMOUNT:START -->
-- NoMount 커밋 [`dcd77d03`](https://github.com/maxsteeel/nomount/commit/dcd77d03e9912f397a586d7da81694d1628f170e)
+- NoMount 커밋 [`6849f00a`](https://github.com/maxsteeel/nomount/commit/6849f00a342b80338fb4398765f75f014dbcd557)
 <!-- AUTO:NOMOUNT:END -->
 - SUSFS 마운트 숨김
 - SUSFS 경로 숨김
@@ -192,7 +192,7 @@ arch/arm64/configs/a325n-release.config
 
 - [maxsteeel/nomount](https://github.com/maxsteeel/nomount)
 
-  NoMount는 별도의 파일시스템 마운트 없이 경로 리다이렉션과 가상 파일 주입 기능을 제공합니다. 이 커널에는 Linux 4.14 기기 트리에 맞춰 업스트림 NoMount v2.3.1 커널 구현이 built-in 서브시스템으로 통합되어 있습니다. 소스는 커밋 `dcd77d03e9912f397a586d7da81694d1628f170e`에 고정되어 있으며 드라이버 버전은 `23 (785)`으로 표시됩니다. 일치하는 NoMount v2.3.1 메타모듈과 CLI를 사용하세요. 프로토콜 v23는 이전 v21 도구와 호환되지 않습니다.
+  NoMount는 별도의 파일시스템 마운트 없이 경로 리다이렉션과 가상 파일 주입 기능을 제공합니다. 이 커널에는 Linux 4.14 기기 트리에 맞춰 업스트림 NoMount v2.3.1 커널 구현이 built-in 서브시스템으로 통합되어 있습니다. 소스는 커밋 `6849f00a342b80338fb4398765f75f014dbcd557`에 고정되어 있으며 드라이버 버전은 `23 (786)`으로 표시됩니다. 일치하는 NoMount v2.3.1 메타모듈과 CLI를 사용하세요. 프로토콜 v23는 이전 v21 도구와 호환되지 않습니다.
 
 ### AnyKernel3
 
