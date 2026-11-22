@@ -10,7 +10,7 @@
   "susfs": {
     "repo": "https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd.git",
     "branch": "mainline",
-    "commit": "26f2313be61f7a8603a50b2dcd12171495a79d27",
+    "commit": "645d1a93a3091d4ff40c8e52b6c73c1ad8575495",
     "patch": "Patches/Patch/susfs_patch_to_4.14.patch"
   }
 }
