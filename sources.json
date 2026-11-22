@@ -4,13 +4,13 @@
     "name": "xxKSU",
     "repo": "https://github.com/backslashxx/KernelSU.git",
     "branch": "master",
-    "commit": "f27e1f0d3192820b0964881585d764ab0f0de56f",
+    "commit": "540360f50c88434b829f2e7111d3b6171fa46a23",
     "full_history": false
   },
   "susfs": {
     "repo": "https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd.git",
     "branch": "mainline",
-    "commit": "26f2313be61f7a8603a50b2dcd12171495a79d27",
+    "commit": "645d1a93a3091d4ff40c8e52b6c73c1ad8575495",
     "patch": "Patches/Patch/susfs_patch_to_4.14.patch"
   }
 }
